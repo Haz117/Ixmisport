@@ -318,7 +318,7 @@ const handleLogin = async () => {
 input:focus {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(134, 231, 184, 0.15);
-}n
+}ngf
 
 /* Responsividad mejorada */
 @media (max-width: 640px) {
