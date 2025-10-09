@@ -21,6 +21,18 @@
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
+/* IxmiSport green color palette */
+:root {
+  /* Nueva paleta de colores verde para IxmiSport */
+  --ixmi-50: #F2F5DE;    /* Color más claro para fondos sutiles */
+  --ixmi-100: #D0FFB7;   /* Color claro para fondos */
+  --ixmi-200: #B2FFA8;   /* Color medio-claro para bordes */
+  --ixmi-300: #93FF96;   /* Color medio para efectos */
+  --ixmi-400: #86E7B8;   /* Color principal para elementos interactivos */
+  --ixmi-500: #86E7B8;   /* Color principal (duplicado para compatibilidad) */
+  --ixmi-600: #6BC49F;   /* Color más oscuro para texto principal */
+}
+
 /* semantic color variables for this project */
 :root {
   --color-background: var(--vt-c-white);
@@ -36,6 +48,8 @@
   --section-gap: 160px;
 }
 
+/* Modo oscuro deshabilitado para IxmiSport */
+/* 
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
@@ -49,6 +63,7 @@
     --color-text: var(--vt-c-text-dark-2);
   }
 }
+*/
 
 *,
 *::before,
@@ -84,3 +99,45 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Clases utilitarias para colores IxmiSport */
+.bg-ixmi-50 { background-color: var(--ixmi-50); }
+.bg-ixmi-100 { background-color: var(--ixmi-100); }
+.bg-ixmi-200 { background-color: var(--ixmi-200); }
+.bg-ixmi-300 { background-color: var(--ixmi-300); }
+.bg-ixmi-400 { background-color: var(--ixmi-400); }
+.bg-ixmi-500 { background-color: var(--ixmi-500); }
+.bg-ixmi-600 { background-color: var(--ixmi-600); }
+
+.text-ixmi-50 { color: var(--ixmi-50); }
+.text-ixmi-100 { color: var(--ixmi-100); }
+.text-ixmi-200 { color: var(--ixmi-200); }
+.text-ixmi-300 { color: var(--ixmi-300); }
+.text-ixmi-400 { color: var(--ixmi-400); }
+.text-ixmi-500 { color: var(--ixmi-500); }
+.text-ixmi-600 { color: var(--ixmi-600); }
+
+.border-ixmi-50 { border-color: var(--ixmi-50); }
+.border-ixmi-100 { border-color: var(--ixmi-100); }
+.border-ixmi-200 { border-color: var(--ixmi-200); }
+.border-ixmi-300 { border-color: var(--ixmi-300); }
+.border-ixmi-400 { border-color: var(--ixmi-400); }
+.border-ixmi-500 { border-color: var(--ixmi-500); }
+.border-ixmi-600 { border-color: var(--ixmi-600); }
+
+/* Clases de gradientes para IxmiSport */
+.from-ixmi-500 { --tw-gradient-from: var(--ixmi-500); }
+.from-ixmi-400 { --tw-gradient-from: var(--ixmi-400); }
+.from-ixmi-300 { --tw-gradient-from: var(--ixmi-300); }
+.from-ixmi-200 { --tw-gradient-from: var(--ixmi-200); }
+
+.via-ixmi-500 { --tw-gradient-to: var(--ixmi-500); --tw-gradient-stops: var(--tw-gradient-from), var(--ixmi-500), var(--tw-gradient-to); }
+.via-ixmi-400 { --tw-gradient-to: var(--ixmi-400); --tw-gradient-stops: var(--tw-gradient-from), var(--ixmi-400), var(--tw-gradient-to); }
+.via-ixmi-300 { --tw-gradient-to: var(--ixmi-300); --tw-gradient-stops: var(--tw-gradient-from), var(--ixmi-300), var(--tw-gradient-to); }
+.via-ixmi-200 { --tw-gradient-to: var(--ixmi-200); --tw-gradient-stops: var(--tw-gradient-from), var(--ixmi-200), var(--tw-gradient-to); }
+
+.to-ixmi-500 { --tw-gradient-to: var(--ixmi-500); }
+.to-ixmi-400 { --tw-gradient-to: var(--ixmi-400); }
+.to-ixmi-300 { --tw-gradient-to: var(--ixmi-300); }
+.to-ixmi-200 { --tw-gradient-to: var(--ixmi-200); }
+.to-ixmi-100 { --tw-gradient-to: var(--ixmi-100); }

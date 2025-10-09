@@ -1,20 +1,34 @@
 <template>
-  <div class="min-h-screen min-w-full w-screen h-screen bg-gradient-to-br from-ixmi-50 via-white to-ixmi-100 flex items-center justify-center relative overflow-hidden">
+  <div class="min-h-screen min-w-full w-screen h-screen bg-white flex items-center justify-center relative overflow-hidden">
+    
+    <!-- Botón de regreso al Home en esquina superior izquierda -->
+    <div class="absolute top-4 left-4 z-30">
+      <router-link 
+        to="/" 
+        class="inline-flex items-center justify-center px-3 py-2 text-sm text-ixmi-600 bg-white/90 backdrop-blur-sm border border-ixmi-200 rounded-lg hover:bg-white hover:border-ixmi-300 transition-all duration-300 hover:shadow-md opacity-0 animate-elegant-fade-down animation-delay-100"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Home
+      </router-link>
+    </div>
+
     <!-- Título elegante en la parte superior -->
     <div class="absolute top-4 sm:top-6 md:top-8 left-1/2 transform -translate-x-1/2 z-20 px-4">
       <div class="text-center opacity-0 animate-elegant-fade-down animation-delay-200">
         <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-ixmi-500 via-ixmi-400 to-ixmi-300 bg-clip-text text-transparent tracking-tight">
           IxmiSport
         </h1>
-        <div class="h-0.5 w-12 sm:w-14 md:w-16 bg-gradient-to-r from-ixmi-400 to-ixmi-300 mx-auto mt-1 sm:mt-2 rounded-full opacity-0 animate-elegant-expand animation-delay-600"></div>
+        <div class="h-0.5 w-12 sm:w-14 md:w-16 bg-gradient-to-r from-ixmi-300 to-ixmi-200 mx-auto mt-1 sm:mt-2 rounded-full opacity-0 animate-elegant-expand animation-delay-600"></div>
       </div>
     </div>
 
     <!-- Elementos decorativos de fondo con movimiento suave -->
     <div class="absolute inset-0">
-      <div class="absolute top-16 left-8 sm:left-16 w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 bg-ixmi-200/25 rounded-full blur-3xl animate-elegant-float"></div>
-      <div class="absolute bottom-16 right-8 sm:right-16 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-ixmi-300/15 rounded-full blur-3xl animate-elegant-float-delayed"></div>
-      <div class="absolute top-1/3 left-1/3 w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 bg-ixmi-400/10 rounded-full blur-2xl animate-elegant-breathe"></div>
+      <div class="absolute top-16 left-8 sm:left-16 w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 bg-ixmi-100/30 rounded-full blur-3xl animate-elegant-float"></div>
+      <div class="absolute bottom-16 right-8 sm:right-16 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-ixmi-200/20 rounded-full blur-3xl animate-elegant-float-delayed"></div>
+      <div class="absolute top-1/3 left-1/3 w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 bg-ixmi-300/15 rounded-full blur-2xl animate-elegant-breathe"></div>
     </div>
     
     <!-- Contenedor principal -->
@@ -24,7 +38,7 @@
         <!-- Header con entrada suave -->
         <div class="text-center mb-6 sm:mb-8">
           <div class="relative">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-ixmi-500 via-ixmi-400 to-ixmi-300 rounded-xl sm:rounded-2xl mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:scale-105 hover:rotate-3 opacity-0 animate-elegant-icon animation-delay-800">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-ixmi-400 via-ixmi-300 to-ixmi-200 rounded-xl sm:rounded-2xl mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:scale-105 hover:rotate-3 opacity-0 animate-elegant-icon animation-delay-800">
               <UserPlusIcon class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
             </div>
           </div>
@@ -139,16 +153,16 @@
               type="checkbox" 
               id="terms"
               v-model="formData.acceptTerms"
-              class="mt-0.5 sm:mt-1 w-4 h-4 text-ixmi-400 border border-ixmi-300 rounded focus:ring-ixmi-400 focus:ring-2 transition-all duration-300 hover:scale-105"
+              class="mt-0.5 sm:mt-1 w-4 h-4 text-ixmi-300 border border-ixmi-200 rounded focus:ring-ixmi-300 focus:ring-2 transition-all duration-300 hover:scale-105"
               required
             />
             <label for="terms" class="text-xs sm:text-sm text-gray-600 leading-relaxed">
               Acepto los 
-              <a href="#" class="text-ixmi-500 hover:text-ixmi-400 font-medium transition-colors duration-300 hover:underline">
+              <a href="#" class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline">
                 términos y condiciones
               </a> 
               y la 
-              <a href="#" class="text-ixmi-500 hover:text-ixmi-400 font-medium transition-colors duration-300 hover:underline">
+              <a href="#" class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline">
                 política de privacidad
               </a>
             </label>
@@ -159,7 +173,7 @@
             <button 
               type="submit"
               :disabled="isLoading"
-              class="w-full bg-gradient-to-r from-ixmi-500 via-ixmi-400 to-ixmi-300 text-white py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none hover:from-ixmi-400 hover:via-ixmi-300 hover:to-ixmi-200"
+              class="w-full bg-gradient-to-r from-ixmi-400 via-ixmi-300 to-ixmi-200 text-white py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none hover:from-ixmi-300 hover:via-ixmi-200 hover:to-ixmi-100"
             >
               <span v-if="isLoading" class="flex items-center justify-center">
                 <div class="w-4 h-4 sm:w-5 sm:h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -176,7 +190,7 @@
             ¿Ya tienes cuenta? 
             <router-link 
               to="/login" 
-              class="text-ixmi-500 hover:text-ixmi-400 font-medium transition-colors duration-300 hover:underline"
+              class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline"
             >
               Inicia sesión aquí
             </router-link>
@@ -184,9 +198,9 @@
         </div>
 
         <!-- Separador elegante -->
-        <div class="relative my-6 sm:my-8 opacity-0 animate-elegant-slide-up animation-delay-2000">
+        <div class="relative my-6 sm:my-8 opacity-0 animate-elegant-slide-up animation-delay-2100">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-ixmi-200/60"></div>
+            <div class="w-full border-t border-ixmi-100"></div>
           </div>
           <div class="relative flex justify-center text-xs sm:text-sm">
             <span class="px-3 sm:px-4 bg-white text-gray-500">O continúa con</span>
@@ -194,10 +208,10 @@
         </div>
 
         <!-- Botones sociales con entrada escalonada -->
-        <div class="grid grid-cols-2 gap-2 sm:gap-3 opacity-0 animate-elegant-slide-up animation-delay-2100">
+        <div class="grid grid-cols-2 gap-2 sm:gap-3 opacity-0 animate-elegant-slide-up animation-delay-2200">
           <button 
             @click="handleSocialLogin('Google')"
-            class="flex items-center justify-center px-2 sm:px-4 py-2 sm:py-3 border border-ixmi-200/60 rounded-lg sm:rounded-xl hover:bg-ixmi-50/50 transition-all duration-300 hover:border-ixmi-300 hover:shadow-sm group"
+            class="flex items-center justify-center px-2 sm:px-4 py-2 sm:py-3 border border-ixmi-200 rounded-lg sm:rounded-xl hover:bg-ixmi-50 transition-all duration-300 hover:border-ixmi-300 hover:shadow-sm group"
           >
             <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 transition-transform duration-300 group-hover:scale-105" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -210,7 +224,7 @@
 
           <button 
             @click="handleSocialLogin('Facebook')"
-            class="flex items-center justify-center px-2 sm:px-4 py-2 sm:py-3 border border-ixmi-200/60 rounded-lg sm:rounded-xl hover:bg-ixmi-50/50 transition-all duration-300 hover:border-ixmi-300 hover:shadow-sm group"
+            class="flex items-center justify-center px-2 sm:px-4 py-2 sm:py-3 border border-ixmi-200 rounded-lg sm:rounded-xl hover:bg-ixmi-50 transition-all duration-300 hover:border-ixmi-300 hover:shadow-sm group"
           >
             <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 transition-transform duration-300 group-hover:scale-105" fill="#1877F2" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -562,24 +576,24 @@ input:hover {
 
 input:focus {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 8px 20px rgba(134, 231, 184, 0.15);
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 8px 25px rgba(134, 231, 184, 0.25);
 }
 
 /* Efectos de checkbox */
 input[type="checkbox"]:checked {
-  background-color: #0891b2;
-  border-color: #0891b2;
+  background-color: var(--ixmi-400);
+  border-color: var(--ixmi-400);
   transform: scale(1.05);
 }
 
 input[type="checkbox"]:hover {
   transform: scale(1.05);
-  border-color: #0891b2;
+  border-color: var(--ixmi-300);
 }
 
 /* Responsividad mejorada */
