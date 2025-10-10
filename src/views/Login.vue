@@ -1,6 +1,19 @@
 <template>
   <div class="min-h-screen min-w-full w-screen h-screen bg-gradient-to-br from-ixmi-50 via-white to-ixmi-100 flex items-center justify-center relative overflow-hidden">
     
+    <!-- Botón de regreso al Home en esquina superior izquierda -->
+    <div class="absolute top-4 left-4 z-30">
+      <router-link 
+        to="/" 
+        class="inline-flex items-center justify-center px-3 py-2 text-sm text-ixmi-600 bg-white/90 backdrop-blur-sm border border-ixmi-200 rounded-lg hover:bg-white hover:border-ixmi-300 transition-all duration-300 hover:shadow-md opacity-0 animate-elegant-fade-down animation-delay-100"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Home
+      </router-link>
+    </div>
+
     <!-- Título elegante y profesional en la parte superior -->
     <div class="absolute top-4 sm:top-6 left-1/2 transform -translate-x-1/2 z-20 px-4">
       <div class="text-center opacity-0 animate-elegant-fade-down animation-delay-200">
