@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Reservaciones from '../views/Reservaciones.vue';
+import Admin from '../views/Admin.vue';
 
 const routes = [
   {
@@ -24,6 +25,12 @@ const routes = [
     path: '/reservaciones',
     name: 'Reservaciones',
     component: Reservaciones
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: Admin,
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ];
 

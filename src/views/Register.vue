@@ -158,13 +158,21 @@
             />
             <label for="terms" class="text-xs sm:text-sm text-gray-600 leading-relaxed">
               Acepto los 
-              <a href="#" class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline">
+              <button 
+                type="button"
+                @click="showTermsModal = true"
+                class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline"
+              >
                 términos y condiciones
-              </a> 
+              </button> 
               y la 
-              <a href="#" class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline">
+              <button 
+                type="button"
+                @click="showPrivacyModal = true"
+                class="text-ixmi-400 hover:text-ixmi-300 font-medium transition-colors duration-300 hover:underline"
+              >
                 política de privacidad
-              </a>
+              </button>
             </label>
           </div>
 
@@ -234,6 +242,96 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Términos y Condiciones -->
+    <div v-if="showTermsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click="showTermsModal = false">
+      <div @click.stop class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        <!-- Header del modal -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-900">Términos y Condiciones</h3>
+          <button @click="showTermsModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Contenido del modal -->
+        <div class="p-6 overflow-y-auto max-h-96">
+          <div class="prose prose-sm max-w-none">
+            <h4 class="font-semibold text-gray-900 mb-3">1. Aceptación de los Términos</h4>
+            <p class="mb-4 text-gray-700">Al acceder y utilizar IxmiSport, usted acepta estar legalmente obligado por estos términos y condiciones.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">2. Uso del Servicio</h4>
+            <p class="mb-4 text-gray-700">IxmiSport es una plataforma digital para la gestión de servicios deportivos. Usted se compromete a usar el servicio de manera responsable y conforme a las leyes aplicables.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">3. Cuenta de Usuario</h4>
+            <p class="mb-4 text-gray-700">Es responsable de mantener la confidencialidad de su cuenta y contraseña, así como de todas las actividades que ocurran bajo su cuenta.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">4. Reservaciones y Cancelaciones</h4>
+            <p class="mb-4 text-gray-700">Las reservaciones están sujetas a disponibilidad. Las cancelaciones deben realizarse con al menos 24 horas de anticipación para evitar cargos.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">5. Pagos</h4>
+            <p class="mb-4 text-gray-700">Todos los pagos deben realizarse a través de los métodos aceptados en la plataforma. Los precios están sujetos a cambios sin previo aviso.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">6. Limitación de Responsabilidad</h4>
+            <p class="mb-4 text-gray-700">IxmiSport no será responsable por daños indirectos, incidentales o consecuentes que puedan surgir del uso de nuestros servicios.</p>
+          </div>
+        </div>
+        
+        <!-- Footer del modal -->
+        <div class="flex justify-end p-6 border-t border-gray-200">
+          <button @click="showTermsModal = false" class="px-6 py-2 bg-ixmi-400 text-white rounded-lg hover:bg-ixmi-300 transition-colors">
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Política de Privacidad -->
+    <div v-if="showPrivacyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click="showPrivacyModal = false">
+      <div @click.stop class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        <!-- Header del modal -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-900">Política de Privacidad</h3>
+          <button @click="showPrivacyModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Contenido del modal -->
+        <div class="p-6 overflow-y-auto max-h-96">
+          <div class="prose prose-sm max-w-none">
+            <h4 class="font-semibold text-gray-900 mb-3">1. Recopilación de Información</h4>
+            <p class="mb-4 text-gray-700">Recopilamos información personal que usted nos proporciona directamente, como nombre, email, teléfono y datos de reservaciones.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">2. Uso de la Información</h4>
+            <p class="mb-4 text-gray-700">Utilizamos su información para proporcionar y mejorar nuestros servicios, procesar reservaciones y comunicarnos con usted.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">3. Compartir Información</h4>
+            <p class="mb-4 text-gray-700">No vendemos, intercambiamos ni transferimos su información personal a terceros sin su consentimiento, excepto según se describe en esta política.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">4. Seguridad de Datos</h4>
+            <p class="mb-4 text-gray-700">Implementamos medidas de seguridad apropiadas para proteger su información personal contra acceso no autorizado, alteración o divulgación.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">5. Cookies</h4>
+            <p class="mb-4 text-gray-700">Utilizamos cookies para mejorar su experiencia en nuestro sitio web y analizar el uso del mismo.</p>
+            
+            <h4 class="font-semibold text-gray-900 mb-3">6. Sus Derechos</h4>
+            <p class="mb-4 text-gray-700">Tiene derecho a acceder, actualizar o eliminar su información personal. Puede contactarnos para ejercer estos derechos.</p>
+          </div>
+        </div>
+        
+        <!-- Footer del modal -->
+        <div class="flex justify-end p-6 border-t border-gray-200">
+          <button @click="showPrivacyModal = false" class="px-6 py-2 bg-ixmi-400 text-white rounded-lg hover:bg-ixmi-300 transition-colors">
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -267,6 +365,8 @@ const formData = reactive({
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const isLoading = ref(false)
+const showTermsModal = ref(false)
+const showPrivacyModal = ref(false)
 
 // Errores de validación
 const errors = reactive({
