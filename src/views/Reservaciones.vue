@@ -496,243 +496,398 @@
       </div>
     </section>
 
-    <!-- Modal de Reservación Mejorado -->
+    <!-- Modal de Reservación Profesional -->
     <Transition name="modal">
       <div 
         v-if="showModal" 
-        class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         @click.self="closeModal"
       >
-        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-hidden flex flex-col animate-modal-in">
-          <!-- Modal Header - Fijo -->
-          <div class="relative bg-gradient-to-br from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] p-10 text-white flex-shrink-0">
-            <!-- Efectos decorativos -->
-            <div class="absolute inset-0 overflow-hidden opacity-20">
-              <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-              <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl"></div>
-            </div>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[94vh] overflow-hidden flex flex-col animate-modal-in">
+          <!-- Modal Header - Profesional y Limpio -->
+          <div class="relative bg-gradient-to-r from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] px-8 py-6 text-white flex-shrink-0 border-b-4 border-white/20">
+            <!-- Patrón sutil de fondo -->
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
             
             <button 
               @click="closeModal"
-              class="absolute top-6 right-6 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-2xl flex items-center justify-center transition-all duration-300 hover:rotate-90 hover:scale-110 z-10 group"
+              class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center transition-all duration-300 hover:rotate-90 z-10 group border border-white/20"
             >
-              <XMarkIcon class="w-7 h-7 group-hover:scale-110 transition-transform" />
+              <XMarkIcon class="w-6 h-6" />
             </button>
             
-            <div class="flex items-center gap-6 relative z-10">
-              <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-2xl">
-                <i :class="selectedCourt?.icon" class="text-5xl"></i>
+            <div class="flex items-start gap-5 relative z-10">
+              <div class="w-16 h-16 bg-white/15 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 border border-white/30">
+                <i :class="selectedCourt?.icon" class="text-4xl drop-shadow-lg"></i>
               </div>
-              <div>
-                <div class="inline-block mb-2 px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold">
-                  <CheckCircleIcon class="w-4 h-4 text-green-300 inline-block mr-1" />
-                  Disponible para reservar
+              <div class="flex-1 pt-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h2 class="text-3xl font-bold drop-shadow-md">{{ selectedCourt?.name }}</h2>
+                  <span class="px-3 py-1 bg-green-400/20 backdrop-blur-md rounded-lg text-xs font-bold flex items-center gap-1.5 border border-green-300/30">
+                    <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                    DISPONIBLE
+                  </span>
                 </div>
-                <h2 class="text-4xl font-extrabold mb-3 drop-shadow-lg">{{ selectedCourt?.name }}</h2>
-                <p class="text-xl text-white/95 font-light">{{ selectedCourt?.description }}</p>
+                <p class="text-white/90 text-base font-medium">{{ selectedCourt?.description }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Modal Content - Scrollable SIN barra visible -->
-          <div class="flex-1 overflow-y-auto scrollbar-hide p-10">
-            <!-- Court Info Cards -->
-            <div class="grid md:grid-cols-2 gap-5 mb-10">
-              <div class="bg-gradient-to-br from-[#6BCF9F]/10 via-white to-[#6BCF9F]/5 p-6 rounded-2xl border-2 border-[#6BCF9F]/20 hover:border-[#6BCF9F]/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
-                <div class="w-14 h-14 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <UsersIcon class="w-8 h-8 text-white" />
+          <!-- Modal Content - Scrollable CON scrollbar elegante -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <!-- Información de la Cancha - Grid Compacto -->
+            <div class="px-8 py-6 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-100">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+                  <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                    <UsersIcon class="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Capacidad</p>
+                    <p class="text-lg font-bold text-gray-900">{{ selectedCourt?.capacity }}</p>
+                  </div>
                 </div>
-                <p class="text-sm font-semibold text-gray-500 mb-1">Capacidad</p>
-                <p class="text-xl font-bold text-gray-800">{{ selectedCourt?.capacity }}</p>
-              </div>
-              <div class="bg-gradient-to-br from-[#7ED9A8]/10 via-white to-[#7ED9A8]/5 p-6 rounded-2xl border-2 border-[#7ED9A8]/20 hover:border-[#7ED9A8]/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
-                <div class="w-14 h-14 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <MapPinIcon class="w-8 h-8 text-white" />
+                <div class="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+                  <div class="w-12 h-12 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                    <MapPinIcon class="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ubicación</p>
+                    <p class="text-lg font-bold text-gray-900">{{ selectedCourt?.location }}</p>
+                  </div>
                 </div>
-                <p class="text-sm font-semibold text-gray-500 mb-1">Ubicación</p>
-                <p class="text-xl font-bold text-gray-800">{{ selectedCourt?.location }}</p>
               </div>
             </div>
 
-            <!-- Amenities -->
-            <div class="mb-10">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <CheckBadgeIcon class="w-7 h-7 text-white" />
+            <!-- Servicios Incluidos - Diseño Compacto -->
+            <div class="px-8 py-6 border-b border-gray-100">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center shadow-md">
+                  <CheckBadgeIcon class="w-6 h-6 text-white" />
                 </div>
-                Servicios Premium Incluidos
-              </h3>
-              <div class="grid md:grid-cols-3 gap-4">
+                <h3 class="text-xl font-bold text-gray-900">Servicios Incluidos</h3>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                 <div 
                   v-for="amenity in selectedCourt?.amenities" 
                   :key="amenity"
-                  class="flex items-center gap-3 p-4 bg-gradient-to-r from-[#F8FDF9] to-white rounded-xl border-2 border-[#D8F0E3] hover:border-[#6BCF9F] hover:shadow-lg transition-all duration-300 group"
+                  class="flex items-center gap-2.5 p-3 bg-gradient-to-r from-[#F8FDF9] to-white rounded-lg border border-[#D8F0E3] hover:border-[#6BCF9F] hover:shadow-sm transition-all group"
                 >
-                  <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-md flex-shrink-0">
-                    <CheckCircleIcon class="w-6 h-6 text-white" />
-                  </div>
-                  <span class="font-semibold text-gray-700">{{ amenity }}</span>
+                  <CheckCircleIcon class="w-5 h-5 text-[#6BCF9F] flex-shrink-0" />
+                  <span class="font-medium text-gray-700 text-sm">{{ amenity }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Time Slots -->
-            <div class="mb-10">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-xl flex items-center justify-center shadow-lg">
-                  <ClockIcon class="w-7 h-7 text-white" />
+            <!-- Tipo de Reservación -->
+            <div class="px-8 py-6 border-b border-gray-100">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center shadow-md">
+                  <TrophyIcon class="w-6 h-6 text-white" />
                 </div>
-                Selecciona Fecha y Horario
-              </h3>
+                <h3 class="text-xl font-bold text-gray-900">Tipo de Reservación</h3>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <button
+                  @click="reservationData.type = 'normal'"
+                  :class="[
+                    'p-5 rounded-xl border-2 transition-all duration-300 text-left',
+                    reservationData.type === 'normal'
+                      ? 'bg-gradient-to-br from-[#6BCF9F]/10 to-[#7ED9A8]/10 border-[#6BCF9F] shadow-lg shadow-[#6BCF9F]/20'
+                      : 'bg-white border-gray-200 hover:border-[#6BCF9F]/50 hover:shadow-md'
+                  ]"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-clock text-white text-sm"></i>
+                      </div>
+                      <span class="font-bold text-gray-900">Normal</span>
+                    </div>
+                    <div v-if="reservationData.type === 'normal'" class="w-6 h-6 bg-[#6BCF9F] rounded-full flex items-center justify-center">
+                      <CheckCircleIcon class="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-600 mb-2">Partidos y entrenamientos</p>
+                  <div class="flex items-center gap-2 text-xs font-semibold text-[#6BCF9F]">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Máximo: 1 hora</span>
+                  </div>
+                </button>
+
+                <button
+                  @click="reservationData.type = 'tournament'"
+                  :class="[
+                    'p-5 rounded-xl border-2 transition-all duration-300 text-left',
+                    reservationData.type === 'tournament'
+                      ? 'bg-gradient-to-br from-[#7ED9A8]/10 to-[#95E3B3]/10 border-[#7ED9A8] shadow-lg shadow-[#7ED9A8]/20'
+                      : 'bg-white border-gray-200 hover:border-[#7ED9A8]/50 hover:shadow-md'
+                  ]"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-trophy text-white text-sm"></i>
+                      </div>
+                      <span class="font-bold text-gray-900">Torneo</span>
+                    </div>
+                    <div v-if="reservationData.type === 'tournament'" class="w-6 h-6 bg-[#7ED9A8] rounded-full flex items-center justify-center">
+                      <CheckCircleIcon class="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-600 mb-2">Eventos y competencias</p>
+                  <div class="flex items-center gap-2 text-xs font-semibold text-[#7ED9A8]">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Duración: Flexible</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Selección de Fecha y Horario -->
+            <div class="px-8 py-6 border-b border-gray-100">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-lg flex items-center justify-center shadow-md">
+                  <CalendarDaysIcon class="w-6 h-6 text-white" />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Fecha y Horario</h3>
+              </div>
               
               <!-- Date Picker -->
-              <div class="mb-6">
-                <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  <CalendarDaysIcon class="w-5 h-5 text-[#7ED9A8]" />
-                  Fecha de Reserva
+              <div class="mb-5">
+                <label class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                  <CalendarIcon class="w-4 h-4 text-[#7ED9A8]" />
+                  Selecciona la fecha
                 </label>
                 <input 
                   v-model="reservationData.date"
                   type="date" 
-                  class="w-full px-6 py-4 bg-gradient-to-br from-gray-50 to-white border-3 border-[#D8F0E3] rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#7ED9A8]/30 focus:border-[#7ED9A8] transition-all duration-300 font-semibold text-lg text-gray-700 hover:shadow-lg"
+                  class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7ED9A8]/50 focus:border-[#7ED9A8] transition-all duration-300 font-medium text-gray-700 hover:border-[#7ED9A8] shadow-sm"
                 />
               </div>
 
-              <!-- Time Slots Grid -->
-              <div class="grid grid-cols-3 md:grid-cols-4 gap-3">
-                <button
-                  v-for="slot in timeSlots"
-                  :key="slot.time"
-                  @click="selectTimeSlot(slot)"
-                  :disabled="!slot.available"
-                  :class="[
-                    'px-4 py-4 rounded-2xl font-bold transition-all duration-300 relative overflow-hidden',
-                    reservationData.timeSlot === slot.time
-                      ? 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white shadow-2xl shadow-[#6BCF9F]/40 scale-105 border-2 border-white'
-                      : slot.available
-                        ? 'bg-white border-2 border-[#D8F0E3] text-gray-700 hover:border-[#6BCF9F] hover:shadow-xl hover:scale-105'
-                        : 'bg-gray-50 border-2 border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
-                  ]"
-                >
-                  <div class="text-base font-bold">{{ slot.time }}</div>
-                  <div v-if="!slot.available" class="text-xs mt-1 font-semibold">No disponible</div>
-                  <div v-if="reservationData.timeSlot === slot.time" class="absolute top-1 right-1">
-                    <CheckCircleIcon class="w-5 h-5 text-white fill-white" />
+              <!-- Time Slots Grid - Horario libre -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                    <ClockIcon class="w-4 h-4 text-[#95E3B3]" />
+                    Selecciona tu horario
+                  </label>
+                  <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    {{ reservationData.type === 'tournament' ? 'Sin límite' : 'Máx. 1 hora' }}
+                  </span>
+                </div>
+
+                <!-- Selector de hora de inicio -->
+                <div class="mb-4">
+                  <label class="text-xs font-semibold text-gray-600 mb-2 block">Hora de inicio</label>
+                  <div class="grid grid-cols-6 gap-2">
+                    <button
+                      v-for="hour in availableHours"
+                      :key="hour"
+                      @click="selectStartTime(hour)"
+                      :disabled="isHourOccupied(hour)"
+                      :class="[
+                        'px-3 py-2.5 rounded-lg font-semibold transition-all duration-300 text-xs relative',
+                        reservationData.startTime === hour
+                          ? 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white shadow-lg shadow-[#6BCF9F]/30 scale-105'
+                          : isHourOccupied(hour)
+                            ? 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed opacity-50 line-through'
+                            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#6BCF9F] hover:shadow-md hover:scale-105'
+                      ]"
+                    >
+                      {{ hour }}:00
+                      <div v-if="reservationData.startTime === hour" class="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                        <CheckCircleIcon class="w-3.5 h-3.5 text-[#6BCF9F]" />
+                      </div>
+                    </button>
                   </div>
-                </button>
+                </div>
+
+                <!-- Selector de hora de fin (para ambos tipos) -->
+                <div v-if="reservationData.startTime" class="mb-4">
+                  <label class="text-xs font-semibold text-gray-600 mb-2 block">
+                    Hora de finalización
+                    <span v-if="reservationData.type === 'normal'" class="text-[#6BCF9F] ml-1">(máximo 1 hora después)</span>
+                  </label>
+                  <div class="grid grid-cols-6 gap-2">
+                    <button
+                      v-for="hour in getAvailableEndHours()"
+                      :key="hour"
+                      @click="reservationData.endTime = hour"
+                      :class="[
+                        'px-3 py-2.5 rounded-lg font-semibold transition-all duration-300 text-xs relative',
+                        reservationData.endTime === hour
+                          ? 'bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] text-white shadow-lg shadow-[#7ED9A8]/30 scale-105'
+                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#7ED9A8] hover:shadow-md hover:scale-105'
+                      ]"
+                    >
+                      {{ hour }}:00
+                      <div v-if="reservationData.endTime === hour" class="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                        <CheckCircleIcon class="w-3.5 h-3.5 text-[#7ED9A8]" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Indicador de duración -->
+                <div v-if="reservationData.startTime" class="mt-4 p-4 bg-gradient-to-r from-[#F8FDF9] to-white rounded-xl border-2 border-[#D8F0E3]">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-hourglass-half text-white"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs font-semibold text-gray-500">Duración total</p>
+                        <p class="text-lg font-bold text-gray-900">{{ calculateDuration() }}</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs font-semibold text-gray-500">Horario</p>
+                      <p class="text-sm font-bold text-[#6BCF9F]">
+                        {{ reservationData.startTime }}:00 - {{ reservationData.endTime || '?' }}:00
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Number of People -->
-            <div class="mb-10">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#95E3B3] to-[#6BCF9F] rounded-xl flex items-center justify-center shadow-lg">
-                  <UserGroupIcon class="w-7 h-7 text-white" />
+            <!-- Número de Personas - Diseño más compacto y profesional -->
+            <div class="px-8 py-6 border-b border-gray-100">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#95E3B3] to-[#6BCF9F] rounded-lg flex items-center justify-center shadow-md">
+                  <UserGroupIcon class="w-6 h-6 text-white" />
                 </div>
-                ¿Cuántas personas jugarán?
-              </h3>
-              <div class="flex items-center gap-6 bg-gradient-to-br from-[#F8FDF9] to-white p-8 rounded-2xl border-2 border-[#D8F0E3]">
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">Número de Jugadores</h3>
+                  <p class="text-xs text-gray-500">Máximo {{ selectedCourt?.maxPeople }} personas</p>
+                </div>
+              </div>
+              <div class="flex items-center justify-center gap-4 bg-gradient-to-br from-[#F8FDF9] to-white p-6 rounded-xl border-2 border-[#D8F0E3]">
                 <button 
                   @click="decrementPeople"
-                  class="w-16 h-16 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-2xl font-bold text-3xl hover:shadow-2xl hover:shadow-[#6BCF9F]/30 hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
+                  class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-bold hover:shadow-lg hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                   :disabled="reservationData.people <= 1"
                 >
-                  <MinusIcon class="w-8 h-8" />
+                  <MinusIcon class="w-6 h-6" />
                 </button>
-                <div class="flex-1 text-center">
-                  <input 
-                    v-model.number="reservationData.people"
-                    type="number"
-                    min="1"
-                    :max="selectedCourt?.maxPeople || 22"
-                    class="w-32 px-6 py-5 bg-white border-3 border-[#6BCF9F]/30 rounded-2xl text-center text-4xl font-extrabold focus:outline-none focus:ring-4 focus:ring-[#6BCF9F]/30 focus:border-[#6BCF9F] transition-all duration-300 text-[#6BCF9F] shadow-lg"
-                  />
-                  <p class="text-sm font-semibold text-gray-500 mt-3">Máximo: {{ selectedCourt?.maxPeople }} personas</p>
+                <div class="text-center min-w-[100px]">
+                  <div class="text-4xl font-extrabold text-[#6BCF9F] mb-1">{{ reservationData.people }}</div>
+                  <div class="text-xs font-semibold text-gray-500">Jugadores</div>
                 </div>
                 <button 
                   @click="incrementPeople"
-                  class="w-16 h-16 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-2xl font-bold text-3xl hover:shadow-2xl hover:shadow-[#6BCF9F]/30 hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
+                  class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-bold hover:shadow-lg hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                   :disabled="reservationData.people >= (selectedCourt?.maxPeople || 22)"
                 >
-                  <PlusIcon class="w-8 h-8" />
+                  <PlusIcon class="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <!-- Additional Notes -->
-            <div class="mb-10">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#95E3B3] rounded-xl flex items-center justify-center shadow-lg">
-                  <ChatBubbleBottomCenterTextIcon class="w-7 h-7 text-white" />
+            <!-- Notas Adicionales -->
+            <div class="px-8 py-6 border-b border-gray-100">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#95E3B3] rounded-lg flex items-center justify-center shadow-md">
+                  <ChatBubbleBottomCenterTextIcon class="w-6 h-6 text-white" />
                 </div>
-                Notas Adicionales
-                <span class="text-sm font-normal text-gray-400">(Opcional)</span>
-              </h3>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">Notas Adicionales</h3>
+                  <p class="text-xs text-gray-500">Opcional - Solicitudes especiales</p>
+                </div>
+              </div>
               <textarea 
                 v-model="reservationData.notes"
-                placeholder="¿Necesitas algo especial? Equipamiento adicional, evento privado, clases, etc..."
-                rows="4"
-                class="w-full px-6 py-5 bg-gradient-to-br from-gray-50 to-white border-3 border-[#D8F0E3] rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#6BCF9F]/30 focus:border-[#6BCF9F] transition-all duration-300 resize-none font-medium text-gray-700 hover:shadow-lg"
+                placeholder="Ej: Necesito alquilar balones, es para un torneo, requiero un árbitro..."
+                rows="3"
+                class="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F]/50 focus:border-[#6BCF9F] transition-all duration-300 resize-none font-medium text-gray-700 placeholder:text-gray-400 hover:border-[#6BCF9F] shadow-sm"
               ></textarea>
             </div>
 
-            <!-- Summary -->
-            <div class="bg-gradient-to-br from-[#6BCF9F]/10 via-white to-[#95E3B3]/10 p-8 rounded-3xl border-3 border-[#6BCF9F]/30 mb-8 shadow-xl">
-              <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <DocumentTextIcon class="w-7 h-7 text-white" />
+            <!-- Resumen de Reservación - Diseño Premium -->
+            <div class="px-8 py-6 bg-gradient-to-br from-gray-50 to-white">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center shadow-md">
+                  <DocumentTextIcon class="w-6 h-6 text-white" />
                 </div>
-                Resumen de tu Reservación
-              </h3>
-              <div class="space-y-4">
-                <div class="flex justify-between items-center p-4 bg-white rounded-xl">
-                  <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <TrophyIcon class="w-5 h-5 text-[#6BCF9F]" />
-                    Cancha:
-                  </span>
-                  <span class="font-bold text-gray-800 text-lg">{{ selectedCourt?.name }}</span>
-                </div>
-                <div class="flex justify-between items-center p-4 bg-white rounded-xl">
-                  <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <CalendarIcon class="w-5 h-5 text-[#7ED9A8]" />
-                    Fecha:
-                  </span>
-                  <span class="font-bold text-gray-800 text-lg">{{ reservationData.date || 'No seleccionada' }}</span>
-                </div>
-                <div class="flex justify-between items-center p-4 bg-white rounded-xl">
-                  <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <ClockIcon class="w-5 h-5 text-[#95E3B3]" />
-                    Horario:
-                  </span>
-                  <span class="font-bold text-gray-800 text-lg">{{ reservationData.timeSlot || 'No seleccionado' }}</span>
-                </div>
-                <div class="flex justify-between items-center p-4 bg-white rounded-xl">
-                  <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <UsersIcon class="w-5 h-5 text-[#6BCF9F]" />
-                    Personas:
-                  </span>
-                  <span class="font-bold text-gray-800 text-lg">{{ reservationData.people }}</span>
+                <h3 class="text-xl font-bold text-gray-900">Resumen de Reservación</h3>
+              </div>
+              <div class="bg-white rounded-xl border-2 border-[#6BCF9F]/20 shadow-md overflow-hidden">
+                <div class="divide-y divide-gray-100">
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <i class="fa-solid fa-list-check text-[#6BCF9F]"></i>
+                      Tipo
+                    </span>
+                    <span class="font-bold text-gray-900">{{ reservationData.type === 'normal' ? 'Partido Normal' : 'Torneo/Evento' }}</span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <TrophyIcon class="w-5 h-5 text-[#6BCF9F]" />
+                      Cancha
+                    </span>
+                    <span class="font-bold text-gray-900">{{ selectedCourt?.name }}</span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <CalendarIcon class="w-5 h-5 text-[#7ED9A8]" />
+                      Fecha
+                    </span>
+                    <span class="font-bold text-gray-900">{{ reservationData.date || 'No seleccionada' }}</span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <ClockIcon class="w-5 h-5 text-[#95E3B3]" />
+                      Horario
+                    </span>
+                    <span class="font-bold text-gray-900">
+                      {{ reservationData.startTime && reservationData.endTime ? `${reservationData.startTime}:00 - ${reservationData.endTime}:00` : 'No seleccionado' }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <i class="fa-solid fa-hourglass-half text-[#95E3B3]"></i>
+                      Duración
+                    </span>
+                    <span class="font-bold text-gray-900">{{ calculateDuration() }}</span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-gray-600 flex items-center gap-2.5">
+                      <UsersIcon class="w-5 h-5 text-[#6BCF9F]" />
+                      Jugadores
+                    </span>
+                    <span class="font-bold text-gray-900">{{ reservationData.people }} personas</span>
+                  </div>
+                  <div class="flex justify-between items-center px-5 py-4 bg-gradient-to-r from-[#6BCF9F]/5 to-[#95E3B3]/5">
+                    <span class="font-bold text-gray-900 flex items-center gap-2.5">
+                      <i class="fa-solid fa-tag text-[#6BCF9F]"></i>
+                      Costo Total
+                    </span>
+                    <span class="font-extrabold text-2xl bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] bg-clip-text text-transparent">GRATUITO</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Action Buttons - Fijo en la parte inferior -->
-          <div class="flex gap-5 p-8 bg-gradient-to-r from-gray-50 to-white border-t-2 border-gray-100 flex-shrink-0">
+          <!-- Action Buttons - Footer fijo con diseño profesional -->
+          <div class="flex gap-4 px-8 py-5 bg-white border-t-2 border-gray-100 flex-shrink-0 shadow-lg">
             <button 
               @click="closeModal"
-              class="flex-1 px-8 py-5 bg-white border-3 border-gray-300 text-gray-700 rounded-2xl font-bold text-lg hover:bg-gray-50 hover:border-gray-400 hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3"
+              class="flex-1 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-base hover:bg-gray-50 hover:border-gray-400 hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2.5"
             >
-              <XCircleIcon class="w-7 h-7" />
+              <XCircleIcon class="w-5 h-5" />
               Cancelar
             </button>
             <button 
               @click="confirmReservation"
               :disabled="!isReservationValid"
-              class="flex-1 px-8 py-5 bg-gradient-to-r from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-[#6BCF9F]/40 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
+              class="flex-[2] px-6 py-4 bg-gradient-to-r from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] text-white rounded-xl font-bold text-base hover:shadow-xl hover:shadow-[#6BCF9F]/30 hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none flex items-center justify-center gap-2.5"
             >
-              <CheckCircleIcon class="w-7 h-7" />
-              Confirmar Reservación
+              <CheckCircleIcon class="w-6 h-6" />
+              Confirmar Reservación Gratuita
             </button>
           </div>
         </div>
@@ -836,11 +991,30 @@ const filters = ref({
 
 // Datos de reservación
 const reservationData = ref({
+  type: 'normal', // 'normal' o 'tournament'
   date: '',
-  timeSlot: '',
+  startTime: '', // Hora de inicio (formato: '06', '07', etc.)
+  endTime: '', // Solo para torneos
   people: 10,
   notes: ''
 })
+
+// Horas disponibles (6 AM - 11 PM)
+const availableHours = ref([
+  '06', '07', '08', '09', '10', '11', 
+  '12', '13', '14', '15', '16', '17', 
+  '18', '19', '20', '21', '22', '23'
+])
+
+// TODO: Integración con Base de Datos
+// Este array simula las horas ocupadas. En producción, esto vendrá de la API/BD
+// Formato: { date: 'YYYY-MM-DD', courtId: number, occupiedHours: ['06', '07', '14', ...] }
+const occupiedSlots = ref([
+  // Ejemplo de datos simulados - REMOVER cuando se conecte a BD
+  { date: '2025-10-11', courtId: 1, occupiedHours: ['08', '11', '15', '19'] },
+  { date: '2025-10-11', courtId: 2, occupiedHours: ['09', '14', '18'] },
+  { date: '2025-10-12', courtId: 1, occupiedHours: ['10', '16', '20'] },
+])
 
 // Datos de las canchas
 const courts = ref([
@@ -906,25 +1080,8 @@ const courts = ref([
   }
 ])
 
-// Horarios disponibles
-const timeSlots = ref([
-  { time: '06:00 - 07:00', available: true },
-  { time: '07:00 - 08:00', available: true },
-  { time: '08:00 - 09:00', available: false },
-  { time: '09:00 - 10:00', available: true },
-  { time: '10:00 - 11:00', available: true },
-  { time: '11:00 - 12:00', available: false },
-  { time: '12:00 - 13:00', available: true },
-  { time: '13:00 - 14:00', available: true },
-  { time: '14:00 - 15:00', available: true },
-  { time: '15:00 - 16:00', available: false },
-  { time: '16:00 - 17:00', available: true },
-  { time: '17:00 - 18:00', available: true },
-  { time: '18:00 - 19:00', available: true },
-  { time: '19:00 - 20:00', available: false },
-  { time: '20:00 - 21:00', available: true },
-  { time: '21:00 - 22:00', available: true }
-])
+// TODO: REMOVER - Datos de ejemplo para timeSlots (ya no se usan)
+// const timeSlots = ref([...])
 
 // Funciones del modal
 const openModal = (court) => {
@@ -933,8 +1090,10 @@ const openModal = (court) => {
   // Reset form
   const today = new Date().toISOString().split('T')[0]
   reservationData.value = {
+    type: 'normal',
     date: today,
-    timeSlot: '',
+    startTime: '',
+    endTime: '',
     people: Math.floor(court.maxPeople / 2),
     notes: ''
   }
@@ -947,11 +1106,83 @@ const closeModal = () => {
   }, 300)
 }
 
-const selectTimeSlot = (slot) => {
-  if (slot.available) {
-    reservationData.value.timeSlot = slot.time
+// TODO: Integración con Base de Datos
+// Esta función verificará en la BD si una hora está ocupada
+// Parámetros necesarios: date, courtId, hour
+const isHourOccupied = (hour) => {
+  if (!reservationData.value.date || !selectedCourt.value) return false
+  
+  // Buscar en el array simulado si la hora está ocupada
+  const occupied = occupiedSlots.value.find(
+    slot => slot.date === reservationData.value.date && 
+            slot.courtId === selectedCourt.value.id
+  )
+  
+  return occupied ? occupied.occupiedHours.includes(hour) : false
+  
+  /* TODO: Reemplazar con llamada a API
+  try {
+    const response = await fetch(`/api/reservations/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: reservationData.value.date,
+        courtId: selectedCourt.value.id,
+        hour: hour
+      })
+    })
+    const data = await response.json()
+    return data.isOccupied
+  } catch (error) {
+    console.error('Error checking availability:', error)
+    return false
+  }
+  */
+}
+
+// Seleccionar hora de inicio
+const selectStartTime = (hour) => {
+  if (isHourOccupied(hour)) return
+  
+  reservationData.value.startTime = hour
+  // Resetear hora de fin al cambiar hora de inicio
+  reservationData.value.endTime = ''
+}
+
+// Obtener horas disponibles para finalización
+const getAvailableEndHours = () => {
+  if (!reservationData.value.startTime) return []
+  
+  const startHour = parseInt(reservationData.value.startTime)
+  
+  if (reservationData.value.type === 'normal') {
+    // Para partidos normales: solo permitir hasta 1 hora después
+    // Por ejemplo, si selecciona 14:00, solo puede elegir 15:00
+    const maxEndHour = startHour + 1
+    return availableHours.value.filter(hour => {
+      const h = parseInt(hour)
+      return h > startHour && h <= maxEndHour
+    })
+  } else {
+    // Para torneos: sin límite, todas las horas posteriores
+    return availableHours.value.filter(hour => parseInt(hour) > startHour)
   }
 }
+
+// Calcular duración total
+const calculateDuration = () => {
+  if (!reservationData.value.startTime) return '0 horas'
+  if (!reservationData.value.endTime) return 'Selecciona hora de fin'
+  
+  const startHour = parseInt(reservationData.value.startTime)
+  const endHour = parseInt(reservationData.value.endTime)
+  const duration = endHour - startHour
+  
+  return duration === 1 ? '1 hora' : `${duration} horas`
+}
+
+// TODO: REMOVER - Función antigua (ya no se usa)
+// const selectTimeSlot = (slot) => { ... }
 
 const incrementPeople = () => {
   if (reservationData.value.people < selectedCourt.value.maxPeople) {
@@ -966,16 +1197,72 @@ const decrementPeople = () => {
 }
 
 const isReservationValid = computed(() => {
-  return reservationData.value.date && 
-         reservationData.value.timeSlot && 
-         reservationData.value.people > 0
+  const baseValid = reservationData.value.date && 
+                    reservationData.value.startTime && 
+                    reservationData.value.endTime && // Ahora siempre requiere hora de fin
+                    reservationData.value.people > 0
+  
+  return baseValid
 })
 
+// TODO: Integración con Base de Datos
+// Esta función enviará la reservación a la BD
 const confirmReservation = () => {
-  if (isReservationValid.value) {
-    alert(`¡Reservación confirmada!\n\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationData.value.timeSlot}\nPersonas: ${reservationData.value.people}\n\n¡Reservación gratuita!`)
-    closeModal()
+  if (!isReservationValid.value) return
+  
+  // Datos que se enviarán a la BD
+  const reservationPayload = {
+    courtId: selectedCourt.value.id,
+    courtName: selectedCourt.value.name,
+    type: reservationData.value.type,
+    date: reservationData.value.date,
+    startTime: `${reservationData.value.startTime}:00`,
+    endTime: `${reservationData.value.endTime}:00`,
+    duration: calculateDuration(),
+    people: reservationData.value.people,
+    notes: reservationData.value.notes,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
   }
+  
+  console.log('📋 Datos de reservación (enviar a BD):', reservationPayload)
+  
+  /* TODO: Implementar llamada a API
+  try {
+    const response = await fetch('/api/reservations/create', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userToken}` // Agregar autenticación
+      },
+      body: JSON.stringify(reservationPayload)
+    })
+    
+    if (!response.ok) throw new Error('Error al crear reservación')
+    
+    const data = await response.json()
+    
+    // Mostrar confirmación exitosa
+    alert(`¡Reservación confirmada! 🎉\n\nID: ${data.reservationId}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Reservación gratuita`)
+    
+    // Actualizar lista de horarios ocupados (opcional, o hacer refetch)
+    // fetchOccupiedSlots()
+    
+    closeModal()
+    
+    // Redirigir a mis reservaciones o mostrar notificación
+    // router.push('/mis-reservaciones')
+    
+  } catch (error) {
+    console.error('Error al confirmar reservación:', error)
+    alert('❌ Error al procesar tu reservación. Por favor intenta de nuevo.')
+  }
+  */
+  
+  // SIMULACIÓN - Mostrar alerta temporal (REMOVER en producción)
+  alert(`¡Reservación confirmada! 🎉\n\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Reservación gratuita`)
+  
+  closeModal()
 }
 </script>
 
@@ -1013,7 +1300,7 @@ const confirmReservation = () => {
 @keyframes modal-in {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(30px);
+    transform: scale(0.96) translateY(20px);
   }
   to {
     opacity: 1;
@@ -1022,13 +1309,13 @@ const confirmReservation = () => {
 }
 
 .animate-modal-in {
-  animation: modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Modal Transitions */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .modal-enter-from,
@@ -1037,21 +1324,36 @@ const confirmReservation = () => {
 }
 
 .modal-enter-active .animate-modal-in {
-  animation: modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-leave-active .animate-modal-in {
-  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) reverse;
+  animation: modal-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) reverse;
 }
 
-/* Ocultar scrollbar pero mantener funcionalidad */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+/* Scrollbar personalizado y elegante */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #6BCF9F #f1f5f9;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6BCF9F, #7ED9A8);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #5ab88d, #6BCF9F);
 }
 
 /* Estilos personalizados para inputs de número */
@@ -1109,5 +1411,29 @@ select {
 /* Transiciones suaves globales */
 * {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilos para inputs de fecha mejorados */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: opacity(0.6);
+  transition: filter 0.3s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: opacity(1);
+}
+
+/* Focus states mejorados */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus-visible {
+  outline: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 </style>
