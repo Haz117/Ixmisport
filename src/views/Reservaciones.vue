@@ -108,15 +108,15 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                <i class="fa-solid fa-filter text-white text-lg"></i>
+                <FunnelIcon class="w-6 h-6 text-white" />
               </div>
               <div>
                 <h3 class="text-xl font-bold text-gray-800">Filtros de Búsqueda</h3>
                 <p class="text-sm text-gray-500">Personaliza tu búsqueda para encontrar la cancha perfecta</p>
               </div>
             </div>
-            <button class="px-4 py-2 text-sm font-semibold text-[#6BCF9F] hover:bg-[#6BCF9F]/10 rounded-lg transition-all duration-300">
-              <i class="fa-solid fa-rotate-right mr-2"></i>
+            <button class="px-4 py-2 text-sm font-semibold text-[#6BCF9F] hover:bg-[#6BCF9F]/10 rounded-lg transition-all duration-300 flex items-center gap-2">
+              <ArrowPathIcon class="w-4 h-4" />
               Limpiar filtros
             </button>
           </div>
@@ -129,7 +129,7 @@
             <div class="relative group">
               <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#6BCF9F]/20 to-[#7ED9A8]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <i class="fa-solid fa-basketball text-[#6BCF9F]"></i>
+                  <TrophyIcon class="w-5 h-5 text-[#6BCF9F]" />
                 </div>
                 Tipo de Deporte
               </label>
@@ -142,7 +142,7 @@
                   <option value="voleibol">Voleibol</option>
                   <option value="padel">Pádel</option>
                 </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-[#6BCF9F] pointer-events-none"></i>
+                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
 
@@ -150,7 +150,7 @@
             <div class="relative group">
               <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#7ED9A8]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <i class="fa-solid fa-calendar text-[#7ED9A8]"></i>
+                  <CalendarIcon class="w-5 h-5 text-[#7ED9A8]" />
                 </div>
                 Fecha de Reserva
               </label>
@@ -165,7 +165,7 @@
             <div class="relative group">
               <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#95E3B3]/20 to-[#6BCF9F]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <i class="fa-solid fa-clock text-[#95E3B3]"></i>
+                  <ClockIcon class="w-5 h-5 text-[#95E3B3]" />
                 </div>
                 Horario Preferido
               </label>
@@ -176,7 +176,7 @@
                   <option value="afternoon">Tarde (12PM - 6PM)</option>
                   <option value="night">Noche (6PM - 11PM)</option>
                 </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-[#95E3B3] pointer-events-none"></i>
+                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
 
@@ -184,7 +184,7 @@
             <div class="relative group">
               <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#6BCF9F]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <i class="fa-solid fa-location-dot text-[#6BCF9F]"></i>
+                  <MapPinIcon class="w-5 h-5 text-[#6BCF9F]" />
                 </div>
                 Zona / Ubicación
               </label>
@@ -195,7 +195,7 @@
                   <option value="norte">Norte</option>
                   <option value="sur">Sur</option>
                 </select>
-                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-[#6BCF9F] pointer-events-none"></i>
+                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -238,7 +238,9 @@
               <i class="fa-solid fa-lightbulb"></i>
               <span>Iluminada</span>
             </div>
-            <div class="text-2xl font-bold">$250<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <!-- Hover Overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
@@ -286,7 +288,9 @@
               <i class="fa-solid fa-wind"></i>
               <span>Techada</span>
             </div>
-            <div class="text-2xl font-bold">$200<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
               <div class="text-center">
@@ -333,7 +337,9 @@
               <i class="fa-solid fa-umbrella"></i>
               <span>Techada</span>
             </div>
-            <div class="text-2xl font-bold">$180<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
               <div class="text-center">
@@ -382,7 +388,9 @@
               <i class="fa-solid fa-umbrella-beach"></i>
               <span>Arena</span>
             </div>
-            <div class="text-2xl font-bold">$150<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
               <div class="text-center">
@@ -425,7 +433,9 @@
               <i class="fa-solid fa-lightbulb"></i>
               <span>Iluminada</span>
             </div>
-            <div class="text-2xl font-bold">$220<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
               <div class="text-center">
@@ -468,7 +478,9 @@
               <i class="fa-solid fa-video"></i>
               <span>Cámaras</span>
             </div>
-            <div class="text-2xl font-bold">$180<span class="text-sm opacity-75">/hora</span></div>
+            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
+              <span class="text-lg font-bold">Gratuito</span>
+            </div>
             
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
               <div class="text-center">
@@ -504,7 +516,7 @@
               @click="closeModal"
               class="absolute top-6 right-6 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-2xl flex items-center justify-center transition-all duration-300 hover:rotate-90 hover:scale-110 z-10 group"
             >
-              <i class="fa-solid fa-xmark text-2xl group-hover:scale-110 transition-transform"></i>
+              <XMarkIcon class="w-7 h-7 group-hover:scale-110 transition-transform" />
             </button>
             
             <div class="flex items-center gap-6 relative z-10">
@@ -513,8 +525,8 @@
               </div>
               <div>
                 <div class="inline-block mb-2 px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold">
-                  <i class="fa-solid fa-star text-yellow-300 mr-1"></i>
-                  Mejor valorada
+                  <CheckCircleIcon class="w-4 h-4 text-green-300 inline-block mr-1" />
+                  Disponible para reservar
                 </div>
                 <h2 class="text-4xl font-extrabold mb-3 drop-shadow-lg">{{ selectedCourt?.name }}</h2>
                 <p class="text-xl text-white/95 font-light">{{ selectedCourt?.description }}</p>
@@ -525,37 +537,20 @@
           <!-- Modal Content - Scrollable SIN barra visible -->
           <div class="flex-1 overflow-y-auto scrollbar-hide p-10">
             <!-- Court Info Cards -->
-            <div class="grid md:grid-cols-4 gap-5 mb-10">
+            <div class="grid md:grid-cols-2 gap-5 mb-10">
               <div class="bg-gradient-to-br from-[#6BCF9F]/10 via-white to-[#6BCF9F]/5 p-6 rounded-2xl border-2 border-[#6BCF9F]/20 hover:border-[#6BCF9F]/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
                 <div class="w-14 h-14 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <i class="fa-solid fa-users text-white text-2xl"></i>
+                  <UsersIcon class="w-8 h-8 text-white" />
                 </div>
                 <p class="text-sm font-semibold text-gray-500 mb-1">Capacidad</p>
                 <p class="text-xl font-bold text-gray-800">{{ selectedCourt?.capacity }}</p>
               </div>
               <div class="bg-gradient-to-br from-[#7ED9A8]/10 via-white to-[#7ED9A8]/5 p-6 rounded-2xl border-2 border-[#7ED9A8]/20 hover:border-[#7ED9A8]/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
                 <div class="w-14 h-14 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <i class="fa-solid fa-location-dot text-white text-2xl"></i>
+                  <MapPinIcon class="w-8 h-8 text-white" />
                 </div>
                 <p class="text-sm font-semibold text-gray-500 mb-1">Ubicación</p>
                 <p class="text-xl font-bold text-gray-800">{{ selectedCourt?.location }}</p>
-              </div>
-              <div class="bg-gradient-to-br from-yellow-400/10 via-white to-yellow-400/5 p-6 rounded-2xl border-2 border-yellow-400/20 hover:border-yellow-400/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
-                <div class="w-14 h-14 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <i class="fa-solid fa-star text-white text-2xl"></i>
-                </div>
-                <p class="text-sm font-semibold text-gray-500 mb-1">Valoración</p>
-                <p class="text-xl font-bold text-gray-800 flex items-center gap-1">
-                  {{ selectedCourt?.rating }} 
-                  <i class="fa-solid fa-star text-yellow-400"></i>
-                </p>
-              </div>
-              <div class="bg-gradient-to-br from-[#95E3B3]/10 via-white to-[#95E3B3]/5 p-6 rounded-2xl border-2 border-[#95E3B3]/20 hover:border-[#95E3B3]/40 transition-all duration-300 hover:shadow-xl hover:scale-105 group">
-                <div class="w-14 h-14 bg-gradient-to-br from-[#95E3B3] to-[#6BCF9F] rounded-xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                  <i class="fa-solid fa-dollar-sign text-white text-2xl"></i>
-                </div>
-                <p class="text-sm font-semibold text-gray-500 mb-1">Precio/hora</p>
-                <p class="text-xl font-bold text-gray-800">${{ selectedCourt?.price }}</p>
               </div>
             </div>
 
@@ -563,7 +558,7 @@
             <div class="mb-10">
               <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <i class="fa-solid fa-list-check text-white text-xl"></i>
+                  <CheckBadgeIcon class="w-7 h-7 text-white" />
                 </div>
                 Servicios Premium Incluidos
               </h3>
@@ -574,7 +569,7 @@
                   class="flex items-center gap-3 p-4 bg-gradient-to-r from-[#F8FDF9] to-white rounded-xl border-2 border-[#D8F0E3] hover:border-[#6BCF9F] hover:shadow-lg transition-all duration-300 group"
                 >
                   <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-md flex-shrink-0">
-                    <i class="fa-solid fa-check text-white font-bold"></i>
+                    <CheckCircleIcon class="w-6 h-6 text-white" />
                   </div>
                   <span class="font-semibold text-gray-700">{{ amenity }}</span>
                 </div>
@@ -585,7 +580,7 @@
             <div class="mb-10">
               <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-xl flex items-center justify-center shadow-lg">
-                  <i class="fa-solid fa-clock text-white text-xl"></i>
+                  <ClockIcon class="w-7 h-7 text-white" />
                 </div>
                 Selecciona Fecha y Horario
               </h3>
@@ -593,7 +588,7 @@
               <!-- Date Picker -->
               <div class="mb-6">
                 <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  <i class="fa-solid fa-calendar-days text-[#7ED9A8]"></i>
+                  <CalendarDaysIcon class="w-5 h-5 text-[#7ED9A8]" />
                   Fecha de Reserva
                 </label>
                 <input 
@@ -622,7 +617,7 @@
                   <div class="text-base font-bold">{{ slot.time }}</div>
                   <div v-if="!slot.available" class="text-xs mt-1 font-semibold">No disponible</div>
                   <div v-if="reservationData.timeSlot === slot.time" class="absolute top-1 right-1">
-                    <i class="fa-solid fa-circle-check text-white"></i>
+                    <CheckCircleIcon class="w-5 h-5 text-white fill-white" />
                   </div>
                 </button>
               </div>
@@ -632,7 +627,7 @@
             <div class="mb-10">
               <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#95E3B3] to-[#6BCF9F] rounded-xl flex items-center justify-center shadow-lg">
-                  <i class="fa-solid fa-user-group text-white text-xl"></i>
+                  <UserGroupIcon class="w-7 h-7 text-white" />
                 </div>
                 ¿Cuántas personas jugarán?
               </h3>
@@ -642,7 +637,7 @@
                   class="w-16 h-16 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-2xl font-bold text-3xl hover:shadow-2xl hover:shadow-[#6BCF9F]/30 hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                   :disabled="reservationData.people <= 1"
                 >
-                  <i class="fa-solid fa-minus"></i>
+                  <MinusIcon class="w-8 h-8" />
                 </button>
                 <div class="flex-1 text-center">
                   <input 
@@ -659,7 +654,7 @@
                   class="w-16 h-16 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-2xl font-bold text-3xl hover:shadow-2xl hover:shadow-[#6BCF9F]/30 hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                   :disabled="reservationData.people >= (selectedCourt?.maxPeople || 22)"
                 >
-                  <i class="fa-solid fa-plus"></i>
+                  <PlusIcon class="w-8 h-8" />
                 </button>
               </div>
             </div>
@@ -668,7 +663,7 @@
             <div class="mb-10">
               <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#95E3B3] rounded-xl flex items-center justify-center shadow-lg">
-                  <i class="fa-solid fa-comment-dots text-white text-xl"></i>
+                  <ChatBubbleBottomCenterTextIcon class="w-7 h-7 text-white" />
                 </div>
                 Notas Adicionales
                 <span class="text-sm font-normal text-gray-400">(Opcional)</span>
@@ -685,49 +680,38 @@
             <div class="bg-gradient-to-br from-[#6BCF9F]/10 via-white to-[#95E3B3]/10 p-8 rounded-3xl border-3 border-[#6BCF9F]/30 mb-8 shadow-xl">
               <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                  <i class="fa-solid fa-receipt text-white text-xl"></i>
+                  <DocumentTextIcon class="w-7 h-7 text-white" />
                 </div>
                 Resumen de tu Reservación
               </h3>
               <div class="space-y-4">
                 <div class="flex justify-between items-center p-4 bg-white rounded-xl">
                   <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <i class="fa-solid fa-basketball text-[#6BCF9F]"></i>
+                    <TrophyIcon class="w-5 h-5 text-[#6BCF9F]" />
                     Cancha:
                   </span>
                   <span class="font-bold text-gray-800 text-lg">{{ selectedCourt?.name }}</span>
                 </div>
                 <div class="flex justify-between items-center p-4 bg-white rounded-xl">
                   <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <i class="fa-solid fa-calendar text-[#7ED9A8]"></i>
+                    <CalendarIcon class="w-5 h-5 text-[#7ED9A8]" />
                     Fecha:
                   </span>
                   <span class="font-bold text-gray-800 text-lg">{{ reservationData.date || 'No seleccionada' }}</span>
                 </div>
                 <div class="flex justify-between items-center p-4 bg-white rounded-xl">
                   <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <i class="fa-solid fa-clock text-[#95E3B3]"></i>
+                    <ClockIcon class="w-5 h-5 text-[#95E3B3]" />
                     Horario:
                   </span>
                   <span class="font-bold text-gray-800 text-lg">{{ reservationData.timeSlot || 'No seleccionado' }}</span>
                 </div>
                 <div class="flex justify-between items-center p-4 bg-white rounded-xl">
                   <span class="font-semibold text-gray-600 flex items-center gap-2">
-                    <i class="fa-solid fa-users text-[#6BCF9F]"></i>
+                    <UsersIcon class="w-5 h-5 text-[#6BCF9F]" />
                     Personas:
                   </span>
                   <span class="font-bold text-gray-800 text-lg">{{ reservationData.people }}</span>
-                </div>
-                <div class="border-t-3 border-[#6BCF9F]/20 pt-5 mt-5">
-                  <div class="flex justify-between items-center p-5 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] rounded-2xl shadow-2xl">
-                    <span class="text-2xl font-bold text-white flex items-center gap-3">
-                      <i class="fa-solid fa-money-bill-wave"></i>
-                      Total a Pagar:
-                    </span>
-                    <span class="text-4xl font-extrabold text-white drop-shadow-lg">
-                      ${{ calculateTotal() }}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -739,7 +723,7 @@
               @click="closeModal"
               class="flex-1 px-8 py-5 bg-white border-3 border-gray-300 text-gray-700 rounded-2xl font-bold text-lg hover:bg-gray-50 hover:border-gray-400 hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3"
             >
-              <i class="fa-solid fa-times-circle text-2xl"></i>
+              <XCircleIcon class="w-7 h-7" />
               Cancelar
             </button>
             <button 
@@ -747,7 +731,7 @@
               :disabled="!isReservationValid"
               class="flex-1 px-8 py-5 bg-gradient-to-r from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-[#6BCF9F]/40 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
             >
-              <i class="fa-solid fa-circle-check text-2xl"></i>
+              <CheckCircleIcon class="w-7 h-7" />
               Confirmar Reservación
             </button>
           </div>
@@ -817,6 +801,26 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { 
+  FunnelIcon, 
+  ArrowPathIcon, 
+  TrophyIcon, 
+  CalendarIcon, 
+  ClockIcon, 
+  MapPinIcon,
+  ChevronDownIcon,
+  XMarkIcon,
+  UsersIcon,
+  CheckBadgeIcon,
+  CalendarDaysIcon,
+  UserGroupIcon,
+  ChatBubbleBottomCenterTextIcon,
+  DocumentTextIcon,
+  PlusIcon,
+  MinusIcon,
+  CheckCircleIcon,
+  XCircleIcon
+} from '@heroicons/vue/24/outline'
 
 // Estado del modal
 const showModal = ref(false)
@@ -848,8 +852,6 @@ const courts = ref([
     capacity: '11 vs 11',
     maxPeople: 22,
     location: 'Centro Deportivo',
-    rating: 4.8,
-    price: 250,
     amenities: ['Pasto Sintético', 'Iluminación LED', 'Vestidores', 'Estacionamiento', 'Duchas', 'Cafetería']
   },
   {
@@ -860,8 +862,6 @@ const courts = ref([
     capacity: '5 vs 5',
     maxPeople: 10,
     location: 'Polideportivo Norte',
-    rating: 4.9,
-    price: 200,
     amenities: ['Duela Profesional', 'Techada', 'WiFi Gratis', 'Hidratación', 'Marcador Electrónico', 'Gradas']
   },
   {
@@ -872,8 +872,6 @@ const courts = ref([
     capacity: 'Individual/Dobles',
     maxPeople: 4,
     location: 'Club Deportivo Sur',
-    rating: 5.0,
-    price: 180,
     amenities: ['Arcilla Sintética', 'Techada', 'Renta de Equipo', 'Clases Disponibles', 'Iluminación', 'Graderías']
   },
   {
@@ -884,8 +882,6 @@ const courts = ref([
     capacity: '6 vs 6',
     maxPeople: 12,
     location: 'Centro',
-    rating: 4.7,
-    price: 150,
     amenities: ['Arena Fina', 'Al Aire Libre', 'Malla Reglamentaria', 'Torneos', 'Graderías', 'Zona de Espectadores']
   },
   {
@@ -896,8 +892,6 @@ const courts = ref([
     capacity: '2 vs 2',
     maxPeople: 4,
     location: 'Norte',
-    rating: 4.9,
-    price: 220,
     amenities: ['Cristales Premium', 'Climatizada', 'Iluminación LED', 'Césped Artificial', 'Pro Level', 'Renta Equipo']
   },
   {
@@ -908,8 +902,6 @@ const courts = ref([
     capacity: '7 vs 7',
     maxPeople: 14,
     location: 'Sur',
-    rating: 4.6,
-    price: 180,
     amenities: ['Alta Densidad', 'Iluminación', 'Cámaras', 'Bebederos', 'Estacionamiento', 'Vestidores']
   }
 ])
@@ -973,11 +965,6 @@ const decrementPeople = () => {
   }
 }
 
-const calculateTotal = () => {
-  if (!selectedCourt.value) return 0
-  return selectedCourt.value.price
-}
-
 const isReservationValid = computed(() => {
   return reservationData.value.date && 
          reservationData.value.timeSlot && 
@@ -986,7 +973,7 @@ const isReservationValid = computed(() => {
 
 const confirmReservation = () => {
   if (isReservationValid.value) {
-    alert(`¡Reservación confirmada!\n\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationData.value.timeSlot}\nPersonas: ${reservationData.value.people}\nTotal: $${calculateTotal()}`)
+    alert(`¡Reservación confirmada!\n\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationData.value.timeSlot}\nPersonas: ${reservationData.value.people}\n\n¡Reservación gratuita!`)
     closeModal()
   }
 }
