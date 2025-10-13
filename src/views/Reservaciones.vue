@@ -679,63 +679,58 @@
                   </span>
                 </div>
 
-                <!-- Selector de hora de inicio -->
-                <div class="mb-4">
-                  <label class="text-xs font-semibold text-gray-600 mb-2 block">Hora de inicio</label>
-                  <div class="grid grid-cols-6 gap-2">
-                    <button
-                      v-for="hour in availableHours"
-                      :key="hour"
-                      @click="selectStartTime(hour)"
-                      :disabled="isHourOccupied(hour)"
-                      :class="[
-                        'px-3 py-2.5 rounded-lg font-semibold transition-all duration-300 text-xs relative',
-                        reservationData.startTime === hour
-                          ? 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white shadow-lg shadow-[#6BCF9F]/30 scale-105'
-                          : isHourOccupied(hour)
-                            ? 'bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed opacity-50 line-through'
-                            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#6BCF9F] hover:shadow-md hover:scale-105'
-                      ]"
-                    >
-                      {{ hour }}:00
-                      <div v-if="reservationData.startTime === hour" class="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                        <CheckCircleIcon class="w-3.5 h-3.5 text-[#6BCF9F]" />
-                      </div>
-                    </button>
+                <!-- Grid de inputs de tiempo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <!-- Hora de inicio -->
+                  <div>
+                    <label class="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+                      <i class="fa-solid fa-play text-[#6BCF9F]"></i>
+                      Hora de inicio
+                    </label>
+                    <input 
+                      v-model="reservationData.startTime"
+                      @input="watchStartTime"
+                      type="time" 
+                      min="06:00"
+                      max="23:59"
+                      step="60"
+                      class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F]/50 focus:border-[#6BCF9F] transition-all duration-300 font-semibold text-gray-700 hover:border-[#6BCF9F] shadow-sm text-lg"
+                      placeholder="HH:MM"
+                    />
+                  </div>
+
+                  <!-- Hora de finalización -->
+                  <div>
+                    <label class="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+                      <i class="fa-solid fa-flag-checkered text-[#7ED9A8]"></i>
+                      Hora de finalización
+                    </label>
+                    <input 
+                      v-model="reservationData.endTime"
+                      @input="watchEndTime"
+                      type="time" 
+                      min="06:00"
+                      max="23:59"
+                      step="60"
+                      class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7ED9A8]/50 focus:border-[#7ED9A8] transition-all duration-300 font-semibold text-gray-700 hover:border-[#7ED9A8] shadow-sm text-lg"
+                      placeholder="HH:MM"
+                    />
                   </div>
                 </div>
 
-                <!-- Selector de hora de fin (para ambos tipos) -->
-                <div v-if="reservationData.startTime" class="mb-4">
-                  <label class="text-xs font-semibold text-gray-600 mb-2 block">
-                    Hora de finalización
-                    <span v-if="reservationData.type === 'normal'" class="text-[#6BCF9F] ml-1">(máximo 1 hora después)</span>
-                  </label>
-                  <div class="grid grid-cols-6 gap-2">
-                    <button
-                      v-for="hour in getAvailableEndHours()"
-                      :key="hour"
-                      @click="reservationData.endTime = hour"
-                      :class="[
-                        'px-3 py-2.5 rounded-lg font-semibold transition-all duration-300 text-xs relative',
-                        reservationData.endTime === hour
-                          ? 'bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] text-white shadow-lg shadow-[#7ED9A8]/30 scale-105'
-                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#7ED9A8] hover:shadow-md hover:scale-105'
-                      ]"
-                    >
-                      {{ hour }}:00
-                      <div v-if="reservationData.endTime === hour" class="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                        <CheckCircleIcon class="w-3.5 h-3.5 text-[#7ED9A8]" />
-                      </div>
-                    </button>
-                  </div>
+                <!-- Mensaje de error -->
+                <div v-if="timeError" class="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                  <p class="text-sm font-semibold text-red-600 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {{ timeError }}
+                  </p>
                 </div>
 
-                <!-- Indicador de duración -->
-                <div v-if="reservationData.startTime" class="mt-4 p-4 bg-gradient-to-r from-[#F8FDF9] to-white rounded-xl border-2 border-[#D8F0E3]">
+                <!-- Indicador de duración (solo si ambos tiempos están seleccionados y son válidos) -->
+                <div v-if="reservationData.startTime && reservationData.endTime && !timeError" class="p-4 bg-gradient-to-r from-[#F8FDF9] to-white rounded-xl border-2 border-[#D8F0E3]">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center">
+                      <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center shadow-md">
                         <i class="fa-solid fa-hourglass-half text-white"></i>
                       </div>
                       <div>
@@ -746,10 +741,26 @@
                     <div class="text-right">
                       <p class="text-xs font-semibold text-gray-500">Horario</p>
                       <p class="text-sm font-bold text-[#6BCF9F]">
-                        {{ reservationData.startTime }}:00 - {{ reservationData.endTime || '?' }}:00
+                        {{ reservationData.startTime }} - {{ reservationData.endTime }}
                       </p>
                     </div>
                   </div>
+                </div>
+
+                <!-- Ayuda contextual -->
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-xs text-blue-700 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
+                    <span>
+                      <strong>Horario de operación:</strong> 6:00 AM - 12:00 AM (medianoche). 
+                      <span v-if="reservationData.type === 'normal'">
+                        <br/><strong>Reservaciones normales:</strong> Máximo 1 hora de duración.
+                      </span>
+                      <span v-else>
+                        <br/><strong>Torneos:</strong> Sin límite de duración.
+                      </span>
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -762,14 +773,14 @@
                 </div>
                 <div>
                   <h3 class="text-xl font-bold text-gray-900">Número de Jugadores</h3>
-                  <p class="text-xs text-gray-500">Máximo {{ selectedCourt?.maxPeople }} personas</p>
+                  <p class="text-xs text-gray-500">Mínimo {{ selectedCourt?.minPeople }} - Máximo {{ selectedCourt?.maxPeople }} personas</p>
                 </div>
               </div>
               <div class="flex items-center justify-center gap-4 bg-gradient-to-br from-[#F8FDF9] to-white p-6 rounded-xl border-2 border-[#D8F0E3]">
                 <button 
                   @click="decrementPeople"
                   class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-bold hover:shadow-lg hover:scale-110 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
-                  :disabled="reservationData.people <= 1"
+                  :disabled="reservationData.people <= selectedCourt?.minPeople"
                 >
                   <MinusIcon class="w-6 h-6" />
                 </button>
@@ -785,25 +796,6 @@
                   <PlusIcon class="w-6 h-6" />
                 </button>
               </div>
-            </div>
-
-            <!-- Notas Adicionales -->
-            <div class="px-8 py-6 border-b border-gray-100">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#95E3B3] rounded-lg flex items-center justify-center shadow-md">
-                  <ChatBubbleBottomCenterTextIcon class="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900">Notas Adicionales</h3>
-                  <p class="text-xs text-gray-500">Opcional - Solicitudes especiales</p>
-                </div>
-              </div>
-              <textarea 
-                v-model="reservationData.notes"
-                placeholder="Ej: Necesito alquilar balones, es para un torneo, requiero un árbitro..."
-                rows="3"
-                class="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F]/50 focus:border-[#6BCF9F] transition-all duration-300 resize-none font-medium text-gray-700 placeholder:text-gray-400 hover:border-[#6BCF9F] shadow-sm"
-              ></textarea>
             </div>
 
             <!-- Resumen de Reservación - Diseño Premium -->
@@ -843,7 +835,7 @@
                       Horario
                     </span>
                     <span class="font-bold text-gray-900">
-                      {{ reservationData.startTime && reservationData.endTime ? `${reservationData.startTime}:00 - ${reservationData.endTime}:00` : 'No seleccionado' }}
+                      {{ reservationData.startTime && reservationData.endTime ? `${reservationData.startTime} - ${reservationData.endTime}` : 'No seleccionado' }}
                     </span>
                   </div>
                   <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
@@ -969,7 +961,6 @@ import {
   CheckBadgeIcon,
   CalendarDaysIcon,
   UserGroupIcon,
-  ChatBubbleBottomCenterTextIcon,
   DocumentTextIcon,
   PlusIcon,
   MinusIcon,
@@ -993,10 +984,9 @@ const filters = ref({
 const reservationData = ref({
   type: 'normal', // 'normal' o 'tournament'
   date: '',
-  startTime: '', // Hora de inicio (formato: '06', '07', etc.)
-  endTime: '', // Solo para torneos
-  people: 10,
-  notes: ''
+  startTime: '', // Hora de inicio (formato: '06:00', '06:30', '07:00', etc.)
+  endTime: '', // Hora de fin (formato: '06:30', '07:00', etc.)
+  people: 10
 })
 
 // Horas disponibles (6 AM - 11 PM)
@@ -1006,14 +996,17 @@ const availableHours = ref([
   '18', '19', '20', '21', '22', '23'
 ])
 
+// Error de validación de tiempo
+const timeError = ref('')
+
 // TODO: Integración con Base de Datos
-// Este array simula las horas ocupadas. En producción, esto vendrá de la API/BD
-// Formato: { date: 'YYYY-MM-DD', courtId: number, occupiedHours: ['06', '07', '14', ...] }
+// Este array simula los slots ocupados. En producción, esto vendrá de la API/BD
+// Formato: { date: 'YYYY-MM-DD', courtId: number, occupiedHours: ['06:00', '06:30', '14:00', ...] }
 const occupiedSlots = ref([
   // Ejemplo de datos simulados - REMOVER cuando se conecte a BD
-  { date: '2025-10-11', courtId: 1, occupiedHours: ['08', '11', '15', '19'] },
-  { date: '2025-10-11', courtId: 2, occupiedHours: ['09', '14', '18'] },
-  { date: '2025-10-12', courtId: 1, occupiedHours: ['10', '16', '20'] },
+  { date: '2025-10-13', courtId: 1, occupiedHours: ['08:00', '08:30', '11:00', '15:00', '19:00', '19:30'] },
+  { date: '2025-10-13', courtId: 2, occupiedHours: ['09:00', '09:30', '14:00', '18:00'] },
+  { date: '2025-10-14', courtId: 1, occupiedHours: ['10:00', '16:00', '20:00'] },
 ])
 
 // Datos de las canchas
@@ -1025,6 +1018,7 @@ const courts = ref([
     icon: 'fa-solid fa-futbol',
     capacity: '11 vs 11',
     maxPeople: 22,
+    minPeople: 10, // Mínimo 5 vs 5
     location: 'Centro Deportivo',
     amenities: ['Pasto Sintético', 'Iluminación LED', 'Vestidores', 'Estacionamiento', 'Duchas', 'Cafetería']
   },
@@ -1035,6 +1029,7 @@ const courts = ref([
     icon: 'fa-solid fa-basketball',
     capacity: '5 vs 5',
     maxPeople: 10,
+    minPeople: 6, // Mínimo 3 vs 3
     location: 'Polideportivo Norte',
     amenities: ['Duela Profesional', 'Techada', 'WiFi Gratis', 'Hidratación', 'Marcador Electrónico', 'Gradas']
   },
@@ -1045,6 +1040,7 @@ const courts = ref([
     icon: 'fa-solid fa-table-tennis-paddle-ball',
     capacity: 'Individual/Dobles',
     maxPeople: 4,
+    minPeople: 2, // Mínimo 1 vs 1
     location: 'Club Deportivo Sur',
     amenities: ['Arcilla Sintética', 'Techada', 'Renta de Equipo', 'Clases Disponibles', 'Iluminación', 'Graderías']
   },
@@ -1055,6 +1051,7 @@ const courts = ref([
     icon: 'fa-solid fa-volleyball',
     capacity: '6 vs 6',
     maxPeople: 12,
+    minPeople: 6, // Mínimo 3 vs 3
     location: 'Centro',
     amenities: ['Arena Fina', 'Al Aire Libre', 'Malla Reglamentaria', 'Torneos', 'Graderías', 'Zona de Espectadores']
   },
@@ -1065,6 +1062,7 @@ const courts = ref([
     icon: 'fa-solid fa-baseball-bat-ball',
     capacity: '2 vs 2',
     maxPeople: 4,
+    minPeople: 2, // Mínimo 1 vs 1
     location: 'Norte',
     amenities: ['Cristales Premium', 'Climatizada', 'Iluminación LED', 'Césped Artificial', 'Pro Level', 'Renta Equipo']
   },
@@ -1075,6 +1073,7 @@ const courts = ref([
     icon: 'fa-solid fa-futbol',
     capacity: '7 vs 7',
     maxPeople: 14,
+    minPeople: 6, // Mínimo 3 vs 3
     location: 'Sur',
     amenities: ['Alta Densidad', 'Iluminación', 'Cámaras', 'Bebederos', 'Estacionamiento', 'Vestidores']
   }
@@ -1094,9 +1093,9 @@ const openModal = (court) => {
     date: today,
     startTime: '',
     endTime: '',
-    people: Math.floor(court.maxPeople / 2),
-    notes: ''
+    people: court.minPeople // Iniciar con el mínimo requerido
   }
+  timeError.value = '' // Reset error
 }
 
 const closeModal = () => {
@@ -1107,28 +1106,26 @@ const closeModal = () => {
 }
 
 // TODO: Integración con Base de Datos
-// Esta función verificará en la BD si una hora está ocupada
-// Parámetros necesarios: date, courtId, hour
-const isHourOccupied = (hour) => {
-  if (!reservationData.value.date || !selectedCourt.value) return false
+// Esta función verificará en la BD si un rango de tiempo está ocupado
+const isTimeRangeOccupied = () => {
+  if (!reservationData.value.date || !selectedCourt.value || !reservationData.value.startTime || !reservationData.value.endTime) {
+    return false
+  }
   
-  // Buscar en el array simulado si la hora está ocupada
-  const occupied = occupiedSlots.value.find(
-    slot => slot.date === reservationData.value.date && 
-            slot.courtId === selectedCourt.value.id
-  )
-  
-  return occupied ? occupied.occupiedHours.includes(hour) : false
+  // Aquí se validaría contra la base de datos
+  // Por ahora retornamos false (disponible)
+  return false
   
   /* TODO: Reemplazar con llamada a API
   try {
-    const response = await fetch(`/api/reservations/check`, {
+    const response = await fetch(`/api/reservations/check-range`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         date: reservationData.value.date,
         courtId: selectedCourt.value.id,
-        hour: hour
+        startTime: reservationData.value.startTime,
+        endTime: reservationData.value.endTime
       })
     })
     const data = await response.json()
@@ -1140,45 +1137,80 @@ const isHourOccupied = (hour) => {
   */
 }
 
-// Seleccionar hora de inicio
-const selectStartTime = (hour) => {
-  if (isHourOccupied(hour)) return
+// Validar tiempos cuando cambian
+const validateTimes = () => {
+  timeError.value = ''
   
-  reservationData.value.startTime = hour
-  // Resetear hora de fin al cambiar hora de inicio
-  reservationData.value.endTime = ''
+  if (!reservationData.value.startTime || !reservationData.value.endTime) {
+    return
+  }
+  
+  const startMinutes = timeToMinutes(reservationData.value.startTime)
+  const endMinutes = timeToMinutes(reservationData.value.endTime)
+  const duration = endMinutes - startMinutes
+  
+  // Validar que la hora de fin sea posterior a la de inicio
+  if (duration <= 0) {
+    timeError.value = '❌ La hora de finalización debe ser posterior a la hora de inicio'
+    return
+  }
+  
+  // Validar duración máxima para reservaciones normales (60 minutos)
+  if (reservationData.value.type === 'normal' && duration > 60) {
+    timeError.value = '❌ Las reservaciones normales no pueden exceder 1 hora (60 minutos)'
+    return
+  }
+  
+  // Validar horario de operación (6 AM - 12 AM)
+  if (startMinutes < 360 || endMinutes > 1440) { // 360 = 6:00 AM, 1440 = 12:00 AM
+    timeError.value = '❌ El horario de operación es de 6:00 AM a 12:00 AM (medianoche)'
+    return
+  }
 }
 
-// Obtener horas disponibles para finalización
-const getAvailableEndHours = () => {
-  if (!reservationData.value.startTime) return []
-  
-  const startHour = parseInt(reservationData.value.startTime)
-  
-  if (reservationData.value.type === 'normal') {
-    // Para partidos normales: solo permitir hasta 1 hora después
-    // Por ejemplo, si selecciona 14:00, solo puede elegir 15:00
-    const maxEndHour = startHour + 1
-    return availableHours.value.filter(hour => {
-      const h = parseInt(hour)
-      return h > startHour && h <= maxEndHour
-    })
-  } else {
-    // Para torneos: sin límite, todas las horas posteriores
-    return availableHours.value.filter(hour => parseInt(hour) > startHour)
-  }
+// Watchers para validar en tiempo real
+const watchStartTime = () => {
+  validateTimes()
+}
+
+const watchEndTime = () => {
+  validateTimes()
+}
+
+// Convertir tiempo a minutos para comparaciones
+const timeToMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
+}
+
+// Convertir minutos a formato de tiempo
+const minutesToTime = (minutes) => {
+  // Manejar el caso de medianoche del día siguiente
+  const adjustedMinutes = minutes % 1440 // 1440 = 24 horas en minutos
+  const hours = Math.floor(adjustedMinutes / 60)
+  const mins = adjustedMinutes % 60
+  return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`
 }
 
 // Calcular duración total
 const calculateDuration = () => {
-  if (!reservationData.value.startTime) return '0 horas'
-  if (!reservationData.value.endTime) return 'Selecciona hora de fin'
+  if (!reservationData.value.startTime) return '0 minutos'
+  if (!reservationData.value.endTime) return 'Selecciona duración'
   
-  const startHour = parseInt(reservationData.value.startTime)
-  const endHour = parseInt(reservationData.value.endTime)
-  const duration = endHour - startHour
+  const startMinutes = timeToMinutes(reservationData.value.startTime)
+  const endMinutes = timeToMinutes(reservationData.value.endTime)
+  const durationMinutes = endMinutes - startMinutes
   
-  return duration === 1 ? '1 hora' : `${duration} horas`
+  const hours = Math.floor(durationMinutes / 60)
+  const minutes = durationMinutes % 60
+  
+  if (hours === 0) {
+    return `${minutes} minutos`
+  } else if (minutes === 0) {
+    return hours === 1 ? '1 hora' : `${hours} horas`
+  } else {
+    return `${hours} hora${hours > 1 ? 's' : ''} y ${minutes} minutos`
+  }
 }
 
 // TODO: REMOVER - Función antigua (ya no se usa)
@@ -1191,7 +1223,7 @@ const incrementPeople = () => {
 }
 
 const decrementPeople = () => {
-  if (reservationData.value.people > 1) {
+  if (reservationData.value.people > selectedCourt.value.minPeople) {
     reservationData.value.people--
   }
 }
@@ -1199,8 +1231,10 @@ const decrementPeople = () => {
 const isReservationValid = computed(() => {
   const baseValid = reservationData.value.date && 
                     reservationData.value.startTime && 
-                    reservationData.value.endTime && // Ahora siempre requiere hora de fin
-                    reservationData.value.people > 0
+                    reservationData.value.endTime && 
+                    reservationData.value.people >= selectedCourt.value.minPeople && // Validar mínimo
+                    reservationData.value.people <= selectedCourt.value.maxPeople && // Validar máximo
+                    timeError.value === '' // No debe haber errores de validación
   
   return baseValid
 })
@@ -1216,11 +1250,10 @@ const confirmReservation = () => {
     courtName: selectedCourt.value.name,
     type: reservationData.value.type,
     date: reservationData.value.date,
-    startTime: `${reservationData.value.startTime}:00`,
-    endTime: `${reservationData.value.endTime}:00`,
+    startTime: reservationData.value.startTime,
+    endTime: reservationData.value.endTime,
     duration: calculateDuration(),
     people: reservationData.value.people,
-    notes: reservationData.value.notes,
     status: 'confirmed',
     createdAt: new Date().toISOString()
   }
@@ -1436,4 +1469,5 @@ button:focus-visible {
 html {
   scroll-behavior: smooth;
 }
+
 </style>
