@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen min-w-full w-screen h-screen bg-gradient-to-br from-ixmi-50 via-white to-ixmi-100 relative overflow-hidden">
+  <div class="min-h-screen min-w-full w-screen bg-gradient-to-br from-ixmi-50 via-white to-ixmi-100 relative overflow-y-auto">
     
     <!-- Elementos decorativos de fondo con movimiento suave -->
     <div class="absolute inset-0 pointer-events-none">
@@ -400,11 +400,10 @@
                   </span>
                 </div>
 
-                <!-- Price Tag -->
+                <!-- Gratis Tag -->
                 <div class="absolute bottom-4 left-4">
-                  <div class="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/50">
-                    <span class="text-lg font-bold text-gray-900">${{ cancha.price }}</span>
-                    <span class="text-sm text-gray-600">/hora</span>
+                  <div class="bg-green-500/90 backdrop-blur-sm rounded-xl px-3 py-2 border border-green-400/50">
+                    <span class="text-lg font-bold text-white">GRATIS</span>
                   </div>
                 </div>
               </div>
@@ -659,10 +658,10 @@
                       <span class="text-gray-600">{{ reservation.time }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                      <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                       </svg>
-                      <span class="font-semibold text-gray-900">${{ reservation.amount || '200' }}</span>
+                      <span class="font-semibold text-green-600">Gratis</span>
                     </div>
                   </div>
                 </div>
@@ -1203,6 +1202,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getAllReservations } from '@/firebase/reservations'
+import { getAllUsers } from '@/firebase/auth'
 
 // Estado reactivo principal
 const activeTab = ref('dashboard')
@@ -1210,52 +1210,30 @@ const showNewCanchaModal = ref(false)
 const userSearch = ref('')
 const reservationFilter = ref('all')
 const isLoadingReservations = ref(false)
+const isLoadingUsers = ref(false)
 
 // Configuración de pestañas del sidebar
 const tabs = ref([
-  { 
-    id: 'dashboard', 
-    name: 'Dashboard', 
-    icon: 'svg',
-    badge: null
-  },
-  { 
-    id: 'canchas', 
-    name: 'Canchas', 
-    icon: 'svg',
-    badge: '9'
-  },
-  { 
-    id: 'horarios', 
-    name: 'Gestión Horarios', 
-    icon: 'svg',
-    badge: null
-  },
-  { 
-    id: 'usuarios', 
-    name: 'Usuarios', 
-    icon: 'svg',
-    badge: '248'
-  },
-  { 
-    id: 'reservaciones', 
-    name: 'Reservaciones', 
-    icon: 'svg',
-    badge: '7'
-  },
-  { 
-    id: 'configuracion', 
-    name: 'Configuración', 
-    icon: 'svg',
-    badge: null
-  }
+  { id: 'dashboard', name: 'Dashboard', icon: 'svg', badge: null },
+  { id: 'canchas', name: 'Canchas', icon: 'svg', badge: '9' },
+  { id: 'horarios', name: 'Gestión Horarios', icon: 'svg', badge: null },
+  { id: 'usuarios', name: 'Usuarios', icon: 'svg', badge: null },
+  { id: 'reservaciones', name: 'Reservaciones', icon: 'svg', badge: null },
+  { id: 'configuracion', name: 'Configuración', icon: 'svg', badge: null }
 ])
 
-// Datos de métricas principales mejoradas
-const metrics = ref([
+// Actualizar badges dinámicamente
+const updateTabBadges = () => {
+  tabs.value[1].badge = canchas.value.length.toString()
+  tabs.value[3].badge = users.value.length.toString()
+  tabs.value[4].badge = reservations.value.length > 0 ? reservations.value.length.toString() : null
+}
+
+// Datos de métricas principales - Se actualizan dinámicamente
+const metrics = computed(() => [
   {
     title: 'Total Usuarios',
-    value: '248',
+    value: users.value.length.toString(),
     subtitle: 'Usuarios registrados',
     period: 'Total',
     change: '+12%',
@@ -1268,23 +1246,23 @@ const metrics = ref([
   },
   {
     title: 'Canchas Activas',
-    value: '12',
-    subtitle: '2 en mantenimiento',
+    value: canchas.value.filter(c => c.active).length.toString(),
+    subtitle: `${canchas.value.filter(c => !c.active).length} en mantenimiento`,
     period: 'Disponibles',
-    change: '+2',
+    change: '9 total',
     changeColor: 'bg-ixmi-100 text-ixmi-800',
     icon: 'svg',
     color: 'bg-gradient-to-br from-ixmi-500 to-ixmi-600',
     gradientBg: 'bg-gradient-to-br from-ixmi-500 to-ixmi-600',
-    progress: 92,
+    progress: Math.round((canchas.value.filter(c => c.active).length / canchas.value.length) * 100),
     progressColor: 'bg-gradient-to-r from-ixmi-500 to-ixmi-600'
   },
   {
     title: 'Reservaciones',
-    value: '34',
-    subtitle: 'Hoy',
-    period: 'Diarias',
-    change: '+18%',
+    value: reservations.value.length.toString(),
+    subtitle: 'Total registradas',
+    period: 'En sistema',
+    change: reservations.value.filter(r => r.status === 'approved').length + ' activas',
     changeColor: 'bg-green-100 text-green-800',
     icon: 'svg',
     color: 'bg-gradient-to-br from-purple-500 to-purple-600',
@@ -1294,62 +1272,46 @@ const metrics = ref([
   },
   {
     title: 'Usuarios Activos',
-    value: '189',
-    subtitle: 'Registrados',
-    period: 'Totales',
+    value: users.value.filter(u => u.active).length.toString(),
+    subtitle: 'Con actividad reciente',
+    period: 'Activos',
     change: '+12%',
     changeColor: 'bg-green-100 text-green-800',
     icon: 'svg',
     color: 'bg-gradient-to-br from-green-500 to-green-600',
     gradientBg: 'bg-gradient-to-br from-green-500 to-green-600',
-    progress: 68,
+    progress: Math.round((users.value.filter(u => u.active).length / users.value.length) * 100),
     progressColor: 'bg-gradient-to-r from-green-500 to-green-600'
   }
 ])
 
-// Actividad reciente mejorada
-const recentActivities = ref([
-  {
-    id: 1,
-    title: 'Nueva reservación aprobada',
-    description: 'Juan Pérez reservó Cancha de Fútbol #1 para mañana',
-    time: 'Hace 5 minutos',
+// Actividad reciente - basada en reservaciones reales
+const recentActivities = computed(() => {
+  // Usar las últimas reservaciones como actividad reciente
+  return reservations.value.slice(0, 4).map((r, index) => ({
+    id: index + 1,
+    title: r.status === 'approved' ? 'Reservación confirmada' : r.status === 'rejected' ? 'Reservación cancelada' : 'Nueva reservación',
+    description: `${r.userName} reservó ${r.cancha} para ${r.date}`,
+    time: r.createdAt ? formatTimeAgo(r.createdAt) : 'Recientemente',
     icon: 'svg',
-    color: 'bg-gradient-to-br from-ixmi-500 to-ixmi-600',
-    status: 'Completado',
-    statusColor: 'bg-green-100 text-green-800'
-  },
-  {
-    id: 2,
-    title: 'Usuario verificado',
-    description: 'María González completó su verificación de cuenta',
-    time: 'Hace 15 minutos',
-    icon: 'svg',
-    color: 'bg-gradient-to-br from-blue-500 to-blue-600',
-    status: 'Nuevo',
-    statusColor: 'bg-blue-100 text-blue-800'
-  },
-  {
-    id: 3,
-    title: 'Mantenimiento programado',
-    description: 'Cancha de Tenis #2 programada para mantenimiento',
-    time: 'Hace 1 hora',
-    icon: 'svg',
-    color: 'bg-gradient-to-br from-orange-500 to-orange-600',
-    status: 'Pendiente',
-    statusColor: 'bg-orange-100 text-orange-800'
-  },
-  {
-    id: 4,
-    title: 'Reservación confirmada',
-    description: 'Carlos López confirmó su reservación',
-    time: 'Hace 2 horas',
-    icon: 'svg',
-    color: 'bg-gradient-to-br from-green-500 to-green-600',
-    status: 'Confirmado',
-    statusColor: 'bg-green-100 text-green-800'
-  }
-])
+    color: r.status === 'approved' ? 'bg-gradient-to-br from-ixmi-500 to-ixmi-600' : r.status === 'rejected' ? 'bg-gradient-to-br from-red-500 to-red-600' : 'bg-gradient-to-br from-blue-500 to-blue-600',
+    status: r.status === 'approved' ? 'Confirmado' : r.status === 'rejected' ? 'Cancelado' : 'Pendiente',
+    statusColor: r.status === 'approved' ? 'bg-green-100 text-green-800' : r.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+  }))
+})
+
+// Helper para formatear tiempo relativo
+const formatTimeAgo = (timestamp) => {
+  if (!timestamp) return 'Recientemente'
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+  const now = new Date()
+  const diff = Math.floor((now - date) / 1000) // diferencia en segundos
+  
+  if (diff < 60) return 'Hace un momento'
+  if (diff < 3600) return `Hace ${Math.floor(diff / 60)} minutos`
+  if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} horas`
+  return `Hace ${Math.floor(diff / 86400)} días`
+}
 
 // Reservaciones semanales mejoradas
 const weeklyReservations = ref([
@@ -1363,11 +1325,14 @@ const weeklyReservations = ref([
 ])
 
 // Datos de canchas - 9 canchas: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
+// Consistente con src/views/Reservaciones.vue
 const canchas = ref([
   {
     id: 1,
     name: 'Cancha de Basquetbol #1',
     type: 'Básquetbol',
+    description: 'Duela profesional techada',
+    location: 'Polideportivo Norte',
     price: 0,
     capacity: 10,
     active: true,
@@ -1378,6 +1343,8 @@ const canchas = ref([
     id: 2,
     name: 'Cancha de Basquetbol #2',
     type: 'Básquetbol',
+    description: 'Duela profesional con iluminación LED',
+    location: 'Polideportivo Norte',
     price: 0,
     capacity: 10,
     active: true,
@@ -1388,6 +1355,8 @@ const canchas = ref([
     id: 3,
     name: 'Cancha de Basquetbol #3',
     type: 'Básquetbol',
+    description: 'Cancha al aire libre con piso anti-derrapante',
+    location: 'Centro Deportivo',
     price: 0,
     capacity: 10,
     active: true,
@@ -1398,6 +1367,8 @@ const canchas = ref([
     id: 4,
     name: 'Cancha de Basquetbol #4',
     type: 'Básquetbol',
+    description: 'Cancha cubierta climatizada',
+    location: 'Gimnasio Municipal',
     price: 0,
     capacity: 10,
     active: true,
@@ -1408,6 +1379,8 @@ const canchas = ref([
     id: 5,
     name: 'Cancha de Tennis #1',
     type: 'Tennis',
+    description: 'Superficie de arcilla sintética profesional',
+    location: 'Club Deportivo Sur',
     price: 0,
     capacity: 4,
     active: true,
@@ -1418,6 +1391,8 @@ const canchas = ref([
     id: 6,
     name: 'Cancha de Tennis #2',
     type: 'Tennis',
+    description: 'Superficie dura profesional al aire libre',
+    location: 'Centro Deportivo',
     price: 0,
     capacity: 4,
     active: true,
@@ -1428,6 +1403,8 @@ const canchas = ref([
     id: 7,
     name: 'Cancha de Voleibol #1',
     type: 'Voleibol',
+    description: 'Arena profesional al aire libre',
+    location: 'Centro Deportivo',
     price: 0,
     capacity: 12,
     active: true,
@@ -1438,6 +1415,8 @@ const canchas = ref([
     id: 8,
     name: 'Cancha de Voleibol #2',
     type: 'Voleibol',
+    description: 'Cancha techada con piso especial',
+    location: 'Polideportivo Norte',
     price: 0,
     capacity: 12,
     active: true,
@@ -1448,6 +1427,8 @@ const canchas = ref([
     id: 9,
     name: 'Cancha de Pádel #1',
     type: 'Pádel',
+    description: 'Pista panorámica con cristales premium',
+    location: 'Norte',
     price: 0,
     capacity: 4,
     active: true,
@@ -1464,64 +1445,33 @@ const newCancha = ref({
   capacity: ''
 })
 
-// Datos de usuarios mejorados
-const users = ref([
-  {
-    id: 1,
-    name: 'Juan Pérez Rodríguez',
-    email: 'juan.perez@email.com',
-    phone: '555-0123',
-    createdAt: '2024-01-15',
-    active: true,
-    reservations: 15,
-    lastActivity: 'hace 2 horas',
-    daysAgo: 45
-  },
-  {
-    id: 2,
-    name: 'María González López',
-    email: 'maria.gonzalez@email.com',
-    phone: '555-0124',
-    createdAt: '2024-02-20',
-    active: true,
-    reservations: 8,
-    lastActivity: 'hace 1 día',
-    daysAgo: 20
-  },
-  {
-    id: 3,
-    name: 'Carlos López Martínez',
-    email: 'carlos.lopez@email.com',
-    phone: '555-0125',
-    createdAt: '2024-01-25',
-    active: false,
-    reservations: 3,
-    lastActivity: 'hace 2 semanas',
-    daysAgo: 35
-  },
-  {
-    id: 4,
-    name: 'Ana Sofía Hernández',
-    email: 'ana.hernandez@email.com',
-    phone: '555-0126',
-    createdAt: '2024-03-10',
-    active: true,
-    reservations: 22,
-    lastActivity: 'hace 30 min',
-    daysAgo: 10
-  },
-  {
-    id: 5,
-    name: 'Roberto Díaz García',
-    email: 'roberto.diaz@email.com',
-    phone: '555-0127',
-    createdAt: '2024-02-05',
-    active: true,
-    reservations: 12,
-    lastActivity: 'hace 3 días',
-    daysAgo: 25
+// Datos de usuarios - cargados desde Firebase
+const users = ref([])
+
+// Cargar usuarios desde Firebase
+const loadUsers = async () => {
+  isLoadingUsers.value = true
+  try {
+    const result = await getAllUsers()
+    if (result.success) {
+      users.value = result.data.map(u => ({
+        id: u.id,
+        name: u.name || 'Usuario',
+        email: u.email,
+        phone: u.phone || 'No registrado',
+        createdAt: u.createdAt ? (u.createdAt.toDate ? u.createdAt.toDate().toISOString().split('T')[0] : u.createdAt) : 'N/A',
+        active: true,
+        reservations: 0,
+        lastActivity: 'Reciente',
+        role: u.role || 'user'
+      }))
+      updateTabBadges()
+    }
+  } catch (error) {
+    console.error('Error loading users:', error)
   }
-])
+  isLoadingUsers.value = false
+}
 
 // Datos de reservaciones - cargados desde Firebase
 const reservations = ref([])
@@ -1550,6 +1500,8 @@ const loadReservations = async () => {
         courtLocation: r.courtLocation,
         createdAt: r.createdAt
       }))
+      // Actualizar badges de las pestañas
+      updateTabBadges()
     }
   } catch (error) {
     console.error('Error loading reservations:', error)
@@ -1560,6 +1512,9 @@ const loadReservations = async () => {
 // Cargar datos al montar el componente
 onMounted(() => {
   loadReservations()
+  loadUsers()
+  // Actualizar badges iniciales
+  updateTabBadges()
 })
 
 // Configuración del sistema mejorada

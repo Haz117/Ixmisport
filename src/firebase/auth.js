@@ -6,9 +6,26 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp } from 'firebase/firestore'
 
 const USERS_COLLECTION = 'users'
+
+/**
+ * Obtener todos los usuarios (para admin)
+ */
+export const getAllUsers = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, USERS_COLLECTION))
+    const users = []
+    querySnapshot.forEach((doc) => {
+      users.push({ id: doc.id, ...doc.data() })
+    })
+    return { success: true, data: users }
+  } catch (error) {
+    console.error('Error getting all users:', error)
+    return { success: false, error: error.message, data: [] }
+  }
+}
 
 /**
  * Registrar nuevo usuario
