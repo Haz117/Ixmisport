@@ -269,12 +269,9 @@
             <p class="mb-4 text-gray-700">Es responsable de mantener la confidencialidad de su cuenta y contraseña, así como de todas las actividades que ocurran bajo su cuenta.</p>
             
             <h4 class="font-semibold text-gray-900 mb-3">4. Reservaciones y Cancelaciones</h4>
-            <p class="mb-4 text-gray-700">Las reservaciones están sujetas a disponibilidad. Las cancelaciones deben realizarse con al menos 24 horas de anticipación para evitar cargos.</p>
+            <p class="mb-4 text-gray-700">Las reservaciones están sujetas a disponibilidad. Las cancelaciones deben realizarse con al menos 24 horas de anticipación.</p>
             
-            <h4 class="font-semibold text-gray-900 mb-3">5. Pagos</h4>
-            <p class="mb-4 text-gray-700">Todos los pagos deben realizarse a través de los métodos aceptados en la plataforma. Los precios están sujetos a cambios sin previo aviso.</p>
-            
-            <h4 class="font-semibold text-gray-900 mb-3">6. Limitación de Responsabilidad</h4>
+            <h4 class="font-semibold text-gray-900 mb-3">5. Limitación de Responsabilidad</h4>
             <p class="mb-4 text-gray-700">IxmiSport no será responsable por daños indirectos, incidentales o consecuentes que puedan surgir del uso de nuestros servicios.</p>
           </div>
         </div>

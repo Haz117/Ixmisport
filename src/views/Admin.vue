@@ -320,14 +320,13 @@
             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-purple-100 text-sm font-medium">Ingresos Hoy</p>
-                  <p class="text-3xl font-bold mt-2">$2,840</p>
-                  <p class="text-purple-200 text-sm mt-1">+15% vs ayer</p>
+                  <p class="text-purple-100 text-sm font-medium">Canchas Activas</p>
+                  <p class="text-3xl font-bold mt-2">9</p>
+                  <p class="text-purple-200 text-sm mt-1">Todas disponibles</p>
                 </div>
                 <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
                   <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.51-1.31c-.562-.649-1.413-1.076-2.353-1.253V5z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </div>
@@ -696,15 +695,163 @@
                   >
                     Ver Detalle
                   </button>
-                  <button 
-                    v-if="reservation.status === 'approved'"
-                    @click="contactUser(reservation)"
-                    class="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl transition-all duration-200 text-sm font-medium"
-                  >
-                    Contactar
-                  </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gestión de Horarios Bloqueados -->
+        <div v-if="activeTab === 'horarios'" class="space-y-8 animate-slide-up">
+          <!-- Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Gestión de Horarios</h2>
+              <p class="text-gray-600 mt-1">Bloquea horarios específicos para mantenimiento, eventos o reservas especiales</p>
+            </div>
+            <button 
+              @click="showBlockScheduleModal = true"
+              class="px-6 py-3 bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold shadow-md flex items-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Bloquear Horario
+            </button>
+          </div>
+
+          <!-- Info Card -->
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-amber-900 mb-1">Información Importante</h3>
+                <p class="text-amber-800 text-sm">
+                  Los horarios bloqueados <strong>no estarán disponibles</strong> para reservaciones públicas. 
+                  Horario de operación: <strong>5:00 AM - 10:00 PM</strong>. 
+                  Utiliza esta función para mantenimiento, eventos privados o reservas especiales.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocked Schedules List -->
+          <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/60 overflow-hidden">
+            <div class="p-6 border-b border-gray-200/60">
+              <h3 class="text-lg font-bold text-gray-900">Horarios Bloqueados Activos</h3>
+              <p class="text-sm text-gray-500 mt-1">{{ blockedSchedules.length }} horarios bloqueados</p>
+            </div>
+            
+            <div v-if="blockedSchedules.length === 0" class="p-12 text-center">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <p class="text-gray-500 font-medium">No hay horarios bloqueados</p>
+              <p class="text-gray-400 text-sm mt-1">Agrega un bloqueo para reservar horarios especiales</p>
+            </div>
+
+            <div v-else class="divide-y divide-gray-200/60">
+              <div 
+                v-for="schedule in blockedSchedules" 
+                :key="schedule.id"
+                class="p-6 hover:bg-ixmi-50/30 transition-all duration-200"
+              >
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-gray-900">{{ schedule.courtName }}</h4>
+                      <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
+                        <span class="flex items-center gap-1">
+                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                          </svg>
+                          {{ schedule.date }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          {{ schedule.startTime }} - {{ schedule.endTime }}
+                        </span>
+                      </div>
+                      <p class="text-sm text-gray-500 mt-2">
+                        <strong>Motivo:</strong> {{ schedule.reason }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button 
+                      @click="editBlockedSchedule(schedule)"
+                      class="px-4 py-2 text-sm text-ixmi-600 border border-ixmi-300 rounded-xl hover:bg-ixmi-50 transition-all duration-200 font-medium"
+                    >
+                      Editar
+                    </button>
+                    <button 
+                      @click="deleteBlockedSchedule(schedule.id)"
+                      class="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-xl hover:bg-red-50 transition-all duration-200 font-medium"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-semibold text-gray-500">Canchas Totales</p>
+                  <p class="text-3xl font-bold text-gray-900 mt-1">9</p>
+                </div>
+                <div class="w-12 h-12 bg-ixmi-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">4 Basquet • 2 Tennis • 2 Voleibol • 1 Pádel</p>
+            </div>
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-semibold text-gray-500">Horario de Operación</p>
+                  <p class="text-3xl font-bold text-gray-900 mt-1">5AM-10PM</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">17 horas disponibles por día</p>
+            </div>
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-semibold text-gray-500">Bloqueos Activos</p>
+                  <p class="text-3xl font-bold text-gray-900 mt-1">{{ blockedSchedules.length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">Horarios no disponibles para reserva</p>
             </div>
           </div>
         </div>
@@ -940,6 +1087,116 @@
         </form>
       </div>
     </div>
+
+    <!-- Modal para Bloquear Horario -->
+    <div v-if="showBlockScheduleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-200/60 transform animate-modal-appear">
+        <div class="p-6 border-b border-gray-200/60">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900">Bloquear Horario</h3>
+            </div>
+            <button 
+              @click="showBlockScheduleModal = false"
+              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <form @submit.prevent="createBlockedSchedule" class="p-6">
+          <div class="space-y-4">
+            <!-- Selección de cancha -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Cancha a bloquear</label>
+              <select 
+                v-model="newBlockedSchedule.courtId"
+                required
+                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+              >
+                <option value="">Seleccionar cancha</option>
+                <option v-for="cancha in canchas" :key="cancha.id" :value="cancha.id">
+                  {{ cancha.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Fecha -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha del bloqueo</label>
+              <input 
+                v-model="newBlockedSchedule.date"
+                type="date" 
+                required
+                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+              >
+            </div>
+
+            <!-- Horario -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Hora inicio</label>
+                <input 
+                  v-model="newBlockedSchedule.startTime"
+                  type="time" 
+                  required
+                  min="05:00"
+                  max="22:00"
+                  class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Hora fin</label>
+                <input 
+                  v-model="newBlockedSchedule.endTime"
+                  type="time" 
+                  required
+                  min="05:00"
+                  max="22:00"
+                  class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+                >
+              </div>
+            </div>
+
+            <!-- Motivo -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Motivo del bloqueo</label>
+              <textarea 
+                v-model="newBlockedSchedule.reason"
+                required
+                rows="3"
+                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80 resize-none"
+                placeholder="Ej: Mantenimiento programado, evento privado, etc."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 pt-6 mt-6 border-t border-gray-200/60">
+            <button 
+              type="button"
+              @click="showBlockScheduleModal = false"
+              class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-semibold shadow-md"
+            >
+              Bloquear Horario
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -964,7 +1221,13 @@ const tabs = ref([
     id: 'canchas', 
     name: 'Canchas', 
     icon: 'svg',
-    badge: '12'
+    badge: '9'
+  },
+  { 
+    id: 'horarios', 
+    name: 'Gestión Horarios', 
+    icon: 'svg',
+    badge: null
   },
   { 
     id: 'usuarios', 
@@ -1028,11 +1291,11 @@ const metrics = ref([
     progressColor: 'bg-gradient-to-r from-purple-500 to-purple-600'
   },
   {
-    title: 'Ingresos',
-    value: '$15,240',
-    subtitle: 'Este mes',
-    period: 'Mensual',
-    change: '+25%',
+    title: 'Usuarios Activos',
+    value: '189',
+    subtitle: 'Registrados',
+    period: 'Totales',
+    change: '+12%',
     changeColor: 'bg-green-100 text-green-800',
     icon: 'svg',
     color: 'bg-gradient-to-br from-green-500 to-green-600',
@@ -1076,12 +1339,12 @@ const recentActivities = ref([
   },
   {
     id: 4,
-    title: 'Pago procesado',
-    description: 'Carlos López completó el pago de su reservación',
+    title: 'Reservación confirmada',
+    description: 'Carlos López confirmó su reservación',
     time: 'Hace 2 horas',
     icon: 'svg',
     color: 'bg-gradient-to-br from-green-500 to-green-600',
-    status: 'Pagado',
+    status: 'Confirmado',
     statusColor: 'bg-green-100 text-green-800'
   }
 ])
@@ -1097,61 +1360,97 @@ const weeklyReservations = ref([
   { day: 'Domingo', reservations: 12 }
 ])
 
-// Datos de canchas mejorados
+// Datos de canchas - 9 canchas: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
 const canchas = ref([
   {
     id: 1,
-    name: 'Cancha de Fútbol Principal',
-    type: 'Fútbol',
-    price: 250,
-    capacity: 22,
+    name: 'Cancha de Basquetbol #1',
+    type: 'Básquetbol',
+    price: 0,
+    capacity: 10,
     active: true,
-    occupancy: 85
+    occupancy: 85,
+    sport: 'basquetbol'
   },
   {
     id: 2,
-    name: 'Cancha de Básquetbol Norte',
+    name: 'Cancha de Basquetbol #2',
     type: 'Básquetbol',
-    price: 180,
+    price: 0,
     capacity: 10,
     active: true,
-    occupancy: 72
+    occupancy: 72,
+    sport: 'basquetbol'
   },
   {
     id: 3,
-    name: 'Cancha de Tenis Elite',
-    type: 'Tenis',
-    price: 120,
-    capacity: 4,
-    active: false,
-    occupancy: 0
+    name: 'Cancha de Basquetbol #3',
+    type: 'Básquetbol',
+    price: 0,
+    capacity: 10,
+    active: true,
+    occupancy: 68,
+    sport: 'basquetbol'
   },
   {
     id: 4,
-    name: 'Cancha Multiusos Central',
-    type: 'Multiusos',
-    price: 200,
-    capacity: 16,
+    name: 'Cancha de Basquetbol #4',
+    type: 'Básquetbol',
+    price: 0,
+    capacity: 10,
     active: true,
-    occupancy: 68
+    occupancy: 60,
+    sport: 'basquetbol'
   },
   {
     id: 5,
-    name: 'Cancha de Voleibol',
-    type: 'Voleibol',
-    price: 150,
-    capacity: 12,
+    name: 'Cancha de Tennis #1',
+    type: 'Tennis',
+    price: 0,
+    capacity: 4,
     active: true,
-    occupancy: 45
+    occupancy: 55,
+    sport: 'tenis'
   },
   {
     id: 6,
-    name: 'Cancha de Fútbol Rápido',
-    type: 'Fútbol',
-    price: 180,
-    capacity: 14,
+    name: 'Cancha de Tennis #2',
+    type: 'Tennis',
+    price: 0,
+    capacity: 4,
     active: true,
-    occupancy: 90
+    occupancy: 48,
+    sport: 'tenis'
+  },
+  {
+    id: 7,
+    name: 'Cancha de Voleibol #1',
+    type: 'Voleibol',
+    price: 0,
+    capacity: 12,
+    active: true,
+    occupancy: 75,
+    sport: 'voleibol'
+  },
+  {
+    id: 8,
+    name: 'Cancha de Voleibol #2',
+    type: 'Voleibol',
+    price: 0,
+    capacity: 12,
+    active: true,
+    occupancy: 62,
+    sport: 'voleibol'
+  },
+  {
+    id: 9,
+    name: 'Cancha de Pádel #1',
+    type: 'Pádel',
+    price: 0,
+    capacity: 4,
+    active: true,
+    occupancy: 90,
+    sport: 'padel'
   }
 ])
 
@@ -1293,11 +1592,47 @@ const systemConfig = ref({
   contactPhone: '771-123-4567',
   description: 'Centro deportivo municipal de Ixmiquilpan, Hidalgo. Instalaciones modernas para toda la familia.',
   maxAdvanceDays: 30,
-  openTime: '06:00',
+  openTime: '05:00',
   closeTime: '22:00',
   autoApproval: false,
   emailNotifications: true
 })
+
+// Horarios bloqueados por el administrador
+const blockedSchedules = ref([
+  {
+    id: 1,
+    courtId: 1,
+    courtName: 'Cancha de Basquetbol #1',
+    date: '2026-01-20',
+    startTime: '08:00',
+    endTime: '10:00',
+    reason: 'Mantenimiento programado',
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 2,
+    courtId: 5,
+    courtName: 'Cancha de Tennis #1',
+    date: '2026-01-21',
+    startTime: '14:00',
+    endTime: '16:00',
+    reason: 'Evento privado',
+    createdAt: '2026-01-15'
+  }
+])
+
+// Formulario para nuevo bloqueo de horario
+const newBlockedSchedule = ref({
+  courtId: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  reason: ''
+})
+
+// Modal para nuevo bloqueo
+const showBlockScheduleModal = ref(false)
 
 // Computed properties mejorados
 const filteredUsers = computed(() => {
@@ -1320,11 +1655,78 @@ const getPageTitle = () => {
   const titles = {
     dashboard: 'Dashboard',
     canchas: 'Gestión de Canchas',
+    horarios: 'Gestión de Horarios Bloqueados',
     usuarios: 'Gestión de Usuarios',
     reservaciones: 'Gestión de Reservaciones',
     configuracion: 'Configuración del Sistema'
   }
   return titles[activeTab.value] || 'Panel de Administración'
+}
+
+// Funciones para gestión de horarios bloqueados
+const createBlockedSchedule = () => {
+  const newId = blockedSchedules.value.length > 0 
+    ? Math.max(...blockedSchedules.value.map(s => s.id)) + 1 
+    : 1
+  
+  const court = canchas.value.find(c => c.id === parseInt(newBlockedSchedule.value.courtId))
+  
+  blockedSchedules.value.push({
+    id: newId,
+    courtId: parseInt(newBlockedSchedule.value.courtId),
+    courtName: court ? court.name : 'Cancha desconocida',
+    date: newBlockedSchedule.value.date,
+    startTime: newBlockedSchedule.value.startTime,
+    endTime: newBlockedSchedule.value.endTime,
+    reason: newBlockedSchedule.value.reason,
+    createdAt: new Date().toISOString()
+  })
+  
+  // Resetear formulario y cerrar modal
+  newBlockedSchedule.value = { courtId: '', date: '', startTime: '', endTime: '', reason: '' }
+  showBlockScheduleModal.value = false
+  
+  console.log('Nuevo horario bloqueado creado:', blockedSchedules.value[blockedSchedules.value.length - 1])
+}
+
+const editBlockedSchedule = (schedule) => {
+  // Cargar datos en el formulario para edición
+  newBlockedSchedule.value = {
+    courtId: schedule.courtId.toString(),
+    date: schedule.date,
+    startTime: schedule.startTime,
+    endTime: schedule.endTime,
+    reason: schedule.reason
+  }
+  // Eliminar el bloqueo actual para recrearlo con los nuevos datos
+  blockedSchedules.value = blockedSchedules.value.filter(s => s.id !== schedule.id)
+  showBlockScheduleModal.value = true
+  
+  console.log('Editando horario bloqueado:', schedule)
+}
+
+const deleteBlockedSchedule = (id) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este bloqueo de horario?')) {
+    blockedSchedules.value = blockedSchedules.value.filter(s => s.id !== id)
+    console.log('Horario bloqueado eliminado, ID:', id)
+  }
+}
+
+const formatBlockedDate = (dateStr) => {
+  const date = new Date(dateStr + 'T00:00:00')
+  return date.toLocaleDateString('es-MX', { 
+    weekday: 'short', 
+    day: 'numeric', 
+    month: 'short',
+    year: 'numeric'
+  })
+}
+
+const isBlockedScheduleActive = (schedule) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const scheduleDate = new Date(schedule.date + 'T00:00:00')
+  return scheduleDate >= today
 }
 
 const createCancha = () => {
@@ -1392,11 +1794,6 @@ const rejectReservation = (reservation) => {
 const viewReservationDetail = (reservation) => {
   // Aquí se abriría un modal con todos los detalles de la reservación
   console.log('Ver detalle de reservación:', reservation)
-}
-
-const contactUser = (reservation) => {
-  // Aquí se abriría un modal para enviar mensaje o llamar al usuario
-  console.log('Contactar usuario de reservación:', reservation)
 }
 
 const getReservationStatusClass = (status) => {

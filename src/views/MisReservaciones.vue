@@ -240,16 +240,8 @@
                         <i class="fa-solid fa-circle-check"></i>
                         Confirmada
                       </span>
-                      <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-clock"></i>
-                        Pago Pendiente
-                      </span>
                     </div>
                     <div class="flex gap-3">
-                      <button class="px-5 py-2 bg-gradient-to-r from-[#7ED9A8] to-[#95E3B3] text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300">
-                        <i class="fa-solid fa-credit-card mr-2"></i>
-                        Pagar Ahora
-                      </button>
                       <button class="px-5 py-2 bg-gray-50 text-gray-600 border border-gray-200 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300">
                         <i class="fa-solid fa-eye mr-2"></i>
                         Detalles
@@ -500,15 +492,6 @@
             </div>
             <h3 class="text-xl font-bold mb-2">Descargar Historial</h3>
             <p class="text-white/80">Obtén un resumen de todas tus reservaciones</p>
-          </div>
-
-          <!-- Quick Action 3 -->
-          <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer group">
-            <div class="w-14 h-14 bg-white/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300">
-              <i class="fa-solid fa-headset text-3xl"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Soporte</h3>
-            <p class="text-white/80">¿Necesitas ayuda? Estamos aquí para ti</p>
           </div>
         </div>
       </div>

@@ -203,20 +203,44 @@
       </div>
     </section>
 
-    <!-- Interactive Courts Grid -->
+    <!-- Interactive Courts Grid - Dinámico para las 9 canchas -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Court 1 - Fútbol -->
+        <!-- Iterar sobre todas las canchas dinámicamente -->
         <div 
-          @click="openModal(courts[0])"
-          class="relative bg-gradient-to-br from-[#1a4d2e] to-[#2d7a4f] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#6BCF9F]/50"
+          v-for="court in courts"
+          :key="court.id"
+          @click="openModal(court)"
+          :class="getCourtGradient(court.sport)"
+          class="relative rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl"
           style="height: 350px;"
         >
-          <!-- Field Lines -->
+          <!-- Court Lines Pattern -->
           <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-            <div class="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="absolute top-4 left-4 right-4 bottom-4 border-2 border-white rounded-lg"></div>
+            <!-- Basquetbol Lines -->
+            <template v-if="court.sport === 'basquetbol'">
+              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
+              <div class="absolute top-4 left-1/2 w-16 h-32 border-2 border-white rounded-b-full transform -translate-x-1/2"></div>
+              <div class="absolute bottom-4 left-1/2 w-16 h-32 border-2 border-white rounded-t-full transform -translate-x-1/2"></div>
+            </template>
+            <!-- Tennis Lines -->
+            <template v-else-if="court.sport === 'tenis'">
+              <div class="absolute top-1/2 left-0 right-0 h-1 bg-white"></div>
+              <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
+              <div class="absolute top-1/4 left-8 right-8 h-0.5 bg-white"></div>
+              <div class="absolute bottom-1/4 left-8 right-8 h-0.5 bg-white"></div>
+            </template>
+            <!-- Voleibol Lines -->
+            <template v-else-if="court.sport === 'voleibol'">
+              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
+              <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
+            </template>
+            <!-- Padel Lines -->
+            <template v-else-if="court.sport === 'padel'">
+              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
+              <div class="absolute top-12 left-12 right-12 bottom-12 border-2 border-white rounded-lg"></div>
+              <div class="absolute top-1/2 left-12 right-12 h-0.5 bg-white"></div>
+            </template>
           </div>
           
           <!-- Status Indicator -->
@@ -227,16 +251,16 @@
           <!-- Content -->
           <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
             <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <i class="fa-solid fa-futbol text-4xl"></i>
+              <i :class="court.icon" class="text-4xl"></i>
             </div>
-            <h3 class="text-2xl font-bold mb-2">Cancha de Fútbol</h3>
-            <p class="text-sm opacity-90 mb-1">Campo #1</p>
+            <h3 class="text-2xl font-bold mb-2 text-center">{{ court.name }}</h3>
+            <p class="text-sm opacity-90 mb-1">{{ court.location }}</p>
             <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
               <i class="fa-solid fa-users"></i>
-              <span>11 vs 11</span>
+              <span>{{ court.capacity }}</span>
               <span>•</span>
               <i class="fa-solid fa-lightbulb"></i>
-              <span>Iluminada</span>
+              <span>{{ court.amenities[0] }}</span>
             </div>
             <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
               <span class="text-lg font-bold">Gratuito</span>
@@ -247,247 +271,8 @@
               <div class="text-center">
                 <p class="text-lg font-semibold mb-2">Click para reservar</p>
                 <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Pasto Sintético</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Vestidores</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Court 2 - Basquetbol -->
-        <div 
-          @click="openModal(courts[1])"
-          class="relative bg-gradient-to-br from-[#d35400] to-[#e67e22] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#7ED9A8]/50"
-          style="height: 350px;"
-        >
-          <!-- Court Lines -->
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-            <div class="absolute top-4 left-1/2 w-16 h-32 border-2 border-white rounded-b-full transform -translate-x-1/2"></div>
-            <div class="absolute bottom-4 left-1/2 w-16 h-32 border-2 border-white rounded-t-full transform -translate-x-1/2"></div>
-          </div>
-          
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 100 100" fill="currentColor" class="text-white">
-                <path d="M50 18.472a31.93 31.93 0 0 1 5.331.448 1.461 1.461 0 0 0 .254.022 1.5 1.5 0 0 0 .25-2.979A34.868 34.868 0 0 0 50 15.472a1.5 1.5 0 1 0 0 3z"/>
-                <path d="M89.105 39.944a40.419 40.419 0 0 0-11.959-19.8 1.482 1.482 0 0 0-.337-.294 40.278 40.278 0 0 0-39.162-8.281 1.492 1.492 0 0 0-.318.108 40.555 40.555 0 0 0-25.382 24.851 1.418 1.418 0 0 0-.106.31A40.184 40.184 0 0 0 9.627 50a40.655 40.655 0 0 0 .3 4.862c0 .033.007.065.013.1A40.16 40.16 0 0 0 18 74.579a1.5 1.5 0 0 0 .3.384 40.334 40.334 0 0 0 41.859 14.114c.045-.012.09-.023.133-.038a40.491 40.491 0 0 0 22.573-15.634 1.48 1.48 0 0 0 .27-.379 40.293 40.293 0 0 0 6-32.964l-.03-.118zm-3.187-.244a82.039 82.039 0 0 1-2.5 1.647 34.47 34.47 0 0 0-7.41-14.056 1.5 1.5 0 0 0-2.26 1.973 31.483 31.483 0 0 1 6.986 13.709c-18.108 10.544-37 12.64-50.413 12.367q-.5-3.537-.729-6.72c7.792-.62 15.228-5.572 25.185-16.662a27.986 27.986 0 0 1 12.835-8.1c.649.439 1.291.891 1.909 1.379a1.5 1.5 0 0 0 1.939-2.278 26.094 26.094 0 0 1 3.917-.366A37.416 37.416 0 0 1 85.918 39.7zM20.02 72.288a37.192 37.192 0 0 1-6.794-15.667 100.317 100.317 0 0 0 14.519 1.627 58.2 58.2 0 0 0 1.491 6.5c-5.048.627-6.664 3.6-7.767 5.652-.642 1.2-.969 1.709-1.449 1.888zM12.627 50a37.264 37.264 0 0 1 1.522-10.536 20.772 20.772 0 0 1 1.286 1.691c1.872 2.633 4.645 6.53 11.14 7.4q.219 3.169.7 6.681a93.605 93.605 0 0 1-14.485-1.758A39.212 39.212 0 0 1 12.627 50zm59.386-30.176a32.333 32.333 0 0 0-3.941.757 34.273 34.273 0 0 0-7.106-3.331 1.5 1.5 0 1 0-.953 2.845 31.228 31.228 0 0 1 4.148 1.757 30.787 30.787 0 0 0-11.616 8.1c-9.355 10.42-16.184 15.08-23.115 15.669-.749-21.721 7.9-30.071 9.253-31.238a37.29 37.29 0 0 1 33.33 5.441zm-39.295-2.945c-3.165 4.927-6.8 13.864-6.306 28.61-4.778-.814-6.767-3.589-8.533-6.073A12.158 12.158 0 0 0 15.2 36.4a37.581 37.581 0 0 1 17.518-19.521zM21.94 74.645a7.752 7.752 0 0 0 2.17-2.82c1.075-2 2.1-3.886 6.1-4.161 4.384 11.963 12 17.314 18.434 19.675A37.292 37.292 0 0 1 21.94 74.645zm37.538 11.507c-1.937.164-18.479.925-26.085-18.5 5.722.147 8.045.975 14.742 3.379 2.06.739 4.625 1.66 7.8 2.738a41.89 41.89 0 0 0 13.505 2.268 38.606 38.606 0 0 0 8.15-.856 37.411 37.411 0 0 1-18.112 10.971zM80.8 71.135a36.66 36.66 0 0 1-23.9-.2c-3.148-1.07-5.7-1.985-7.749-2.721-7.112-2.553-9.743-3.491-16.823-3.574a54.754 54.754 0 0 1-1.515-6.3c.566.008 1.132.018 1.716.018 13.412 0 31.378-2.4 48.757-12.232A31.5 31.5 0 0 1 81.528 50a1.5 1.5 0 1 0 3 0 34.544 34.544 0 0 0-.454-5.532 86.841 86.841 0 0 0 2.6-1.653 37.259 37.259 0 0 1-5.874 28.32z"/>
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Cancha de Basquetbol</h3>
-            <p class="text-sm opacity-90 mb-1">Duela #1</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>5 vs 5</span>
-              <span>•</span>
-              <i class="fa-solid fa-wind"></i>
-              <span>Techada</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
-            </div>
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Duela Profesional</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">WiFi</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Court 3 - Tenis -->
-        <div 
-          @click="openModal(courts[2])"
-          class="relative bg-gradient-to-br from-[#c0392b] to-[#e74c3c] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#95E3B3]/50"
-          style="height: 350px;"
-        >
-          <!-- Tennis Court Lines -->
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-1 bg-white"></div>
-            <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
-            <div class="absolute top-1/4 left-8 right-8 h-0.5 bg-white"></div>
-            <div class="absolute bottom-1/4 left-8 right-8 h-0.5 bg-white"></div>
-          </div>
-          
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 409.6 409" fill="currentColor" class="text-white">
-                <path d="M16.066 402.063c5.172 5.148 11.957 7.722 18.743 7.722 6.789 0 13.574-2.574 18.738-7.723l54.824-54.613c5.012-4.992 7.77-11.637 7.77-18.707 0-.972-.18-1.91-.282-2.863 7.918-5.746 42.5-29.629 73.407-32.59 15.05 5.496 31.172 8.254 47.66 8.254 41.906 0 86.097-17.59 120.52-51.91 33.144-33.043 52.156-76.836 52.156-120.14 0-35.848-13.125-68.673-36.961-92.434-54.579-54.422-150.207-47.625-213.172 15.152-33.145 33.047-52.156 76.84-52.156 120.152 0 18.367 3.472 35.934 10.039 51.899-2.938 29.992-25.946 61.617-32.528 70.11-7.902-1.044-16.176 1.355-22.23 7.39L7.77 356.375C2.762 361.371 0 368.012 0 375.082c0 7.066 2.762 13.711 7.77 18.703zM166.7 59.46C225.672.66 314.81-6.133 365.414 44.309c21.89 21.828 33.945 52.078 33.945 85.183 0 40.606-17.91 81.754-49.144 112.89-58.977 58.798-148.121 65.598-198.715 15.153-21.89-21.824-33.945-52.07-33.95-85.176 0-40.605 17.915-81.757 49.15-112.898zm-41.785 180.172c5.328 9.168 11.797 17.617 19.356 25.152 8.601 8.578 18.242 15.598 28.593 21.156-25.86 6.813-50.363 22.7-60.32 29.707-1.156-2.011-2.484-3.93-4.172-5.613l-8.297-8.27c-1.543-1.538-3.265-2.773-5.054-3.85 7.535-10.048 23.289-33.15 29.894-58.282zM14.996 363.625l54.824-54.61a16.277 16.277 0 0 1 11.512-4.745c4.172 0 8.34 1.585 11.512 4.746l8.297 8.27a16.077 16.077 0 0 1 4.757 11.456 16.07 16.07 0 0 1-4.757 11.457l-54.82 54.61c-6.348 6.328-16.676 6.324-23.024 0L15 386.535c-3.07-3.058-4.762-7.125-4.762-11.453s1.692-8.394 4.758-11.457zm0 0"/>
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Cancha de Tenis</h3>
-            <p class="text-sm opacity-90 mb-1">Arcilla #1</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>Individual/Dobles</span>
-              <span>•</span>
-              <i class="fa-solid fa-umbrella"></i>
-              <span>Techada</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
-            </div>
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Arcilla Sintética</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Renta Equipo</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Court 4 - Voleibol -->
-        <div 
-          @click="openModal(courts[3])"
-          class="relative bg-gradient-to-br from-[#f39c12] to-[#f1c40f] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#6BCF9F]/50"
-          style="height: 350px;"
-        >
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-            <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
-          </div>
-          
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
-                <path d="M11.1 7.1a16.55 16.55 0 0 1 10.9 4"/>
-                <path d="M12 12a12.6 12.6 0 0 1-8.7 5"/>
-                <path d="M16.8 13.6a16.55 16.55 0 0 1-9 7.5"/>
-                <path d="M20.7 17a12.8 12.8 0 0 0-8.7-5 13.3 13.3 0 0 1 0-10"/>
-                <path d="M6.3 3.8a16.55 16.55 0 0 0 1.9 11.5"/>
-                <circle cx="12" cy="12" r="10"/>
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Cancha de Voleibol</h3>
-            <p class="text-sm opacity-90 mb-1">Arena #1</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>6 vs 6</span>
-              <span>•</span>
-              <i class="fa-solid fa-umbrella-beach"></i>
-              <span>Arena</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
-            </div>
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Arena Fina</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Al Aire Libre</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Court 5 - Pádel -->
-        <div 
-          @click="openModal(courts[4])"
-          class="relative bg-gradient-to-br from-[#16a085] to-[#1abc9c] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#7ED9A8]/50"
-          style="height: 350px;"
-        >
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-            <div class="absolute top-12 left-12 right-12 bottom-12 border-2 border-white rounded-lg"></div>
-            <div class="absolute top-1/2 left-12 right-12 h-0.5 bg-white"></div>
-          </div>
-          
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <i class="fa-solid fa-baseball-bat-ball text-4xl"></i>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Cancha de Pádel</h3>
-            <p class="text-sm opacity-90 mb-1">Panorámica #1</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>2 vs 2</span>
-              <span>•</span>
-              <i class="fa-solid fa-lightbulb"></i>
-              <span>Iluminada</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
-            </div>
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Cristales Premium</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Climatizada</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Court 6 - Fútbol 7 -->
-        <div 
-          @click="openModal(courts[5])"
-          class="relative bg-gradient-to-br from-[#27ae60] to-[#2ecc71] rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-[#95E3B3]/50"
-          style="height: 350px;"
-        >
-          <div class="absolute inset-0 opacity-20">
-            <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-            <div class="absolute top-1/2 left-1/2 w-16 h-16 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="absolute top-6 left-6 right-6 bottom-6 border-2 border-white rounded-lg"></div>
-          </div>
-          
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <i class="fa-solid fa-futbol text-4xl"></i>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Fútbol 7</h3>
-            <p class="text-sm opacity-90 mb-1">Campo #2</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>7 vs 7</span>
-              <span>•</span>
-              <i class="fa-solid fa-video"></i>
-              <span>Cámaras</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
-            </div>
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Alta Densidad</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">Bebederos</span>
+                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ court.amenities[0] }}</span>
+                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ court.amenities[1] }}</span>
                 </div>
               </div>
             </div>
@@ -691,8 +476,8 @@
                       v-model="reservationData.startTime"
                       @input="watchStartTime"
                       type="time" 
-                      min="06:00"
-                      max="23:59"
+                      min="05:00"
+                      max="22:00"
                       step="60"
                       class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F]/50 focus:border-[#6BCF9F] transition-all duration-300 font-semibold text-gray-700 hover:border-[#6BCF9F] shadow-sm text-lg"
                       placeholder="HH:MM"
@@ -709,8 +494,8 @@
                       v-model="reservationData.endTime"
                       @input="watchEndTime"
                       type="time" 
-                      min="06:00"
-                      max="23:59"
+                      min="05:00"
+                      max="22:00"
                       step="60"
                       class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7ED9A8]/50 focus:border-[#7ED9A8] transition-all duration-300 font-semibold text-gray-700 hover:border-[#7ED9A8] shadow-sm text-lg"
                       placeholder="HH:MM"
@@ -752,7 +537,7 @@
                   <p class="text-xs text-blue-700 flex items-start gap-2">
                     <i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
                     <span>
-                      <strong>Horario de operación:</strong> 6:00 AM - 12:00 AM (medianoche). 
+                      <strong>Horario de operación:</strong> 5:00 AM - 10:00 PM. 
                       <span v-if="reservationData.type === 'normal'">
                         <br/><strong>Reservaciones normales:</strong> Máximo 1 hora de duración.
                       </span>
@@ -886,68 +671,13 @@
       </div>
     </Transition>
 
-    <!-- CTA Section Mejorado -->
-    <section class="relative bg-gradient-to-br from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] py-24 overflow-hidden">
-      <!-- Efectos decorativos -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute top-10 -left-20 w-96 h-96 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-10 -right-20 w-80 h-80 bg-white/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-      </div>
-      
-      <!-- Patrón de puntos -->
-      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 40px 40px;"></div>
-      
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative z-10">
-        <div class="inline-block mb-6 px-6 py-2 bg-white/20 backdrop-blur-md rounded-full text-sm font-semibold">
-          <i class="fa-solid fa-headset text-yellow-300 mr-2"></i>
-          Soporte 24/7 disponible
-        </div>
-        <h2 class="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-2xl">
-          ¿No encuentras lo que buscas?
-        </h2>
-        <p class="text-2xl mb-10 text-white/95 max-w-3xl mx-auto leading-relaxed">
-          Nuestro equipo está aquí para ayudarte. Contáctanos y te ayudaremos a encontrar la cancha perfecta para tu evento.
-        </p>
-        
-        <div class="flex flex-col sm:flex-row gap-5 justify-center items-center">
-          <button class="group px-10 py-5 bg-white text-[#6BCF9F] rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-110 transition-all duration-300 flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-              <i class="fa-solid fa-headset text-white text-xl"></i>
-            </div>
-            Contactar Soporte
-          </button>
-          <button class="px-10 py-5 bg-white/10 backdrop-blur-md border-3 border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 hover:shadow-2xl hover:scale-110 transition-all duration-300 flex items-center gap-3">
-            <i class="fa-solid fa-phone text-xl"></i>
-            (555) 123-4567
-          </button>
-        </div>
-        
-        <!-- Estadísticas -->
-        <div class="grid md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-            <div class="text-5xl font-extrabold mb-2">500+</div>
-            <p class="text-lg text-white/90">Canchas Disponibles</p>
-          </div>
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-            <div class="text-5xl font-extrabold mb-2">10K+</div>
-            <p class="text-lg text-white/90">Reservaciones Exitosas</p>
-          </div>
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105">
-            <div class="text-5xl font-extrabold mb-2 flex items-center justify-center gap-2">
-              4.9 
-              <i class="fa-solid fa-star text-yellow-300 text-4xl"></i>
-            </div>
-            <p class="text-lg text-white/90">Valoración Promedio</p>
-          </div>
-        </div>
-      </div>
-    </section>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { jsPDF } from 'jspdf'
 import { 
   FunnelIcon, 
   ArrowPathIcon, 
@@ -1009,73 +739,119 @@ const occupiedSlots = ref([
   { date: '2025-10-14', courtId: 1, occupiedHours: ['10:00', '16:00', '20:00'] },
 ])
 
-// Datos de las canchas
+// Datos de las canchas - 9 canchas totales: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
 const courts = ref([
+  // 4 Canchas de Basquetbol
   {
     id: 1,
-    name: 'Cancha de Fútbol #1',
-    description: 'Campo profesional de pasto sintético',
-    icon: 'fa-solid fa-futbol',
-    capacity: '11 vs 11',
-    maxPeople: 22,
-    minPeople: 10, // Mínimo 5 vs 5
-    location: 'Centro Deportivo',
-    amenities: ['Pasto Sintético', 'Iluminación LED', 'Vestidores', 'Estacionamiento', 'Duchas', 'Cafetería']
-  },
-  {
-    id: 2,
     name: 'Cancha de Basquetbol #1',
     description: 'Duela profesional techada',
     icon: 'fa-solid fa-basketball',
     capacity: '5 vs 5',
     maxPeople: 10,
-    minPeople: 6, // Mínimo 3 vs 3
+    minPeople: 6,
     location: 'Polideportivo Norte',
+    sport: 'basquetbol',
     amenities: ['Duela Profesional', 'Techada', 'WiFi Gratis', 'Hidratación', 'Marcador Electrónico', 'Gradas']
   },
   {
+    id: 2,
+    name: 'Cancha de Basquetbol #2',
+    description: 'Duela profesional con iluminación LED',
+    icon: 'fa-solid fa-basketball',
+    capacity: '5 vs 5',
+    maxPeople: 10,
+    minPeople: 6,
+    location: 'Polideportivo Norte',
+    sport: 'basquetbol',
+    amenities: ['Duela Profesional', 'Iluminación LED', 'WiFi Gratis', 'Vestidores', 'Marcador Electrónico', 'Gradas']
+  },
+  {
     id: 3,
-    name: 'Cancha de Tenis #1',
-    description: 'Superficie de arcilla sintética',
-    icon: 'fa-solid fa-table-tennis-paddle-ball',
-    capacity: 'Individual/Dobles',
-    maxPeople: 4,
-    minPeople: 2, // Mínimo 1 vs 1
-    location: 'Club Deportivo Sur',
-    amenities: ['Arcilla Sintética', 'Techada', 'Renta de Equipo', 'Clases Disponibles', 'Iluminación', 'Graderías']
+    name: 'Cancha de Basquetbol #3',
+    description: 'Cancha al aire libre con piso anti-derrapante',
+    icon: 'fa-solid fa-basketball',
+    capacity: '5 vs 5',
+    maxPeople: 10,
+    minPeople: 6,
+    location: 'Centro Deportivo',
+    sport: 'basquetbol',
+    amenities: ['Piso Anti-derrapante', 'Iluminación', 'Bebederos', 'Estacionamiento', 'Gradas', 'Área de Calentamiento']
   },
   {
     id: 4,
+    name: 'Cancha de Basquetbol #4',
+    description: 'Cancha cubierta climatizada',
+    icon: 'fa-solid fa-basketball',
+    capacity: '5 vs 5',
+    maxPeople: 10,
+    minPeople: 6,
+    location: 'Gimnasio Municipal',
+    sport: 'basquetbol',
+    amenities: ['Climatizada', 'Duela Premium', 'Vestidores', 'Duchas', 'Marcador Digital', 'Sonido Ambiente']
+  },
+  // 2 Canchas de Tennis
+  {
+    id: 5,
+    name: 'Cancha de Tennis #1',
+    description: 'Superficie de arcilla sintética profesional',
+    icon: 'fa-solid fa-table-tennis-paddle-ball',
+    capacity: 'Individual/Dobles',
+    maxPeople: 4,
+    minPeople: 2,
+    location: 'Club Deportivo Sur',
+    sport: 'tenis',
+    amenities: ['Arcilla Sintética', 'Techada', 'Renta de Equipo', 'Clases Disponibles', 'Iluminación', 'Graderías']
+  },
+  {
+    id: 6,
+    name: 'Cancha de Tennis #2',
+    description: 'Superficie dura profesional al aire libre',
+    icon: 'fa-solid fa-table-tennis-paddle-ball',
+    capacity: 'Individual/Dobles',
+    maxPeople: 4,
+    minPeople: 2,
+    location: 'Centro Deportivo',
+    sport: 'tenis',
+    amenities: ['Superficie Dura', 'Iluminación LED', 'Renta de Equipo', 'Bancas', 'Bebederos', 'Estacionamiento']
+  },
+  // 2 Canchas de Voleibol
+  {
+    id: 7,
     name: 'Cancha de Voleibol #1',
     description: 'Arena profesional al aire libre',
     icon: 'fa-solid fa-volleyball',
     capacity: '6 vs 6',
     maxPeople: 12,
-    minPeople: 6, // Mínimo 3 vs 3
-    location: 'Centro',
+    minPeople: 6,
+    location: 'Centro Deportivo',
+    sport: 'voleibol',
     amenities: ['Arena Fina', 'Al Aire Libre', 'Malla Reglamentaria', 'Torneos', 'Graderías', 'Zona de Espectadores']
   },
   {
-    id: 5,
+    id: 8,
+    name: 'Cancha de Voleibol #2',
+    description: 'Cancha techada con piso especial',
+    icon: 'fa-solid fa-volleyball',
+    capacity: '6 vs 6',
+    maxPeople: 12,
+    minPeople: 6,
+    location: 'Polideportivo Norte',
+    sport: 'voleibol',
+    amenities: ['Piso Especial', 'Techada', 'Malla Reglamentaria', 'Iluminación', 'Gradas', 'Vestidores']
+  },
+  // 1 Cancha de Pádel
+  {
+    id: 9,
     name: 'Cancha de Pádel #1',
     description: 'Pista panorámica con cristales premium',
     icon: 'fa-solid fa-baseball-bat-ball',
     capacity: '2 vs 2',
     maxPeople: 4,
-    minPeople: 2, // Mínimo 1 vs 1
+    minPeople: 2,
     location: 'Norte',
+    sport: 'padel',
     amenities: ['Cristales Premium', 'Climatizada', 'Iluminación LED', 'Césped Artificial', 'Pro Level', 'Renta Equipo']
-  },
-  {
-    id: 6,
-    name: 'Cancha de Fútbol 7',
-    description: 'Pasto sintético de alta densidad',
-    icon: 'fa-solid fa-futbol',
-    capacity: '7 vs 7',
-    maxPeople: 14,
-    minPeople: 6, // Mínimo 3 vs 3
-    location: 'Sur',
-    amenities: ['Alta Densidad', 'Iluminación', 'Cámaras', 'Bebederos', 'Estacionamiento', 'Vestidores']
   }
 ])
 
@@ -1161,9 +937,9 @@ const validateTimes = () => {
     return
   }
   
-  // Validar horario de operación (6 AM - 12 AM)
-  if (startMinutes < 360 || endMinutes > 1440) { // 360 = 6:00 AM, 1440 = 12:00 AM
-    timeError.value = '❌ El horario de operación es de 6:00 AM a 12:00 AM (medianoche)'
+  // Validar horario de operación (5 AM - 10 PM)
+  if (startMinutes < 300 || endMinutes > 1320) { // 300 = 5:00 AM, 1320 = 10:00 PM
+    timeError.value = '❌ El horario de operación es de 5:00 AM a 10:00 PM'
     return
   }
 }
@@ -1239,6 +1015,169 @@ const isReservationValid = computed(() => {
   return baseValid
 })
 
+// Función para obtener el gradiente de color según el deporte
+const getCourtGradient = (sport) => {
+  const gradients = {
+    basquetbol: 'bg-gradient-to-br from-[#d35400] to-[#e67e22] hover:shadow-[#e67e22]/50',
+    tenis: 'bg-gradient-to-br from-[#c0392b] to-[#e74c3c] hover:shadow-[#e74c3c]/50',
+    voleibol: 'bg-gradient-to-br from-[#f39c12] to-[#f1c40f] hover:shadow-[#f1c40f]/50',
+    padel: 'bg-gradient-to-br from-[#16a085] to-[#1abc9c] hover:shadow-[#1abc9c]/50'
+  }
+  return gradients[sport] || 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] hover:shadow-[#6BCF9F]/50'
+}
+
+// Función para generar PDF de la reservación
+const generateReservationPDF = (reservationPayload) => {
+  const doc = new jsPDF()
+  const reservationId = `RES-${Date.now().toString(36).toUpperCase()}`
+  
+  // Configuración de colores
+  const primaryColor = [107, 207, 159] // #6BCF9F
+  const darkColor = [45, 55, 72]
+  const grayColor = [113, 128, 150]
+  
+  // Header con fondo verde
+  doc.setFillColor(...primaryColor)
+  doc.rect(0, 0, 210, 50, 'F')
+  
+  // Logo/Título
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(28)
+  doc.setFont('helvetica', 'bold')
+  doc.text('IxmiSport', 20, 25)
+  
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Comprobante de Reservación', 20, 35)
+  
+  // ID de reservación en la esquina
+  doc.setFontSize(10)
+  doc.text(`ID: ${reservationId}`, 150, 25)
+  doc.text(new Date().toLocaleDateString('es-MX', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }), 150, 32)
+  
+  // Cuerpo del documento
+  let yPosition = 70
+  
+  // Título de sección
+  doc.setTextColor(...darkColor)
+  doc.setFontSize(16)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Detalles de la Reservación', 20, yPosition)
+  
+  yPosition += 15
+  
+  // Línea decorativa
+  doc.setDrawColor(...primaryColor)
+  doc.setLineWidth(2)
+  doc.line(20, yPosition - 5, 190, yPosition - 5)
+  
+  // Información de la reservación
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  
+  const details = [
+    { label: 'Cancha:', value: reservationPayload.courtName },
+    { label: 'Tipo de Reservación:', value: reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo/Evento' },
+    { label: 'Fecha:', value: new Date(reservationPayload.date + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) },
+    { label: 'Horario:', value: `${reservationPayload.startTime} - ${reservationPayload.endTime}` },
+    { label: 'Duración:', value: reservationPayload.duration },
+    { label: 'Número de Jugadores:', value: `${reservationPayload.people} personas` },
+    { label: 'Ubicación:', value: selectedCourt.value.location },
+    { label: 'Costo:', value: 'GRATUITO' }
+  ]
+  
+  details.forEach((detail, index) => {
+    const rowY = yPosition + (index * 12)
+    
+    // Fondo alternado
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 253, 249)
+      doc.rect(20, rowY - 4, 170, 10, 'F')
+    }
+    
+    doc.setTextColor(...grayColor)
+    doc.setFont('helvetica', 'normal')
+    doc.text(detail.label, 25, rowY + 3)
+    
+    doc.setTextColor(...darkColor)
+    doc.setFont('helvetica', 'bold')
+    doc.text(detail.value, 80, rowY + 3)
+  })
+  
+  yPosition += (details.length * 12) + 20
+  
+  // Sección de servicios incluidos
+  doc.setTextColor(...darkColor)
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Servicios Incluidos', 20, yPosition)
+  
+  yPosition += 10
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(...grayColor)
+  
+  const amenities = selectedCourt.value.amenities
+  amenities.forEach((amenity, index) => {
+    const col = index % 2
+    const row = Math.floor(index / 2)
+    const xPos = col === 0 ? 25 : 105
+    const yPos = yPosition + (row * 8)
+    
+    doc.setTextColor(...primaryColor)
+    doc.text('✓', xPos, yPos)
+    doc.setTextColor(...grayColor)
+    doc.text(amenity, xPos + 8, yPos)
+  })
+  
+  yPosition += Math.ceil(amenities.length / 2) * 8 + 20
+  
+  // Código QR simulado (rectángulo)
+  doc.setFillColor(240, 240, 240)
+  doc.rect(20, yPosition, 40, 40, 'F')
+  doc.setFontSize(8)
+  doc.setTextColor(...grayColor)
+  doc.text('Código de', 27, yPosition + 18)
+  doc.text('Verificación', 25, yPosition + 24)
+  
+  // Instrucciones
+  doc.setFontSize(10)
+  doc.setTextColor(...darkColor)
+  doc.text('Instrucciones:', 70, yPosition + 5)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(...grayColor)
+  const instructions = [
+    '• Presenta este comprobante al llegar a las instalaciones',
+    '• Llega 10 minutos antes de tu horario reservado',
+    '• Respeta el horario asignado para tu reservación',
+    '• Cualquier cambio debe notificarse con 24 hrs de anticipación'
+  ]
+  instructions.forEach((inst, i) => {
+    doc.text(inst, 70, yPosition + 15 + (i * 6))
+  })
+  
+  // Footer
+  doc.setFillColor(...primaryColor)
+  doc.rect(0, 275, 210, 22, 'F')
+  
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.text('IxmiSport - Centro Deportivo Municipal', 20, 283)
+  doc.text('Contacto: admin@ixmisport.com | Tel: 771-123-4567', 20, 289)
+  doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, 140, 286)
+  
+  // Guardar el PDF
+  doc.save(`Reservacion_${reservationId}_${reservationPayload.date}.pdf`)
+  
+  return reservationId
+}
+
 // TODO: Integración con Base de Datos
 // Esta función enviará la reservación a la BD
 const confirmReservation = () => {
@@ -1260,6 +1199,9 @@ const confirmReservation = () => {
   
   console.log('📋 Datos de reservación (enviar a BD):', reservationPayload)
   
+  // Generar el PDF de la reservación
+  const reservationId = generateReservationPDF(reservationPayload)
+  
   /* TODO: Implementar llamada a API
   try {
     const response = await fetch('/api/reservations/create', {
@@ -1275,16 +1217,7 @@ const confirmReservation = () => {
     
     const data = await response.json()
     
-    // Mostrar confirmación exitosa
-    alert(`¡Reservación confirmada! 🎉\n\nID: ${data.reservationId}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Reservación gratuita`)
-    
-    // Actualizar lista de horarios ocupados (opcional, o hacer refetch)
-    // fetchOccupiedSlots()
-    
     closeModal()
-    
-    // Redirigir a mis reservaciones o mostrar notificación
-    // router.push('/mis-reservaciones')
     
   } catch (error) {
     console.error('Error al confirmar reservación:', error)
@@ -1292,8 +1225,8 @@ const confirmReservation = () => {
   }
   */
   
-  // SIMULACIÓN - Mostrar alerta temporal (REMOVER en producción)
-  alert(`¡Reservación confirmada! 🎉\n\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Reservación gratuita`)
+  // Mostrar confirmación
+  alert(`¡Reservación confirmada! 🎉\n\nID: ${reservationId}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Se ha descargado el comprobante PDF`)
   
   closeModal()
 }
