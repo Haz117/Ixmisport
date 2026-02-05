@@ -9,20 +9,49 @@
               IxmiSport
             </h2>
           </div>
-          <div class="flex gap-3">
-            <router-link 
-              to="/login" 
-              class="px-5 py-2 text-gray-600 hover:text-[#6BCF9F] transition-all duration-300 font-medium relative group"
-            >
-              Iniciar Sesión
-              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#6BCF9F] group-hover:w-full transition-all duration-300"></span>
-            </router-link>
-            <router-link 
-              to="/register" 
-              class="px-6 py-2 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium"
-            >
-              Registrarse
-            </router-link>
+          <div class="flex gap-3 items-center">
+            <!-- Botones cuando NO está autenticado -->
+            <template v-if="!isAuthenticated">
+              <router-link 
+                to="/login" 
+                class="px-5 py-2 text-gray-600 hover:text-[#6BCF9F] transition-all duration-300 font-medium relative group"
+              >
+                Iniciar Sesión
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#6BCF9F] group-hover:w-full transition-all duration-300"></span>
+              </router-link>
+              <router-link 
+                to="/register" 
+                class="px-6 py-2 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium"
+              >
+                Registrarse
+              </router-link>
+            </template>
+            <!-- Botones cuando ESTÁ autenticado -->
+            <template v-else>
+              <router-link 
+                to="/reservaciones" 
+                class="px-5 py-2 text-gray-600 hover:text-[#6BCF9F] transition-all duration-300 font-medium relative group flex items-center gap-2"
+              >
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Buscar Canchas
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#6BCF9F] group-hover:w-full transition-all duration-300"></span>
+              </router-link>
+              <router-link 
+                to="/mis-reservaciones" 
+                class="px-5 py-2 text-gray-600 hover:text-[#6BCF9F] transition-all duration-300 font-medium relative group flex items-center gap-2"
+              >
+                <i class="fa-solid fa-calendar-check"></i>
+                Mis Reservaciones
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#6BCF9F] group-hover:w-full transition-all duration-300"></span>
+              </router-link>
+              <router-link 
+                to="/profile" 
+                class="px-6 py-2 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium flex items-center gap-2"
+              >
+                <i class="fa-solid fa-user"></i>
+                Perfil
+              </router-link>
+            </template>
           </div>
         </div>
       </div>
@@ -263,6 +292,21 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { onAuthChange } from '@/firebase/auth'
+
+const isAuthenticated = ref(false)
+let unsubscribe = null
+
+onMounted(() => {
+  unsubscribe = onAuthChange((user) => {
+    isAuthenticated.value = !!user
+  })
+})
+
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe()
+})
 </script>
 
 <style scoped>

@@ -50,15 +50,15 @@
           </div>
           <div class="hidden md:flex items-center gap-8">
             <div class="text-center bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/30">
-              <div class="text-3xl font-bold">8</div>
+              <div class="text-3xl font-bold">{{ stats.total }}</div>
               <div class="text-sm text-white/80">Total</div>
             </div>
             <div class="text-center bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/30">
-              <div class="text-3xl font-bold">3</div>
+              <div class="text-3xl font-bold">{{ stats.upcoming }}</div>
               <div class="text-sm text-white/80">Próximas</div>
             </div>
             <div class="text-center bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/30">
-              <div class="text-3xl font-bold">5</div>
+              <div class="text-3xl font-bold">{{ stats.completed }}</div>
               <div class="text-sm text-white/80">Completadas</div>
             </div>
           </div>
@@ -68,86 +68,137 @@
 
     <!-- Tabs Filter -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-      <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-white/50 inline-flex gap-2">
-        <button class="px-6 py-3 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-medium transition-all duration-300 shadow-md">
+      <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-white/50 inline-flex gap-2 flex-wrap">
+        <button 
+          @click="activeFilter = 'upcoming'"
+          :class="[
+            'px-6 py-3 rounded-xl font-medium transition-all duration-300',
+            activeFilter === 'upcoming' 
+              ? 'bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
           <i class="fa-solid fa-clock mr-2"></i>
-          Próximas (3)
+          Próximas ({{ stats.upcoming }})
         </button>
-        <button class="px-6 py-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-all duration-300">
+        <button 
+          @click="activeFilter = 'completed'"
+          :class="[
+            'px-6 py-3 rounded-xl font-medium transition-all duration-300',
+            activeFilter === 'completed' 
+              ? 'bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
           <i class="fa-solid fa-check-circle mr-2"></i>
-          Completadas (5)
+          Completadas ({{ stats.completed }})
         </button>
-        <button class="px-6 py-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-all duration-300">
+        <button 
+          @click="activeFilter = 'cancelled'"
+          :class="[
+            'px-6 py-3 rounded-xl font-medium transition-all duration-300',
+            activeFilter === 'cancelled' 
+              ? 'bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
           <i class="fa-solid fa-ban mr-2"></i>
-          Canceladas (0)
+          Canceladas ({{ stats.cancelled }})
         </button>
-        <button class="px-6 py-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-all duration-300">
+        <button 
+          @click="activeFilter = 'all'"
+          :class="[
+            'px-6 py-3 rounded-xl font-medium transition-all duration-300',
+            activeFilter === 'all' 
+              ? 'bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
           <i class="fa-solid fa-list mr-2"></i>
-          Todas (8)
+          Todas ({{ stats.total }})
         </button>
       </div>
     </section>
 
-    <!-- Upcoming Reservations -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <i class="fa-solid fa-calendar-days text-[#6BCF9F]"></i>
-        Próximas Reservaciones
-      </h2>
+    <!-- Loading State -->
+    <section v-if="isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col items-center justify-center py-20">
+        <div class="w-16 h-16 border-4 border-[#6BCF9F] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-gray-600">Cargando reservaciones...</p>
+      </div>
+    </section>
 
+    <!-- Empty State -->
+    <section v-else-if="filteredReservations.length === 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-12 text-center">
+        <div class="w-24 h-24 bg-gradient-to-br from-[#6BCF9F]/20 to-[#7ED9A8]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fa-solid fa-calendar-xmark text-4xl text-[#6BCF9F]"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-3">No hay reservaciones</h3>
+        <p class="text-gray-600 mb-6">{{ emptyMessage }}</p>
+        <router-link 
+          to="/reservaciones"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+        >
+          <i class="fa-solid fa-plus"></i>
+          Hacer una Reservación
+        </router-link>
+      </div>
+    </section>
+
+    <!-- Reservations List -->
+    <section v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="space-y-6">
-        <!-- Reservation Card 1 - Upcoming -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-[#6BCF9F] overflow-hidden group hover:-translate-y-1">
+        <!-- Reservation Card -->
+        <div 
+          v-for="reservation in filteredReservations" 
+          :key="reservation.id"
+          class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 overflow-hidden group hover:-translate-y-1"
+          :class="getStatusBorderColor(reservation.status)"
+        >
           <div class="p-6">
             <div class="flex items-start justify-between">
               <!-- Left Content -->
               <div class="flex gap-6 flex-1">
                 <!-- Date Badge -->
                 <div class="bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white rounded-2xl p-4 text-center min-w-[100px] shadow-md">
-                  <div class="text-3xl font-bold">15</div>
-                  <div class="text-sm opacity-90">OCT</div>
-                  <div class="text-xs opacity-80 mt-1">2025</div>
+                  <div class="text-3xl font-bold">{{ formatDay(reservation.date) }}</div>
+                  <div class="text-sm opacity-90">{{ formatMonth(reservation.date) }}</div>
+                  <div class="text-xs opacity-80 mt-1">{{ formatYear(reservation.date) }}</div>
                 </div>
 
                 <!-- Details -->
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-3">
                     <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center text-white shadow-md">
-                      <i class="fa-solid fa-futbol text-xl"></i>
+                      <i :class="getSportIcon(reservation.courtSport)" class="text-xl"></i>
                     </div>
                     <div>
-                      <h3 class="text-xl font-bold text-gray-800">Cancha de Fútbol #1</h3>
-                      <p class="text-sm text-gray-500">Código: RSV-2024-001</p>
+                      <h3 class="text-xl font-bold text-gray-800">{{ reservation.courtName }}</h3>
+                      <p class="text-sm text-gray-500">ID: {{ reservation.id.slice(0, 12) }}...</p>
                     </div>
                   </div>
 
-                  <div class="grid md:grid-cols-4 gap-4 mb-4">
+                  <div class="grid md:grid-cols-3 gap-4 mb-4">
                     <div class="flex items-center gap-2 text-gray-600">
                       <i class="fa-solid fa-clock text-[#6BCF9F]"></i>
                       <div>
                         <p class="text-xs text-gray-500">Horario</p>
-                        <p class="font-semibold">18:00 - 20:00</p>
+                        <p class="font-semibold">{{ reservation.startTime }} - {{ reservation.endTime }}</p>
                       </div>
                     </div>
                     <div class="flex items-center gap-2 text-gray-600">
                       <i class="fa-solid fa-location-dot text-[#6BCF9F]"></i>
                       <div>
                         <p class="text-xs text-gray-500">Ubicación</p>
-                        <p class="font-semibold">Centro Deportivo</p>
+                        <p class="font-semibold">{{ reservation.courtLocation }}</p>
                       </div>
                     </div>
                     <div class="flex items-center gap-2 text-gray-600">
                       <i class="fa-solid fa-users text-[#6BCF9F]"></i>
                       <div>
-                        <p class="text-xs text-gray-500">Capacidad</p>
-                        <p class="font-semibold">11 vs 11</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-dollar-sign text-[#6BCF9F]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Precio</p>
-                        <p class="font-semibold">$500.00</p>
+                        <p class="text-xs text-gray-500">Jugadores</p>
+                        <p class="font-semibold">{{ reservation.people }} personas</p>
                       </div>
                     </div>
                   </div>
@@ -155,21 +206,21 @@
                   <!-- Status & Actions -->
                   <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div class="flex items-center gap-2">
-                      <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i>
-                        Confirmada
+                      <span :class="getStatusBadgeClass(reservation.status)" class="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                        <i :class="getStatusIcon(reservation.status)"></i>
+                        {{ getStatusText(reservation.status) }}
                       </span>
-                      <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-credit-card"></i>
-                        Pagada
+                      <span class="px-4 py-2 bg-[#F8FDF9] text-[#6BCF9F] rounded-full text-sm font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-gift"></i>
+                        Gratis
                       </span>
                     </div>
                     <div class="flex gap-3">
-                      <button class="px-5 py-2 bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300">
-                        <i class="fa-solid fa-eye mr-2"></i>
-                        Ver Detalles
-                      </button>
-                      <button class="px-5 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl font-medium hover:bg-red-100 transition-all duration-300">
+                      <button 
+                        v-if="reservation.status === 'confirmed' && isUpcoming(reservation.date)"
+                        @click="cancelReservation(reservation.id)"
+                        class="px-5 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl font-medium hover:bg-red-100 transition-all duration-300"
+                      >
                         <i class="fa-solid fa-xmark mr-2"></i>
                         Cancelar
                       </button>
@@ -180,318 +231,29 @@
             </div>
           </div>
         </div>
-
-        <!-- Reservation Card 2 - Upcoming -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-[#7ED9A8] overflow-hidden group hover:-translate-y-1">
-          <div class="p-6">
-            <div class="flex items-start justify-between">
-              <div class="flex gap-6 flex-1">
-                <div class="bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] text-white rounded-2xl p-4 text-center min-w-[100px] shadow-md">
-                  <div class="text-3xl font-bold">18</div>
-                  <div class="text-sm opacity-90">OCT</div>
-                  <div class="text-xs opacity-80 mt-1">2025</div>
-                </div>
-
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-[#7ED9A8] to-[#95E3B3] rounded-xl flex items-center justify-center text-white shadow-md">
-                      <i class="fa-solid fa-basketball text-xl"></i>
-                    </div>
-                    <div>
-                      <h3 class="text-xl font-bold text-gray-800">Cancha de Basquetbol #1</h3>
-                      <p class="text-sm text-gray-500">Código: RSV-2024-002</p>
-                    </div>
-                  </div>
-
-                  <div class="grid md:grid-cols-4 gap-4 mb-4">
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-clock text-[#7ED9A8]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Horario</p>
-                        <p class="font-semibold">16:00 - 18:00</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-location-dot text-[#7ED9A8]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Ubicación</p>
-                        <p class="font-semibold">Polideportivo Norte</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-users text-[#7ED9A8]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Capacidad</p>
-                        <p class="font-semibold">5 vs 5</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-dollar-sign text-[#7ED9A8]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Precio</p>
-                        <p class="font-semibold">$400.00</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="flex items-center gap-2">
-                      <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i>
-                        Confirmada
-                      </span>
-                    </div>
-                    <div class="flex gap-3">
-                      <button class="px-5 py-2 bg-gray-50 text-gray-600 border border-gray-200 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300">
-                        <i class="fa-solid fa-eye mr-2"></i>
-                        Detalles
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reservation Card 3 - Upcoming -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-l-4 border-[#95E3B3] overflow-hidden group hover:-translate-y-1">
-          <div class="p-6">
-            <div class="flex items-start justify-between">
-              <div class="flex gap-6 flex-1">
-                <div class="bg-gradient-to-br from-[#95E3B3] to-[#AEEDC4] text-white rounded-2xl p-4 text-center min-w-[100px] shadow-md">
-                  <div class="text-3xl font-bold">22</div>
-                  <div class="text-sm opacity-90">OCT</div>
-                  <div class="text-xs opacity-80 mt-1">2025</div>
-                </div>
-
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-[#95E3B3] to-[#AEEDC4] rounded-xl flex items-center justify-center text-white shadow-md">
-                      <i class="fa-solid fa-table-tennis-paddle-ball text-xl"></i>
-                    </div>
-                    <div>
-                      <h3 class="text-xl font-bold text-gray-800">Cancha de Tenis #1</h3>
-                      <p class="text-sm text-gray-500">Código: RSV-2024-003</p>
-                    </div>
-                  </div>
-
-                  <div class="grid md:grid-cols-4 gap-4 mb-4">
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-clock text-[#95E3B3]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Horario</p>
-                        <p class="font-semibold">10:00 - 12:00</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-location-dot text-[#95E3B3]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Ubicación</p>
-                        <p class="font-semibold">Club Deportivo Sur</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-users text-[#95E3B3]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Capacidad</p>
-                        <p class="font-semibold">Individual/Dobles</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <i class="fa-solid fa-dollar-sign text-[#95E3B3]"></i>
-                      <div>
-                        <p class="text-xs text-gray-500">Precio</p>
-                        <p class="font-semibold">$360.00</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="flex items-center gap-2">
-                      <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i>
-                        Confirmada
-                      </span>
-                      <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-credit-card"></i>
-                        Pagada
-                      </span>
-                    </div>
-                    <div class="flex gap-3">
-                      <button class="px-5 py-2 bg-gradient-to-r from-[#95E3B3] to-[#AEEDC4] text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300">
-                        <i class="fa-solid fa-eye mr-2"></i>
-                        Ver Detalles
-                      </button>
-                      <button class="px-5 py-2 bg-gray-50 text-gray-600 border border-gray-200 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300">
-                        <i class="fa-solid fa-share mr-2"></i>
-                        Compartir
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Past Reservations Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-        <i class="fa-solid fa-history text-gray-500"></i>
-        Historial de Reservaciones
-      </h2>
-
-      <div class="grid md:grid-cols-2 gap-6">
-        <!-- Compact Past Reservation Card 1 -->
-        <div class="bg-white/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-gray-200 opacity-80">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-volleyball"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-700">Cancha de Voleibol #1</h4>
-                <p class="text-xs text-gray-500">05 OCT 2025 • 14:00 - 16:00</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs font-semibold">
-              Completada
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <span>$300.00</span>
-            <button class="text-[#6BCF9F] hover:underline font-medium">
-              <i class="fa-solid fa-redo mr-1"></i>
-              Reservar de nuevo
-            </button>
-          </div>
-        </div>
-
-        <!-- Compact Past Reservation Card 2 -->
-        <div class="bg-white/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-gray-200 opacity-80">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-baseball-bat-ball"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-700">Cancha de Pádel #1</h4>
-                <p class="text-xs text-gray-500">28 SEP 2025 • 18:00 - 20:00</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs font-semibold">
-              Completada
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <span>$440.00</span>
-            <button class="text-[#6BCF9F] hover:underline font-medium">
-              <i class="fa-solid fa-redo mr-1"></i>
-              Reservar de nuevo
-            </button>
-          </div>
-        </div>
-
-        <!-- Compact Past Reservation Card 3 -->
-        <div class="bg-white/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-gray-200 opacity-80">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-futbol"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-700">Cancha de Fútbol 7</h4>
-                <p class="text-xs text-gray-500">20 SEP 2025 • 20:00 - 22:00</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs font-semibold">
-              Completada
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <span>$360.00</span>
-            <button class="text-[#6BCF9F] hover:underline font-medium">
-              <i class="fa-solid fa-redo mr-1"></i>
-              Reservar de nuevo
-            </button>
-          </div>
-        </div>
-
-        <!-- Compact Past Reservation Card 4 -->
-        <div class="bg-white/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-gray-200 opacity-80">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-basketball"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-700">Cancha de Basquetbol #2</h4>
-                <p class="text-xs text-gray-500">15 SEP 2025 • 16:00 - 18:00</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs font-semibold">
-              Completada
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <span>$400.00</span>
-            <button class="text-[#6BCF9F] hover:underline font-medium">
-              <i class="fa-solid fa-redo mr-1"></i>
-              Reservar de nuevo
-            </button>
-          </div>
-        </div>
-
-        <!-- Compact Past Reservation Card 5 -->
-        <div class="bg-white/60 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 border border-gray-200 opacity-80 md:col-span-2">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-table-tennis-paddle-ball"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-gray-700">Cancha de Tenis #2</h4>
-                <p class="text-xs text-gray-500">10 SEP 2025 • 09:00 - 11:00</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs font-semibold">
-              Completada
-            </span>
-          </div>
-          <div class="flex items-center justify-between text-sm text-gray-600">
-            <span>$360.00</span>
-            <button class="text-[#6BCF9F] hover:underline font-medium">
-              <i class="fa-solid fa-redo mr-1"></i>
-              Reservar de nuevo
-            </button>
-          </div>
-        </div>
       </div>
     </section>
 
     <!-- Quick Actions Section -->
     <section class="bg-gradient-to-r from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-3 gap-6 text-white">
+        <div class="grid md:grid-cols-2 gap-6 text-white">
           <!-- Quick Action 1 -->
-          <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer group">
+          <router-link to="/reservaciones" class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer group">
             <div class="w-14 h-14 bg-white/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300">
               <i class="fa-solid fa-plus text-3xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">Nueva Reservación</h3>
             <p class="text-white/80">Encuentra y reserva tu cancha favorita</p>
-          </div>
+          </router-link>
 
           <!-- Quick Action 2 -->
-          <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer group">
+          <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 cursor-pointer group" @click="refreshReservations">
             <div class="w-14 h-14 bg-white/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300">
-              <i class="fa-solid fa-download text-3xl"></i>
+              <i class="fa-solid fa-refresh text-3xl" :class="{ 'animate-spin': isLoading }"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">Descargar Historial</h3>
-            <p class="text-white/80">Obtén un resumen de todas tus reservaciones</p>
+            <h3 class="text-xl font-bold mb-2">Actualizar Lista</h3>
+            <p class="text-white/80">Recargar tus reservaciones</p>
           </div>
         </div>
       </div>
@@ -500,6 +262,153 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { getUserReservations, cancelReservation as cancelReservationService } from '@/firebase/reservations'
+import { onAuthChange } from '@/firebase/auth'
+
+const reservations = ref([])
+const isLoading = ref(true)
+const activeFilter = ref('all')
+const currentUser = ref(null)
+let unsubscribeAuth = null
+
+// Estadísticas
+const stats = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  return {
+    total: reservations.value.length,
+    upcoming: reservations.value.filter(r => r.status === 'confirmed' && r.date >= today).length,
+    completed: reservations.value.filter(r => r.status === 'confirmed' && r.date < today).length,
+    cancelled: reservations.value.filter(r => r.status === 'cancelled').length
+  }
+})
+
+// Filtrar reservaciones
+const filteredReservations = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  
+  switch (activeFilter.value) {
+    case 'upcoming':
+      return reservations.value.filter(r => r.status === 'confirmed' && r.date >= today)
+    case 'completed':
+      return reservations.value.filter(r => r.status === 'confirmed' && r.date < today)
+    case 'cancelled':
+      return reservations.value.filter(r => r.status === 'cancelled')
+    default:
+      return reservations.value
+  }
+})
+
+// Mensaje cuando no hay reservaciones
+const emptyMessage = computed(() => {
+  switch (activeFilter.value) {
+    case 'upcoming':
+      return 'No tienes reservaciones próximas. ¡Haz una nueva reservación!'
+    case 'completed':
+      return 'Aún no tienes reservaciones completadas.'
+    case 'cancelled':
+      return 'No tienes reservaciones canceladas.'
+    default:
+      return 'No tienes ninguna reservación. ¡Haz tu primera reservación!'
+  }
+})
+
+// Cargar reservaciones
+const loadReservations = async () => {
+  if (!currentUser.value) return
+  
+  isLoading.value = true
+  const result = await getUserReservations(currentUser.value.uid)
+  
+  if (result.success) {
+    reservations.value = result.data.sort((a, b) => {
+      // Ordenar por fecha (más reciente primero)
+      return new Date(b.date) - new Date(a.date)
+    })
+  }
+  
+  isLoading.value = false
+}
+
+// Actualizar lista
+const refreshReservations = () => {
+  loadReservations()
+}
+
+// Cancelar reservación
+const cancelReservation = async (reservationId) => {
+  if (!confirm('¿Estás seguro de que deseas cancelar esta reservación?')) return
+  
+  const result = await cancelReservationService(reservationId)
+  
+  if (result.success) {
+    alert('Reservación cancelada exitosamente')
+    loadReservations()
+  } else {
+    alert('Error al cancelar la reservación: ' + result.error)
+  }
+}
+
+// Verificar si una fecha es futura
+const isUpcoming = (date) => {
+  const today = new Date().toISOString().split('T')[0]
+  return date >= today
+}
+
+// Formatear fecha
+const formatDay = (date) => new Date(date + 'T12:00:00').getDate()
+const formatMonth = (date) => {
+  const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+  return months[new Date(date + 'T12:00:00').getMonth()]
+}
+const formatYear = (date) => new Date(date + 'T12:00:00').getFullYear()
+
+// Obtener icono del deporte
+const getSportIcon = (sport) => {
+  const icons = {
+    'basquetbol': 'fa-solid fa-basketball',
+    'tenis': 'fa-solid fa-table-tennis-paddle-ball',
+    'voleibol': 'fa-solid fa-volleyball',
+    'padel': 'fa-solid fa-baseball-bat-ball'
+  }
+  return icons[sport] || 'fa-solid fa-futbol'
+}
+
+// Estilos según estado
+const getStatusBorderColor = (status) => {
+  return status === 'cancelled' ? 'border-red-400' : 'border-[#6BCF9F]'
+}
+
+const getStatusBadgeClass = (status) => {
+  return status === 'cancelled' 
+    ? 'bg-red-100 text-red-700' 
+    : 'bg-green-100 text-green-700'
+}
+
+const getStatusIcon = (status) => {
+  return status === 'cancelled' ? 'fa-solid fa-ban' : 'fa-solid fa-circle-check'
+}
+
+const getStatusText = (status) => {
+  return status === 'cancelled' ? 'Cancelada' : 'Confirmada'
+}
+
+// Lifecycle
+onMounted(() => {
+  unsubscribeAuth = onAuthChange((user) => {
+    currentUser.value = user
+    if (user) {
+      loadReservations()
+    } else {
+      reservations.value = []
+      isLoading.value = false
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (unsubscribeAuth) unsubscribeAuth()
+})
 </script>
 
 <style scoped>

@@ -344,26 +344,6 @@
               </div>
             </div>
 
-            <!-- Servicios Incluidos - Diseño Compacto -->
-            <div class="px-8 py-6 border-b border-gray-100">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-lg flex items-center justify-center shadow-md">
-                  <CheckBadgeIcon class="w-6 h-6 text-white" />
-                </div>
-                <h3 class="text-xl font-bold text-gray-900">Servicios Incluidos</h3>
-              </div>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-                <div 
-                  v-for="amenity in selectedCourt?.amenities" 
-                  :key="amenity"
-                  class="flex items-center gap-2.5 p-3 bg-gradient-to-r from-[#F8FDF9] to-white rounded-lg border border-[#D8F0E3] hover:border-[#6BCF9F] hover:shadow-sm transition-all group"
-                >
-                  <CheckCircleIcon class="w-5 h-5 text-[#6BCF9F] flex-shrink-0" />
-                  <span class="font-medium text-gray-700 text-sm">{{ amenity }}</span>
-                </div>
-              </div>
-            </div>
-
             <!-- Tipo de Reservación -->
             <div class="px-8 py-6 border-b border-gray-100">
               <div class="flex items-center gap-3 mb-5">
@@ -676,7 +656,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { jsPDF } from 'jspdf'
 import { 
   FunnelIcon, 
@@ -697,10 +677,20 @@ import {
   CheckCircleIcon,
   XCircleIcon
 } from '@heroicons/vue/24/outline'
+import { createReservation, getOccupiedHours, checkAvailability } from '@/firebase/reservations'
+import { onAuthChange, getCurrentUser } from '@/firebase/auth'
 
 // Estado del modal
 const showModal = ref(false)
 const selectedCourt = ref(null)
+
+// Estado del usuario actual
+const currentUser = ref(null)
+let unsubscribeAuth = null
+
+// Estado de carga
+const isLoading = ref(false)
+const loadingMessage = ref('')
 
 // Filtros
 const filters = ref({
@@ -729,15 +719,29 @@ const availableHours = ref([
 // Error de validación de tiempo
 const timeError = ref('')
 
-// TODO: Integración con Base de Datos
-// Este array simula los slots ocupados. En producción, esto vendrá de la API/BD
-// Formato: { date: 'YYYY-MM-DD', courtId: number, occupiedHours: ['06:00', '06:30', '14:00', ...] }
-const occupiedSlots = ref([
-  // Ejemplo de datos simulados - REMOVER cuando se conecte a BD
-  { date: '2025-10-13', courtId: 1, occupiedHours: ['08:00', '08:30', '11:00', '15:00', '19:00', '19:30'] },
-  { date: '2025-10-13', courtId: 2, occupiedHours: ['09:00', '09:30', '14:00', '18:00'] },
-  { date: '2025-10-14', courtId: 1, occupiedHours: ['10:00', '16:00', '20:00'] },
-])
+// Horas ocupadas para la fecha y cancha seleccionada (cargadas desde Firebase)
+const currentOccupiedHours = ref([])
+
+// Montar y desmontar
+onMounted(() => {
+  unsubscribeAuth = onAuthChange((user) => {
+    currentUser.value = user
+  })
+})
+
+onUnmounted(() => {
+  if (unsubscribeAuth) unsubscribeAuth()
+})
+
+// Cargar horas ocupadas cuando cambia la fecha o la cancha
+watch([() => reservationData.value.date, () => selectedCourt.value], async ([newDate, newCourt]) => {
+  if (newDate && newCourt) {
+    const result = await getOccupiedHours(newDate, newCourt.id)
+    currentOccupiedHours.value = result.occupiedHours || []
+  } else {
+    currentOccupiedHours.value = []
+  }
+}, { immediate: true })
 
 // Datos de las canchas - 9 canchas totales: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
 const courts = ref([
@@ -881,36 +885,30 @@ const closeModal = () => {
   }, 300)
 }
 
-// TODO: Integración con Base de Datos
-// Esta función verificará en la BD si un rango de tiempo está ocupado
+// Verificar si un rango de tiempo está ocupado usando los datos cargados
 const isTimeRangeOccupied = () => {
   if (!reservationData.value.date || !selectedCourt.value || !reservationData.value.startTime || !reservationData.value.endTime) {
     return false
   }
   
-  // Aquí se validaría contra la base de datos
-  // Por ahora retornamos false (disponible)
-  return false
-  
-  /* TODO: Reemplazar con llamada a API
-  try {
-    const response = await fetch(`/api/reservations/check-range`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        date: reservationData.value.date,
-        courtId: selectedCourt.value.id,
-        startTime: reservationData.value.startTime,
-        endTime: reservationData.value.endTime
-      })
-    })
-    const data = await response.json()
-    return data.isOccupied
-  } catch (error) {
-    console.error('Error checking availability:', error)
-    return false
+  // Convertir tiempo a minutos
+  const timeToMins = (time) => {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
   }
-  */
+  
+  const startMins = timeToMins(reservationData.value.startTime)
+  const endMins = timeToMins(reservationData.value.endTime)
+  
+  // Verificar si algún slot ocupado está dentro del rango seleccionado
+  for (const occupiedTime of currentOccupiedHours.value) {
+    const occupiedMins = timeToMins(occupiedTime)
+    if (occupiedMins >= startMins && occupiedMins < endMins) {
+      return true
+    }
+  }
+  
+  return false
 }
 
 // Validar tiempos cuando cambian
@@ -1029,7 +1027,7 @@ const getCourtGradient = (sport) => {
 // Función para generar PDF de la reservación
 const generateReservationPDF = (reservationPayload) => {
   const doc = new jsPDF()
-  const reservationId = `RES-${Date.now().toString(36).toUpperCase()}`
+  const reservationId = reservationPayload.id || `RES-${Date.now().toString(36).toUpperCase()}`
   
   // Configuración de colores
   const primaryColor = [107, 207, 159] // #6BCF9F
@@ -1052,12 +1050,12 @@ const generateReservationPDF = (reservationPayload) => {
   
   // ID de reservación en la esquina
   doc.setFontSize(10)
-  doc.text(`ID: ${reservationId}`, 150, 25)
+  doc.text(`ID: ${reservationId.slice(0, 15)}`, 140, 25)
   doc.text(new Date().toLocaleDateString('es-MX', { 
     year: 'numeric', 
     month: 'long', 
     day: 'numeric' 
-  }), 150, 32)
+  }), 140, 32)
   
   // Cuerpo del documento
   let yPosition = 70
@@ -1086,7 +1084,7 @@ const generateReservationPDF = (reservationPayload) => {
     { label: 'Horario:', value: `${reservationPayload.startTime} - ${reservationPayload.endTime}` },
     { label: 'Duración:', value: reservationPayload.duration },
     { label: 'Número de Jugadores:', value: `${reservationPayload.people} personas` },
-    { label: 'Ubicación:', value: selectedCourt.value.location },
+    { label: 'Ubicación:', value: reservationPayload.courtLocation || selectedCourt.value?.location || 'Centro Deportivo' },
     { label: 'Costo:', value: 'GRATUITO' }
   ]
   
@@ -1109,32 +1107,6 @@ const generateReservationPDF = (reservationPayload) => {
   })
   
   yPosition += (details.length * 12) + 20
-  
-  // Sección de servicios incluidos
-  doc.setTextColor(...darkColor)
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Servicios Incluidos', 20, yPosition)
-  
-  yPosition += 10
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(...grayColor)
-  
-  const amenities = selectedCourt.value.amenities
-  amenities.forEach((amenity, index) => {
-    const col = index % 2
-    const row = Math.floor(index / 2)
-    const xPos = col === 0 ? 25 : 105
-    const yPos = yPosition + (row * 8)
-    
-    doc.setTextColor(...primaryColor)
-    doc.text('✓', xPos, yPos)
-    doc.setTextColor(...grayColor)
-    doc.text(amenity, xPos + 8, yPos)
-  })
-  
-  yPosition += Math.ceil(amenities.length / 2) * 8 + 20
   
   // Código QR simulado (rectángulo)
   doc.setFillColor(240, 240, 240)
@@ -1178,57 +1150,78 @@ const generateReservationPDF = (reservationPayload) => {
   return reservationId
 }
 
-// TODO: Integración con Base de Datos
-// Esta función enviará la reservación a la BD
-const confirmReservation = () => {
+// Confirmar reservación y guardar en Firebase
+const confirmReservation = async () => {
   if (!isReservationValid.value) return
   
-  // Datos que se enviarán a la BD
-  const reservationPayload = {
-    courtId: selectedCourt.value.id,
-    courtName: selectedCourt.value.name,
-    type: reservationData.value.type,
-    date: reservationData.value.date,
-    startTime: reservationData.value.startTime,
-    endTime: reservationData.value.endTime,
-    duration: calculateDuration(),
-    people: reservationData.value.people,
-    status: 'confirmed',
-    createdAt: new Date().toISOString()
+  // Verificar que el usuario esté autenticado
+  if (!currentUser.value) {
+    alert('❌ Debes iniciar sesión para hacer una reservación')
+    return
   }
   
-  console.log('📋 Datos de reservación (enviar a BD):', reservationPayload)
+  isLoading.value = true
+  loadingMessage.value = 'Verificando disponibilidad...'
   
-  // Generar el PDF de la reservación
-  const reservationId = generateReservationPDF(reservationPayload)
-  
-  /* TODO: Implementar llamada a API
   try {
-    const response = await fetch('/api/reservations/create', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userToken}` // Agregar autenticación
-      },
-      body: JSON.stringify(reservationPayload)
-    })
+    // Verificar disponibilidad una última vez antes de confirmar
+    const availability = await checkAvailability(
+      reservationData.value.date,
+      selectedCourt.value.id,
+      reservationData.value.startTime,
+      reservationData.value.endTime
+    )
     
-    if (!response.ok) throw new Error('Error al crear reservación')
+    if (!availability.available) {
+      alert(`❌ Este horario ya no está disponible.\n${availability.message || 'Por favor selecciona otro horario.'}`)
+      // Recargar horas ocupadas
+      const result = await getOccupiedHours(reservationData.value.date, selectedCourt.value.id)
+      currentOccupiedHours.value = result.occupiedHours || []
+      isLoading.value = false
+      return
+    }
     
-    const data = await response.json()
+    loadingMessage.value = 'Guardando reservación...'
+    
+    // Datos de la reservación
+    const reservationPayload = {
+      userId: currentUser.value.uid,
+      userEmail: currentUser.value.email,
+      userName: currentUser.value.displayName || currentUser.value.email.split('@')[0],
+      courtId: selectedCourt.value.id,
+      courtName: selectedCourt.value.name,
+      courtSport: selectedCourt.value.sport,
+      courtLocation: selectedCourt.value.location,
+      type: reservationData.value.type,
+      date: reservationData.value.date,
+      startTime: reservationData.value.startTime,
+      endTime: reservationData.value.endTime,
+      duration: calculateDuration(),
+      people: reservationData.value.people
+    }
+    
+    // Guardar en Firebase
+    const result = await createReservation(reservationPayload)
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Error al guardar la reservación')
+    }
+    
+    // Generar el PDF de la reservación
+    const reservationId = generateReservationPDF({ ...reservationPayload, id: result.id })
+    
+    // Mostrar confirmación
+    alert(`¡Reservación confirmada! 🎉\n\nID: ${result.id}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Se ha descargado el comprobante PDF`)
     
     closeModal()
     
   } catch (error) {
     console.error('Error al confirmar reservación:', error)
-    alert('❌ Error al procesar tu reservación. Por favor intenta de nuevo.')
+    alert(`❌ Error al procesar tu reservación: ${error.message}\nPor favor intenta de nuevo.`)
+  } finally {
+    isLoading.value = false
+    loadingMessage.value = ''
   }
-  */
-  
-  // Mostrar confirmación
-  alert(`¡Reservación confirmada! 🎉\n\nID: ${reservationId}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Se ha descargado el comprobante PDF`)
-  
-  closeModal()
 }
 </script>
 

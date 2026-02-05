@@ -101,10 +101,23 @@
           <div class="pt-2 opacity-0 animate-elegant-slide-up animation-delay-1400">
             <button 
               type="submit"
-              class="w-full bg-gradient-to-r from-ixmi-500 via-ixmi-400 to-ixmi-300 text-white py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-300"
+              :disabled="loading"
+              class="w-full bg-gradient-to-r from-ixmi-500 via-ixmi-400 to-ixmi-300 text-white py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl font-medium text-sm sm:text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Iniciar Sesión
+              <span v-if="loading" class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                Iniciando...
+              </span>
+              <span v-else>Iniciar Sesión</span>
             </button>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="errorMessage" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm text-center">
+            {{ errorMessage }}
           </div>
         </form>
 
@@ -125,16 +138,32 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { loginUser } from '@/firebase/auth'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
+const loading = ref(false)
+const errorMessage = ref('')
 
 const handleLogin = async () => {
-  console.log('Login:', { email: email.value, password: password.value })
-  // Simulación de login
-  localStorage.setItem('isAuthenticated', 'true')
-  router.push('/home')
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Por favor completa todos los campos'
+    return
+  }
+  
+  loading.value = true
+  errorMessage.value = ''
+  
+  const result = await loginUser(email.value, password.value)
+  
+  if (result.success) {
+    router.push('/')
+  } else {
+    errorMessage.value = result.error
+  }
+  
+  loading.value = false
 }
 </script>
 

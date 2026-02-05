@@ -345,6 +345,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/vue/24/outline'
+import { registerUser } from '@/firebase/auth'
 
 const router = useRouter()
 
@@ -364,6 +365,7 @@ const showConfirmPassword = ref(false)
 const isLoading = ref(false)
 const showTermsModal = ref(false)
 const showPrivacyModal = ref(false)
+const errorMessage = ref('')
 
 // Errores de validación
 const errors = reactive({
@@ -428,32 +430,25 @@ const handleRegister = async () => {
   }
   
   isLoading.value = true
+  errorMessage.value = ''
   
   try {
-    // Simulación de registro
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    console.log('Registro exitoso:', {
-      fullName: formData.fullName,
-      email: formData.email,
+    const result = await registerUser(formData.email, formData.password, {
+      name: formData.fullName,
       phone: formData.phone
     })
     
-    // Guardar estado de autenticación
-    localStorage.setItem('isAuthenticated', 'true')
-    localStorage.setItem('userInfo', JSON.stringify({
-      name: formData.fullName,
-      email: formData.email,
-      phone: formData.phone
-    }))
-    
-    // Mostrar mensaje de éxito y redirigir
-    alert('¡Cuenta creada exitosamente! Bienvenido a IxmiSport')
-    router.push('/home')
+    if (result.success) {
+      // Mostrar mensaje de éxito y redirigir
+      alert('¡Cuenta creada exitosamente! Bienvenido a IxmiSport')
+      router.push('/')
+    } else {
+      errorMessage.value = result.error
+    }
     
   } catch (error) {
     console.error('Error en registro:', error)
-    alert('Error al crear la cuenta. Por favor intenta nuevamente.')
+    errorMessage.value = 'Error al crear la cuenta. Por favor intenta nuevamente.'
   } finally {
     isLoading.value = false
   }

@@ -1201,13 +1201,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { getAllReservations } from '@/firebase/reservations'
 
 // Estado reactivo principal
 const activeTab = ref('dashboard')
 const showNewCanchaModal = ref(false)
 const userSearch = ref('')
 const reservationFilter = ref('all')
+const isLoadingReservations = ref(false)
 
 // Configuración de pestañas del sidebar
 const tabs = ref([
@@ -1521,69 +1523,44 @@ const users = ref([
   }
 ])
 
-// Datos de reservaciones mejorados
-const reservations = ref([
-  {
-    id: 1,
-    cancha: 'Cancha de Fútbol Principal',
-    userName: 'Juan Pérez Rodríguez',
-    date: '2024-12-15',
-    time: '10:00 - 12:00',
-    status: 'pending',
-    amount: 250,
-    priority: false
-  },
-  {
-    id: 2,
-    cancha: 'Cancha de Básquetbol Norte',
-    userName: 'María González López',
-    date: '2024-12-16',
-    time: '14:00 - 16:00',
-    status: 'approved',
-    amount: 180,
-    priority: true
-  },
-  {
-    id: 3,
-    cancha: 'Cancha de Tenis Elite',
-    userName: 'Carlos López Martínez',
-    date: '2024-12-17',
-    time: '16:00 - 18:00',
-    status: 'rejected',
-    amount: 120,
-    priority: false
-  },
-  {
-    id: 4,
-    cancha: 'Cancha Multiusos Central',
-    userName: 'Ana Sofía Hernández',
-    date: '2024-12-18',
-    time: '09:00 - 11:00',
-    status: 'pending',
-    amount: 200,
-    priority: true
-  },
-  {
-    id: 5,
-    cancha: 'Cancha de Voleibol',
-    userName: 'Roberto Díaz García',
-    date: '2024-12-19',
-    time: '18:00 - 20:00',
-    status: 'approved',
-    amount: 150,
-    priority: false
-  },
-  {
-    id: 6,
-    cancha: 'Cancha de Fútbol Rápido',
-    userName: 'Juan Pérez Rodríguez',
-    date: '2024-12-20',
-    time: '20:00 - 22:00',
-    status: 'completed',
-    amount: 180,
-    priority: false
+// Datos de reservaciones - cargados desde Firebase
+const reservations = ref([])
+
+// Cargar reservaciones desde Firebase
+const loadReservations = async () => {
+  isLoadingReservations.value = true
+  try {
+    const result = await getAllReservations()
+    if (result.success) {
+      // Mapear datos de Firebase al formato del admin
+      reservations.value = result.data.map(r => ({
+        id: r.id,
+        cancha: r.courtName || 'Cancha',
+        userName: r.userName || r.userEmail || 'Usuario',
+        date: r.date,
+        time: `${r.startTime} - ${r.endTime}`,
+        status: r.status === 'confirmed' ? 'approved' : r.status === 'cancelled' ? 'rejected' : r.status,
+        amount: 0, // Gratis
+        priority: false,
+        // Datos adicionales de Firebase
+        courtId: r.courtId,
+        userId: r.userId,
+        userEmail: r.userEmail,
+        people: r.people,
+        courtLocation: r.courtLocation,
+        createdAt: r.createdAt
+      }))
+    }
+  } catch (error) {
+    console.error('Error loading reservations:', error)
   }
-])
+  isLoadingReservations.value = false
+}
+
+// Cargar datos al montar el componente
+onMounted(() => {
+  loadReservations()
+})
 
 // Configuración del sistema mejorada
 const systemConfig = ref({
