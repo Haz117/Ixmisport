@@ -1,7 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-white via-[#F8FDF9] to-[#F2F9F4]">
+  <div class="reservaciones-container min-h-screen bg-gradient-to-br from-white via-[#F8FDF9] to-[#F2F9F4]">
+    <!-- Elementos decorativos de fondo animados -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div class="bg-blob blob-1"></div>
+      <div class="bg-blob blob-2"></div>
+      <div class="bg-blob blob-3"></div>
+    </div>
+
     <!-- Navbar Mejorado -->
-    <nav class="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-100/50 sticky top-0 z-50">
+    <nav :class="['navbar-reservaciones', { 'navbar-scrolled': isScrolled }]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
           <div class="flex items-center group">
@@ -38,7 +45,7 @@
     </nav>
 
     <!-- Hero Header Mejorado -->
-    <section class="relative bg-gradient-to-br from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] py-20 overflow-hidden">
+    <section class="hero-section relative bg-gradient-to-br from-[#6BCF9F] via-[#7ED9A8] to-[#95E3B3] py-20 overflow-hidden">
       <!-- Efectos de fondo animados -->
       <div class="absolute inset-0 overflow-hidden">
         <div class="absolute top-20 -left-20 w-72 h-72 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
@@ -55,8 +62,9 @@
             <i class="fa-solid fa-star text-yellow-300 mr-2"></i>
             Reserva en segundos
           </div>
-          <h1 class="text-6xl md:text-7xl font-extrabold mb-6 animate-fade-in">
-            Elige tu Cancha Ideal
+          <h1 class="hero-title text-6xl md:text-7xl font-extrabold mb-6">
+            <span class="title-line">Elige tu Cancha</span>
+            <span class="title-highlight">Ideal</span>
           </h1>
           <p class="text-2xl text-white/95 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
             Selecciona tu espacio deportivo favorito y reserva al instante. <br/>
@@ -101,7 +109,7 @@
     </section>
 
     <!-- Filters Section Mejorada -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 mb-16">
+    <section ref="filtersSection" :class="['filters-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 mb-16', { 'animate-visible': filtersVisible }]">
       <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
         <!-- Header del filtro -->
         <div class="bg-gradient-to-r from-[#6BCF9F]/10 via-[#7ED9A8]/10 to-[#95E3B3]/10 px-8 py-5 border-b border-gray-100">
@@ -204,77 +212,95 @@
     </section>
 
     <!-- Interactive Courts Grid - Dinámico para las 9 canchas -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section ref="courtsSection" class="courts-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Section Header -->
+      <div class="text-center mb-12">
+        <span class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6BCF9F]/10 to-[#7ED9A8]/10 rounded-full text-[#059669] text-sm font-semibold mb-4">
+          <i class="fa-solid fa-futbol"></i>
+          Espacios Disponibles
+        </span>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Nuestras Canchas</h2>
+        <p class="text-gray-500 max-w-2xl mx-auto">Selecciona la cancha ideal para tu próximo partido o entrenamiento</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Iterar sobre todas las canchas dinámicamente -->
         <div 
-          v-for="court in courts"
+          v-for="(court, index) in courts"
           :key="court.id"
           @click="openModal(court)"
-          :class="getCourtGradient(court.sport)"
-          class="relative rounded-3xl overflow-hidden cursor-pointer group hover:scale-105 transition-all duration-500 shadow-2xl"
-          style="height: 350px;"
+          :class="['court-card group', { 'animate-visible': courtsVisible }]"
+          :style="{ animationDelay: `${index * 0.08}s` }"
         >
-          <!-- Court Lines Pattern -->
-          <div class="absolute inset-0 opacity-20">
-            <!-- Basquetbol Lines -->
-            <template v-if="court.sport === 'basquetbol'">
-              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-              <div class="absolute top-4 left-1/2 w-16 h-32 border-2 border-white rounded-b-full transform -translate-x-1/2"></div>
-              <div class="absolute bottom-4 left-1/2 w-16 h-32 border-2 border-white rounded-t-full transform -translate-x-1/2"></div>
-            </template>
-            <!-- Tennis Lines -->
-            <template v-else-if="court.sport === 'tenis'">
-              <div class="absolute top-1/2 left-0 right-0 h-1 bg-white"></div>
-              <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
-              <div class="absolute top-1/4 left-8 right-8 h-0.5 bg-white"></div>
-              <div class="absolute bottom-1/4 left-8 right-8 h-0.5 bg-white"></div>
-            </template>
-            <!-- Voleibol Lines -->
-            <template v-else-if="court.sport === 'voleibol'">
-              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-              <div class="absolute top-8 left-8 right-8 bottom-8 border-2 border-white"></div>
-            </template>
-            <!-- Padel Lines -->
-            <template v-else-if="court.sport === 'padel'">
-              <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-              <div class="absolute top-12 left-12 right-12 bottom-12 border-2 border-white rounded-lg"></div>
-              <div class="absolute top-1/2 left-12 right-12 h-0.5 bg-white"></div>
-            </template>
-          </div>
-          
-          <!-- Status Indicator -->
-          <div class="absolute top-4 right-4 z-10">
-            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-          </div>
-
-          <!-- Content -->
-          <div class="relative h-full flex flex-col items-center justify-center p-6 text-white">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <i :class="court.icon" class="text-4xl"></i>
-            </div>
-            <h3 class="text-2xl font-bold mb-2 text-center">{{ court.name }}</h3>
-            <p class="text-sm opacity-90 mb-1">{{ court.location }}</p>
-            <div class="flex items-center gap-2 text-xs opacity-75 mb-4">
-              <i class="fa-solid fa-users"></i>
-              <span>{{ court.capacity }}</span>
-              <span>•</span>
-              <i class="fa-solid fa-lightbulb"></i>
-              <span>{{ court.amenities[0] }}</span>
-            </div>
-            <div class="px-6 py-2 bg-white/20 backdrop-blur-md rounded-full">
-              <span class="text-lg font-bold">Gratuito</span>
+          <!-- Card Header con Gradiente -->
+          <div :class="['court-card-header', getCourtHeaderClass(court.sport)]">
+            <!-- Status Badge -->
+            <div class="court-status">
+              <span class="status-dot"></span>
+              <span class="status-text">Disponible</span>
             </div>
             
-            <!-- Hover Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
-              <div class="text-center">
-                <p class="text-lg font-semibold mb-2">Click para reservar</p>
-                <div class="flex gap-2 text-xs flex-wrap justify-center">
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ court.amenities[0] }}</span>
-                  <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ court.amenities[1] }}</span>
+            <!-- Sport Icon -->
+            <div class="court-icon-wrapper">
+              <div class="court-icon-bg"></div>
+              <i :class="court.icon" class="court-icon"></i>
+            </div>
+            
+            <!-- Court Type Badge -->
+            <div class="court-type-badge">
+              <i :class="getSportBadgeIcon(court.sport)"></i>
+              {{ court.sport.charAt(0).toUpperCase() + court.sport.slice(1) }}
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="court-card-body">
+            <h3 class="court-name">{{ court.name }}</h3>
+            
+            <div class="court-location">
+              <i class="fa-solid fa-map-marker-alt"></i>
+              <span>{{ court.location }}</span>
+            </div>
+
+            <!-- Court Stats -->
+            <div class="court-stats">
+              <div class="court-stat">
+                <div class="stat-icon">
+                  <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">{{ court.capacity }}</span>
+                  <span class="stat-label">Capacidad</span>
                 </div>
               </div>
+              <div class="court-stat">
+                <div class="stat-icon">
+                  <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">{{ court.amenities[0] }}</span>
+                  <span class="stat-label">Iluminación</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amenities Tags -->
+            <div class="court-amenities">
+              <span v-for="amenity in court.amenities.slice(0, 3)" :key="amenity" class="amenity-tag">
+                {{ amenity }}
+              </span>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="court-card-footer">
+              <div class="court-price">
+                <span class="price-label">Precio</span>
+                <span class="price-value">Gratuito</span>
+              </div>
+              <button class="reserve-btn">
+                <span>Reservar</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -403,7 +429,7 @@
                   </div>
                   <p class="text-xs text-gray-600 mb-2">Eventos y competencias</p>
                   <div class="flex items-center gap-2 text-xs font-semibold text-[#7ED9A8]">
-                    <i class="fa-solid fa-calendar-days"></i>
+                    <i class="fa-solid fa-calendar-alt"></i>
                     <span>Duración: Flexible</span>
                   </div>
                 </button>
@@ -486,7 +512,7 @@
                 <!-- Mensaje de error -->
                 <div v-if="timeError" class="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
                   <p class="text-sm font-semibold text-red-600 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <i class="fa-solid fa-exclamation-circle"></i>
                     {{ timeError }}
                   </p>
                 </div>
@@ -515,7 +541,7 @@
                 <!-- Ayuda contextual -->
                 <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p class="text-xs text-blue-700 flex items-start gap-2">
-                    <i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
+                    <i class="fa-solid fa-info-circle mt-0.5 flex-shrink-0"></i>
                     <span>
                       <strong>Horario de operación:</strong> 5:00 AM - 10:00 PM. 
                       <span v-if="reservationData.type === 'normal'">
@@ -575,7 +601,7 @@
                 <div class="divide-y divide-gray-100">
                   <div class="flex justify-between items-center px-5 py-4 hover:bg-gray-50 transition-colors">
                     <span class="font-semibold text-gray-600 flex items-center gap-2.5">
-                      <i class="fa-solid fa-list-check text-[#6BCF9F]"></i>
+                      <i class="fa-solid fa-tasks text-[#6BCF9F]"></i>
                       Tipo
                     </span>
                     <span class="font-bold text-gray-900">{{ reservationData.type === 'normal' ? 'Partido Normal' : 'Torneo/Evento' }}</span>
@@ -692,6 +718,14 @@ let unsubscribeAuth = null
 const isLoading = ref(false)
 const loadingMessage = ref('')
 
+// Estado de scroll y animaciones
+const isScrolled = ref(false)
+const filtersSection = ref(null)
+const courtsSection = ref(null)
+const filtersVisible = ref(false)
+const courtsVisible = ref(false)
+let observer = null
+
 // Filtros
 const filters = ref({
   sport: '',
@@ -727,10 +761,34 @@ onMounted(() => {
   unsubscribeAuth = onAuthChange((user) => {
     currentUser.value = user
   })
+
+  // Scroll handler para navbar
+  const handleScroll = () => {
+    isScrolled.value = window.scrollY > 50
+  }
+  window.addEventListener('scroll', handleScroll)
+
+  // Intersection Observer para animaciones de scroll
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (entry.target === filtersSection.value) filtersVisible.value = true
+        if (entry.target === courtsSection.value) courtsVisible.value = true
+      }
+    })
+  }, { threshold: 0.1 })
+
+  // Observar secciones
+  setTimeout(() => {
+    if (filtersSection.value) observer.observe(filtersSection.value)
+    if (courtsSection.value) observer.observe(courtsSection.value)
+  }, 100)
 })
 
 onUnmounted(() => {
   if (unsubscribeAuth) unsubscribeAuth()
+  window.removeEventListener('scroll', () => {})
+  if (observer) observer.disconnect()
 })
 
 // Cargar horas ocupadas cuando cambia la fecha o la cancha
@@ -799,7 +857,7 @@ const courts = ref([
     id: 5,
     name: 'Cancha de Tennis #1',
     description: 'Superficie de arcilla sintética profesional',
-    icon: 'fa-solid fa-table-tennis-paddle-ball',
+    icon: 'fa-solid fa-baseball',
     capacity: 'Individual/Dobles',
     maxPeople: 4,
     minPeople: 2,
@@ -811,7 +869,7 @@ const courts = ref([
     id: 6,
     name: 'Cancha de Tennis #2',
     description: 'Superficie dura profesional al aire libre',
-    icon: 'fa-solid fa-table-tennis-paddle-ball',
+    icon: 'fa-solid fa-baseball',
     capacity: 'Individual/Dobles',
     maxPeople: 4,
     minPeople: 2,
@@ -849,7 +907,7 @@ const courts = ref([
     id: 9,
     name: 'Cancha de Pádel #1',
     description: 'Pista panorámica con cristales premium',
-    icon: 'fa-solid fa-baseball-bat-ball',
+    icon: 'fa-solid fa-table-tennis-paddle-ball',
     capacity: '2 vs 2',
     maxPeople: 4,
     minPeople: 2,
@@ -925,19 +983,19 @@ const validateTimes = () => {
   
   // Validar que la hora de fin sea posterior a la de inicio
   if (duration <= 0) {
-    timeError.value = '❌ La hora de finalización debe ser posterior a la hora de inicio'
+    timeError.value = 'Error: La hora de finalización debe ser posterior a la hora de inicio'
     return
   }
   
   // Validar duración máxima para reservaciones normales (60 minutos)
   if (reservationData.value.type === 'normal' && duration > 60) {
-    timeError.value = '❌ Las reservaciones normales no pueden exceder 1 hora (60 minutos)'
+    timeError.value = 'Error: Las reservaciones normales no pueden exceder 1 hora (60 minutos)'
     return
   }
   
   // Validar horario de operación (5 AM - 10 PM)
   if (startMinutes < 300 || endMinutes > 1320) { // 300 = 5:00 AM, 1320 = 10:00 PM
-    timeError.value = '❌ El horario de operación es de 5:00 AM a 10:00 PM'
+    timeError.value = 'Error: El horario de operación es de 5:00 AM a 10:00 PM'
     return
   }
 }
@@ -1022,6 +1080,28 @@ const getCourtGradient = (sport) => {
     padel: 'bg-gradient-to-br from-[#16a085] to-[#1abc9c] hover:shadow-[#1abc9c]/50'
   }
   return gradients[sport] || 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] hover:shadow-[#6BCF9F]/50'
+}
+
+// Función para obtener clase de header según deporte
+const getCourtHeaderClass = (sport) => {
+  const classes = {
+    basquetbol: 'header-basketball',
+    tenis: 'header-tennis',
+    voleibol: 'header-volleyball',
+    padel: 'header-padel'
+  }
+  return classes[sport] || 'header-default'
+}
+
+// Función para obtener icono del badge según deporte
+const getSportBadgeIcon = (sport) => {
+  const icons = {
+    basquetbol: 'fa-solid fa-basketball',
+    tenis: 'fa-solid fa-baseball',
+    voleibol: 'fa-solid fa-volleyball',
+    padel: 'fa-solid fa-table-tennis-paddle-ball'
+  }
+  return icons[sport] || 'fa-solid fa-futbol'
 }
 
 // Función para generar PDF de la reservación
@@ -1156,7 +1236,7 @@ const confirmReservation = async () => {
   
   // Verificar que el usuario esté autenticado
   if (!currentUser.value) {
-    alert('❌ Debes iniciar sesión para hacer una reservación')
+    alert('Error: Debes iniciar sesión para hacer una reservación')
     return
   }
   
@@ -1173,7 +1253,7 @@ const confirmReservation = async () => {
     )
     
     if (!availability.available) {
-      alert(`❌ Este horario ya no está disponible.\n${availability.message || 'Por favor selecciona otro horario.'}`)
+      alert(`Error: Este horario ya no está disponible.\n${availability.message || 'Por favor selecciona otro horario.'}`)
       // Recargar horas ocupadas
       const result = await getOccupiedHours(reservationData.value.date, selectedCourt.value.id)
       currentOccupiedHours.value = result.occupiedHours || []
@@ -1211,13 +1291,13 @@ const confirmReservation = async () => {
     const reservationId = generateReservationPDF({ ...reservationPayload, id: result.id })
     
     // Mostrar confirmación
-    alert(`¡Reservación confirmada! 🎉\n\nID: ${result.id}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\n✅ Se ha descargado el comprobante PDF`)
+    alert(`Reservación confirmada exitosamente\n\nID: ${result.id}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\nSe ha descargado el comprobante PDF`)
     
     closeModal()
     
   } catch (error) {
     console.error('Error al confirmar reservación:', error)
-    alert(`❌ Error al procesar tu reservación: ${error.message}\nPor favor intenta de nuevo.`)
+    alert(`Error al procesar tu reservación: ${error.message}\nPor favor intenta de nuevo.`)
   } finally {
     isLoading.value = false
     loadingMessage.value = ''
@@ -1226,7 +1306,466 @@ const confirmReservation = async () => {
 </script>
 
 <style scoped>
-/* Animaciones */
+/* ================================================
+   IXMISPORT RESERVACIONES - PREMIUM UI/UX
+   ================================================ */
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes titleReveal {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Container principal */
+.reservaciones-container {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Blobs - Simplificados para rendimiento */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(107, 207, 159, 0.4) 0%, transparent 70%);
+  top: -150px;
+  right: -150px;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(126, 217, 168, 0.35) 0%, transparent 70%);
+  bottom: 30%;
+  left: -100px;
+}
+
+.blob-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(149, 227, 179, 0.3) 0%, transparent 70%);
+  top: 60%;
+  right: 5%;
+}
+
+/* Navbar Profesional */
+.navbar-reservaciones {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(107, 207, 159, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 32px rgba(107, 207, 159, 0.12);
+  border-bottom-color: rgba(107, 207, 159, 0.2);
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hero-title .title-line {
+  animation: titleReveal 0.8s ease-out forwards;
+  display: block;
+}
+
+.hero-title .title-highlight {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.9) 50%, #ffffff 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleReveal 0.8s ease-out 0.2s forwards, gradientShift 4s ease infinite;
+  opacity: 0;
+  display: block;
+}
+
+/* Filters Section */
+.filters-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filters-section.animate-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Courts Grid */
+.courts-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== PROFESSIONAL COURT CARDS ========== */
+.court-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(229, 231, 235, 0.6);
+}
+
+.court-card.animate-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.court-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Header */
+.court-card-header {
+  position: relative;
+  height: 140px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.court-card-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  z-index: 0;
+}
+
+/* Header Sport Variants */
+.header-basketball {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.header-tennis {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.header-volleyball {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.header-padel {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.header-default {
+  background: linear-gradient(135deg, #6BCF9F 0%, #059669 100%);
+}
+
+/* Status Badge */
+.court-status {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+.status-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Court Icon */
+.court-icon-wrapper {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.court-card:hover .court-icon-wrapper {
+  transform: translateY(-50%) scale(1.1) rotate(5deg);
+}
+
+.court-icon-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+}
+
+.court-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  color: white;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Court Type Badge */
+.court-type-badge {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  width: fit-content;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.court-type-badge i {
+  font-size: 0.85rem;
+  color: #6BCF9F;
+}
+
+/* Card Body */
+.court-card-body {
+  padding: 1.25rem;
+}
+
+.court-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.court-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.court-location i {
+  color: #6BCF9F;
+  font-size: 0.8rem;
+}
+
+/* Court Stats */
+.court-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 12px;
+}
+
+.court-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.stat-icon i {
+  font-size: 0.875rem;
+  color: #6BCF9F;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Amenities Tags */
+.court-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.amenity-tag {
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #047857;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(167, 243, 208, 0.5);
+}
+
+/* Card Footer */
+.court-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.court-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.price-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #059669;
+}
+
+.reserve-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6BCF9F 0%, #059669 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+.reserve-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+}
+
+.reserve-btn i {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.reserve-btn:hover i {
+  transform: translateX(3px);
+}
+
+/* Animaciones originales mejoradas */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -1259,7 +1798,7 @@ const confirmReservation = async () => {
 @keyframes modal-in {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(20px);
+    transform: scale(0.92) translateY(30px);
   }
   to {
     opacity: 1;
@@ -1268,13 +1807,13 @@ const confirmReservation = async () => {
 }
 
 .animate-modal-in {
-  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Modal Transitions */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-enter-from,
@@ -1283,11 +1822,11 @@ const confirmReservation = async () => {
 }
 
 .modal-enter-active .animate-modal-in {
-  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-leave-active .animate-modal-in {
-  animation: modal-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) reverse;
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) reverse;
 }
 
 /* Scrollbar personalizado y elegante */
@@ -1334,7 +1873,7 @@ select {
   appearance: none;
 }
 
-/* Efectos hover mejorados */
+/* Hover effects mejorados */
 .hover\:scale-105:hover {
   transform: scale(1.05);
 }
@@ -1343,13 +1882,15 @@ select {
   transform: scale(1.10);
 }
 
-/* Animación de pulso personalizada */
+/* Animación de pulso mejorada */
 @keyframes pulse-slow {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
     opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 
@@ -1357,26 +1898,36 @@ select {
   animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Indicadores de disponibilidad */
+.hero-section .flex.items-center.gap-3:hover .w-5.h-5 {
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* Botones con efecto hover simple */
+.filters-section button {
+  transition: all 0.2s ease;
+}
+
+/* Filter cards hover */
+.filters-section .relative.group:hover {
+  transform: translateY(-2px);
+}
+
+.filters-section input,
+.filters-section select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 /* Border personalizado para mejor visualización */
 .border-3 {
   border-width: 3px;
-}
-
-/* Efectos de sombra personalizados */
-.shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* Transiciones suaves globales */
-* {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Estilos para inputs de fecha mejorados */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   filter: opacity(0.6);
-  transition: filter 0.3s ease;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
@@ -1391,9 +1942,43 @@ button:focus-visible {
   outline: none;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bg-blob {
+    opacity: 0.2;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .court-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .court-card-header {
+    height: 120px;
+  }
+  
+  .court-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .court-icon {
+    font-size: 1.5rem;
+  }
+}
+
+/* Modal overlay */
+.fixed.inset-0.bg-black\/75 {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Info cards hover effect in modal */
+.custom-scrollbar .flex.items-center.gap-4.p-4:hover {
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
 }
 
 </style>
