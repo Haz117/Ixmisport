@@ -793,13 +793,26 @@ onUnmounted(() => {
 
 // Cargar horas ocupadas cuando cambia la fecha o la cancha
 watch([() => reservationData.value.date, () => selectedCourt.value], async ([newDate, newCourt]) => {
-  if (newDate && newCourt) {
+  // Solo cargar si tenemos valores válidos
+  if (!newDate || !newCourt || !newCourt.id) {
+    currentOccupiedHours.value = []
+    return
+  }
+  
+  try {
     const result = await getOccupiedHours(newDate, newCourt.id)
-    currentOccupiedHours.value = result.occupiedHours || []
-  } else {
+    if (result && result.success) {
+      currentOccupiedHours.value = result.occupiedHours || []
+    } else {
+      // Si hay error, inicializar como vacío
+      currentOccupiedHours.value = []
+      console.warn('No se pudieron cargar las horas ocupadas:', result?.error)
+    }
+  } catch (error) {
+    console.error('Error al cargar horas ocupadas:', error)
     currentOccupiedHours.value = []
   }
-}, { immediate: true })
+}, { immediate: false })
 
 // Datos de las canchas - 9 canchas totales: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
 const courts = ref([
