@@ -11,7 +11,8 @@ import {
   updateDoc,
   deleteDoc,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  onSnapshot
 } from 'firebase/firestore'
 
 const RESERVATIONS_COLLECTION = 'reservations'
@@ -98,7 +99,7 @@ export const getReservationsByDateAndCourt = async (date, courtId) => {
 /**
  * Verificar si un horario está disponible
  */
-export const checkAvailability = async (date, courtId, startTime, endTime) => {
+export const checkAvailability = async (date, courtId, startTime, endTime, blockedSchedules = []) => {
   try {
     const result = await getReservationsByDateAndCourt(date, courtId)
     if (!result.success) {
@@ -127,6 +128,27 @@ export const checkAvailability = async (date, courtId, startTime, endTime) => {
           available: false, 
           conflict: reservation,
           message: `Horario ocupado de ${reservation.startTime} a ${reservation.endTime}`
+        }
+      }
+    }
+    
+    // Verificar si hay conflicto con horarios bloqueados del administrador
+    if (blockedSchedules && Array.isArray(blockedSchedules)) {
+      for (const blocked of blockedSchedules) {
+        // Solo validar bloques para la misma cancha y fecha
+        if (blocked.courtId === courtId && blocked.date === date) {
+          const blockedStart = timeToMinutes(blocked.startTime)
+          const blockedEnd = timeToMinutes(blocked.endTime)
+          
+          // Hay conflicto si los rangos se superponen
+          if (newStart < blockedEnd && newEnd > blockedStart) {
+            return { 
+              available: false, 
+              blocked: true,
+              blockedSchedule: blocked,
+              message: `Horario bloqueado de ${blocked.startTime} a ${blocked.endTime}. Motivo: ${blocked.reason || 'Mantenimiento'}`
+            }
+          }
         }
       }
     }
@@ -239,5 +261,271 @@ export const getAllReservations = async () => {
   } catch (error) {
     console.error('Error getting all reservations:', error)
     return { success: false, error: error.message, data: [] }
+  }
+}
+/**
+ * Escuchar cambios en tiempo real de todas las reservaciones
+ * Retorna una función unsubscribe para dejar de escuchar
+ */
+export const listenToAllReservations = (callback) => {
+  try {
+    const unsubscribe = onSnapshot(collection(db, RESERVATIONS_COLLECTION), (querySnapshot) => {
+      const reservations = []
+      querySnapshot.forEach((doc) => {
+        reservations.push({ id: doc.id, ...doc.data() })
+      })
+      // Ordenar en cliente
+      reservations.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(0)
+        const dateB = b.createdAt?.toDate?.() || new Date(0)
+        return dateB - dateA
+      })
+      callback({ success: true, data: reservations })
+    }, (error) => {
+      console.error('Error listening to reservations:', error)
+      callback({ success: false, error: error.message, data: [] })
+    })
+    return unsubscribe
+  } catch (error) {
+    console.error('Error setting up reservation listener:', error)
+  }
+}
+
+// ==================== CANCHAS (COURTS) ====================
+
+const COURTS_COLLECTION = 'courts'
+
+/**
+ * Crear una nueva cancha
+ */
+export const createCourt = async (courtData) => {
+  try {
+    const docRef = await addDoc(collection(db, COURTS_COLLECTION), {
+      ...courtData,
+      createdAt: serverTimestamp(),
+      active: true
+    })
+    return { success: true, id: docRef.id }
+  } catch (error) {
+    console.error('Error creating court:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Obtener todas las canchas
+ */
+export const getAllCourts = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, COURTS_COLLECTION))
+    const courts = []
+    querySnapshot.forEach((doc) => {
+      courts.push({ id: doc.id, ...doc.data() })
+    })
+    return { success: true, data: courts }
+  } catch (error) {
+    console.error('Error getting all courts:', error)
+    return { success: false, error: error.message, data: [] }
+  }
+}
+
+/**
+ * Obtener una cancha por ID
+ */
+export const getCourtById = async (courtId) => {
+  try {
+    const docRef = doc(db, COURTS_COLLECTION, courtId)
+    const docSnap = await getDoc(docRef)
+    
+    if (docSnap.exists()) {
+      return { success: true, data: { id: docSnap.id, ...docSnap.data() } }
+    } else {
+      return { success: false, error: 'Court not found' }
+    }
+  } catch (error) {
+    console.error('Error getting court:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Actualizar una cancha
+ */
+export const updateCourt = async (courtId, courtData) => {
+  try {
+    const docRef = doc(db, COURTS_COLLECTION, courtId)
+    await updateDoc(docRef, {
+      ...courtData,
+      updatedAt: serverTimestamp()
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating court:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Eliminar una cancha
+ */
+export const deleteCourt = async (courtId) => {
+  try {
+    const docRef = doc(db, COURTS_COLLECTION, courtId)
+    await deleteDoc(docRef)
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting court:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Escuchar cambios en tiempo real de todas las canchas
+ */
+export const listenToAllCourts = (callback) => {
+  try {
+    const unsubscribe = onSnapshot(collection(db, COURTS_COLLECTION), (querySnapshot) => {
+      const courts = []
+      querySnapshot.forEach((doc) => {
+        courts.push({ id: doc.id, ...doc.data() })
+      })
+      callback({ success: true, data: courts })
+    }, (error) => {
+      console.error('Error listening to courts:', error)
+      callback({ success: false, error: error.message, data: [] })
+    })
+    return unsubscribe
+  } catch (error) {
+    console.error('Error setting up court listener:', error)
+  }
+}
+
+// ==================== HORARIOS BLOQUEADOS (BLOCKED SCHEDULES) ====================
+
+const BLOCKED_SCHEDULES_COLLECTION = 'blockedSchedules'
+
+/**
+ * Crear un nuevo horario bloqueado
+ */
+export const createBlockedSchedule = async (blockData) => {
+  try {
+    const docRef = await addDoc(collection(db, BLOCKED_SCHEDULES_COLLECTION), {
+      ...blockData,
+      createdAt: serverTimestamp()
+    })
+    return { success: true, id: docRef.id }
+  } catch (error) {
+    console.error('Error creating blocked schedule:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Obtener todos los horarios bloqueados
+ */
+export const getAllBlockedSchedules = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, BLOCKED_SCHEDULES_COLLECTION))
+    const blockedSchedules = []
+    querySnapshot.forEach((doc) => {
+      blockedSchedules.push({ id: doc.id, ...doc.data() })
+    })
+    return { success: true, data: blockedSchedules }
+  } catch (error) {
+    console.error('Error getting all blocked schedules:', error)
+    return { success: false, error: error.message, data: [] }
+  }
+}
+
+/**
+ * Obtener horarios bloqueados por fecha y cancha
+ */
+export const getBlockedSchedulesByDateAndCourt = async (date, courtId) => {
+  try {
+    const q = query(
+      collection(db, BLOCKED_SCHEDULES_COLLECTION),
+      where('date', '==', date),
+      where('courtId', '==', courtId)
+    )
+    const querySnapshot = await getDocs(q)
+    const blockedSchedules = []
+    querySnapshot.forEach((doc) => {
+      blockedSchedules.push({ id: doc.id, ...doc.data() })
+    })
+    return { success: true, data: blockedSchedules }
+  } catch (error) {
+    console.error('Error getting blocked schedules:', error)
+    return { success: false, error: error.message, data: [] }
+  }
+}
+
+/**
+ * Obtener un horario bloqueado por ID
+ */
+export const getBlockedScheduleById = async (blockId) => {
+  try {
+    const docRef = doc(db, BLOCKED_SCHEDULES_COLLECTION, blockId)
+    const docSnap = await getDoc(docRef)
+    
+    if (docSnap.exists()) {
+      return { success: true, data: { id: docSnap.id, ...docSnap.data() } }
+    } else {
+      return { success: false, error: 'Blocked schedule not found' }
+    }
+  } catch (error) {
+    console.error('Error getting blocked schedule:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Actualizar un horario bloqueado
+ */
+export const updateBlockedSchedule = async (blockId, blockData) => {
+  try {
+    const docRef = doc(db, BLOCKED_SCHEDULES_COLLECTION, blockId)
+    await updateDoc(docRef, {
+      ...blockData,
+      updatedAt: serverTimestamp()
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating blocked schedule:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Eliminar un horario bloqueado
+ */
+export const deleteBlockedSchedule = async (blockId) => {
+  try {
+    const docRef = doc(db, BLOCKED_SCHEDULES_COLLECTION, blockId)
+    await deleteDoc(docRef)
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting blocked schedule:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Escuchar cambios en tiempo real de todos los horarios bloqueados
+ */
+export const listenToAllBlockedSchedules = (callback) => {
+  try {
+    const unsubscribe = onSnapshot(collection(db, BLOCKED_SCHEDULES_COLLECTION), (querySnapshot) => {
+      const blockedSchedules = []
+      querySnapshot.forEach((doc) => {
+        blockedSchedules.push({ id: doc.id, ...doc.data() })
+      })
+      callback({ success: true, data: blockedSchedules })
+    }, (error) => {
+      console.error('Error listening to blocked schedules:', error)
+      callback({ success: false, error: error.message, data: [] })
+    })
+    return unsubscribe
+  } catch (error) {
+    console.error('Error setting up blocked schedule listener:', error)
   }
 }

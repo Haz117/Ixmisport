@@ -226,12 +226,27 @@
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Iterar sobre todas las canchas dinámicamente -->
         <div 
-          v-for="(court, index) in courts"
+          v-for="(court, index) in courtsWithBlockStatus"
           :key="court.id"
-          @click="openModal(court)"
-          :class="['court-card group', { 'animate-visible': courtsVisible }]"
+          @click="!court.isBlockedToday && openModal(court)"
+          :class="[
+            'court-card group', 
+            { 'animate-visible': courtsVisible },
+            court.isBlockedToday ? 'opacity-60 cursor-not-allowed border-2 border-red-400 bg-red-50/20' : ''
+          ]"
           :style="{ animationDelay: `${index * 0.08}s` }"
         >
+          <!-- Overlay bloqueado - Sombreado rojo -->
+          <div v-if="court.isBlockedToday" class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-600/10 pointer-events-none rounded-2xl"></div>
+
+          <!-- Indicador visual de bloqueo en la tarjeta -->
+          <div v-if="court.isBlockedToday" class="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-xs font-bold shadow-lg">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 1C6.48 1 2 5.48 2 11s4.48 10 10 10 10-4.48 10-10S17.52 1 12 1zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-4-9h8v2H8z"/>
+            </svg>
+            BLOQUEADA
+          </div>
+
           <!-- Card Header con Gradiente -->
           <div :class="['court-card-header', getCourtHeaderClass(court.sport)]">
             <!-- Status Badge -->
@@ -488,6 +503,21 @@
                       class="w-full px-5 py-3.5 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F]/50 focus:border-[#6BCF9F] transition-all duration-300 font-semibold text-gray-700 hover:border-[#6BCF9F] shadow-sm text-lg"
                       placeholder="HH:MM"
                     />
+
+                <!-- Mostrar horarios bloqueados para esta fecha y cancha -->
+                <div v-if="reservationData.date && selectedCourt && getBlockedSchedulesForDateAndCourt(reservationData.date, selectedCourt.id).length > 0" class="col-span-1 md:col-span-2 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-exclamation-triangle text-red-600 mt-1"></i>
+                    <div>
+                      <p class="text-sm font-semibold text-red-700 mb-2">Horarios bloqueados para esta fecha:</p>
+                      <div class="space-y-1">
+                        <div v-for="blocked in getBlockedSchedulesForDateAndCourt(reservationData.date, selectedCourt.id)" :key="blocked.id" class="text-xs text-red-600 font-medium">
+                          🔒 De {{ blocked.startTime }} a {{ blocked.endTime }} - {{ blocked.reason || 'Mantenimiento' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                   </div>
 
                   <!-- Hora de finalización -->
@@ -756,8 +786,39 @@ const timeError = ref('')
 // Horas ocupadas para la fecha y cancha seleccionada (cargadas desde Firebase)
 const currentOccupiedHours = ref([])
 
-// Montar y desmontar
+// Horarios bloqueados por el administrador (cargados desde localStorage)
+const blockedSchedules = ref([])
+
+// Variable para listener de storage
+let handleStorageChange = null
+
+// Cargar horarios bloqueados al iniciar
 onMounted(() => {
+  // Cargar horarios bloqueados desde localStorage
+  const savedBlockedSchedules = localStorage.getItem('ixmisport_blocked_schedules')
+  if (savedBlockedSchedules) {
+    try {
+      blockedSchedules.value = JSON.parse(savedBlockedSchedules)
+      console.log('✅ Horarios bloqueados cargados:', blockedSchedules.value.length, 'bloques')
+    } catch (e) {
+      console.log('Error cargando horarios bloqueados guardados')
+    }
+  }
+
+  // Listener para cambios en localStorage desde otras pestañas (sincronización en tiempo real)
+  handleStorageChange = (event) => {
+    if (event.key === 'ixmisport_blocked_schedules' && event.newValue) {
+      try {
+        blockedSchedules.value = JSON.parse(event.newValue)
+        console.log('🔄 Horarios bloqueados sincronizados:', blockedSchedules.value.length)
+      } catch (e) {
+        console.error('Error sincronizando bloques:', e)
+      }
+    }
+  }
+  
+  window.addEventListener('storage', handleStorageChange)
+
   unsubscribeAuth = onAuthChange((user) => {
     currentUser.value = user
   })
@@ -787,6 +848,12 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (unsubscribeAuth) unsubscribeAuth()
+  
+  // Limpiar listener de storage
+  if (handleStorageChange) {
+    window.removeEventListener('storage', handleStorageChange)
+  }
+  
   window.removeEventListener('scroll', () => {})
   if (observer) observer.disconnect()
 })
@@ -1058,6 +1125,14 @@ const calculateDuration = () => {
   }
 }
 
+// Obtener horarios bloqueados para una fecha y cancha específica
+const getBlockedSchedulesForDateAndCourt = (date, courtId) => {
+  if (!date || !courtId) return []
+  return blockedSchedules.value.filter(block => 
+    block.date === date && block.courtId === courtId
+  )
+}
+
 // TODO: REMOVER - Función antigua (ya no se usa)
 // const selectTimeSlot = (slot) => { ... }
 
@@ -1082,6 +1157,25 @@ const isReservationValid = computed(() => {
                     timeError.value === '' // No debe haber errores de validación
   
   return baseValid
+})
+
+// Computed para agregar estado de bloqueo a cada cancha
+const courtsWithBlockStatus = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  
+  return courts.value.map(court => {
+    // Verificar si hay horarios bloqueados para hoy en esta cancha
+    const todayBlockedSchedules = blockedSchedules.value.filter(b => 
+      String(b.courtId) === String(court.id) && b.date === today
+    )
+    const isBlockedToday = todayBlockedSchedules.length > 0
+    
+    return {
+      ...court,
+      blockedSchedules: todayBlockedSchedules,
+      isBlockedToday: isBlockedToday
+    }
+  })
 })
 
 // Función para obtener el gradiente de color según el deporte
@@ -1262,7 +1356,8 @@ const confirmReservation = async () => {
       reservationData.value.date,
       selectedCourt.value.id,
       reservationData.value.startTime,
-      reservationData.value.endTime
+      reservationData.value.endTime,
+      blockedSchedules.value
     )
     
     if (!availability.available) {

@@ -6,7 +6,7 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp, onSnapshot } from 'firebase/firestore'
 
 const USERS_COLLECTION = 'users'
 
@@ -129,4 +129,25 @@ export const getUserData = async (userId) => {
  */
 export const onAuthChange = (callback) => {
   return onAuthStateChanged(auth, callback)
+}
+/**
+ * Escuchar cambios en tiempo real de todos los usuarios
+ * Retorna una función unsubscribe para dejar de escuchar
+ */
+export const listenToAllUsers = (callback) => {
+  try {
+    const unsubscribe = onSnapshot(collection(db, USERS_COLLECTION), (querySnapshot) => {
+      const users = []
+      querySnapshot.forEach((doc) => {
+        users.push({ id: doc.id, ...doc.data() })
+      })
+      callback({ success: true, data: users })
+    }, (error) => {
+      console.error('Error listening to users:', error)
+      callback({ success: false, error: error.message, data: [] })
+    })
+    return unsubscribe
+  } catch (error) {
+    console.error('Error setting up user listener:', error)
+  }
 }

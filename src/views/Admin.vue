@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen min-w-full w-screen bg-gradient-to-br from-ixmi-50 via-white to-ixmi-100 relative overflow-y-auto">
+  <div class="min-h-screen min-w-full w-screen bg-white relative overflow-y-auto">
     
     <!-- Elementos decorativos de fondo con movimiento suave -->
     <div class="absolute inset-0 pointer-events-none">
@@ -9,13 +9,89 @@
       <div class="absolute top-1/2 right-1/4 w-32 h-32 bg-ixmi-500/5 rounded-full blur-xl animate-elegant-pulse"></div>
     </div>
 
+    <!-- Modales mejorados -->
+    <!-- Modal de Detalle de Reservación -->
+    <transition name="modal">
+      <div v-if="showReservationDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 animate-elegant-fade-up max-h-[90vh] overflow-y-auto p-6">
+          <div v-if="selectedReservation" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-2xl font-bold text-ixmi-900">Detalle de Reservación</h3>
+              <button @click="showReservationDetailModal = false" class="p-1 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Usuario</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.userName }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Correo</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.userEmail }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Cancha</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.courtName }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Deporte</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.sport }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Fecha</p>
+                <p class="text-gray-900 font-medium">{{ new Date(selectedReservation.date).toLocaleDateString('es-MX') }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Horario</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.startTime }} - {{ selectedReservation.endTime }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Participantes</p>
+                <p class="text-gray-900 font-medium">{{ selectedReservation.participants || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Estado</p>
+                <span :class="getReservationStatusClass(selectedReservation.status)">
+                  {{ getReservationStatusText(selectedReservation.status) }}
+                </span>
+              </div>
+            </div>
+
+            <div v-if="selectedReservation.notes" class="border-t border-gray-200 pt-4">
+              <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</p>
+              <p class="text-gray-700">{{ selectedReservation.notes }}</p>
+            </div>
+
+            <div class="flex space-x-3 pt-4 border-t border-gray-200">
+              <button @click="showReservationDetailModal = false" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+                Cerrar
+              </button>
+              <button v-if="selectedReservation.status === 'pending'" @click="approveReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 hover:shadow-lg transition-all duration-200 font-medium">
+                Aprobar
+              </button>
+              <button v-if="selectedReservation.status === 'pending'" @click="rejectReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 hover:shadow-lg transition-all duration-200 font-medium">
+                Rechazar
+              </button>
+              <button v-if="selectedReservation.status === 'approved'" @click="cancelReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-medium">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- Sidebar Navigation -->
     <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-lg shadow-2xl border-r border-ixmi-200/40 transform transition-all duration-500 ease-in-out opacity-0 animate-elegant-slide-right animation-delay-200">
       <!-- Logo Section -->
-      <div class="flex items-center justify-center h-16 px-6 border-b border-ixmi-200/30 bg-gradient-to-r from-ixmi-50/50 to-ixmi-100/30">
+      <div class="flex items-center justify-center h-16 px-6 border-b border-ixmi-200/30 bg-ixmi-50">
         <div class="flex items-center space-x-3 opacity-0 animate-elegant-fade-down animation-delay-400">
           <div class="relative">
-            <div class="w-10 h-10 bg-gradient-to-br from-ixmi-500 via-ixmi-400 to-ixmi-300 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <div class="w-10 h-10 bg-ixmi-500 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
@@ -23,7 +99,7 @@
             <div class="absolute -top-1 -right-1 w-3 h-3 bg-ixmi-400 rounded-full border-2 border-white animate-elegant-pulse"></div>
           </div>
           <div>
-            <h1 class="text-lg font-bold bg-gradient-to-r from-ixmi-600 to-ixmi-500 bg-clip-text text-transparent">IxmiSport</h1>
+            <h1 class="text-lg font-bold text-ixmi-600">IxmiSport</h1>
             <p class="text-xs text-ixmi-500/70 font-medium">Panel de Administración</p>
           </div>
         </div>
@@ -39,8 +115,8 @@
             :class="[
               'group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden opacity-0 animate-elegant-slide-right',
               activeTab === tab.id 
-                ? 'bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white shadow-lg shadow-ixmi-500/25 transform scale-[1.02]' 
-                : 'text-ixmi-700 hover:text-ixmi-600 hover:bg-gradient-to-r hover:from-ixmi-50 hover:to-ixmi-100/50'
+                ? 'bg-ixmi-500 text-white shadow-lg shadow-ixmi-500/25 transform scale-[1.02]' 
+                : 'text-ixmi-700 hover:text-ixmi-600 hover:bg-ixmi-50'
             ]"
             :style="{ animationDelay: `${700 + index * 100}ms` }"
           >
@@ -82,9 +158,9 @@
 
       <!-- User Profile Footer -->
       <div class="border-t border-ixmi-200/30 p-4 opacity-0 animate-elegant-fade-up animation-delay-1400">
-        <div class="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-ixmi-50/70 to-ixmi-100/30 border border-ixmi-200/40 backdrop-blur-sm">
+        <div class="flex items-center space-x-3 p-3 rounded-xl bg-ixmi-50 border border-ixmi-200 backdrop-blur-sm">
           <div class="relative">
-            <div class="w-10 h-10 bg-gradient-to-br from-ixmi-400 to-ixmi-500 rounded-full flex items-center justify-center shadow-md">
+            <div class="w-10 h-10 bg-ixmi-500 rounded-full flex items-center justify-center shadow-md">
               <span class="text-white text-sm font-bold">A</span>
             </div>
             <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-ixmi-400 rounded-full border-2 border-white animate-elegant-pulse"></div>
@@ -103,7 +179,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="ml-64 min-h-screen relative z-10">
+    <div class="ml-64 min-h-screen relative z-10 bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <!-- Top Header -->
       <header class="bg-white/90 backdrop-blur-lg shadow-sm border-b border-ixmi-200/40 sticky top-0 z-40 opacity-0 animate-elegant-fade-down animation-delay-300">
         <div class="px-6 py-4">
@@ -111,8 +187,8 @@
             <!-- Page Title and Breadcrumb -->
             <div class="flex items-center space-x-4">
               <div class="opacity-0 animate-elegant-fade-right animation-delay-500">
-                <h2 class="text-2xl font-bold text-ixmi-900">{{ getPageTitle() }}</h2>
-                <div class="flex items-center space-x-2 text-sm text-ixmi-500/70 mt-1">
+                <h2 class="text-2xl font-bold text-gray-900">{{ getPageTitle() }}</h2>
+                <div class="flex items-center space-x-2 text-sm text-gray-500 mt-1">
                   <span>IxmiSport</span>
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -133,20 +209,20 @@
                 <input 
                   type="text" 
                   placeholder="Buscar..."
-                  class="pl-10 pr-4 py-2 w-64 border border-ixmi-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-400/50 focus:border-ixmi-400 bg-white/80 backdrop-blur-sm text-sm transition-all duration-300 hover:bg-white/90"
+                  class="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-400/50 focus:border-ixmi-400 bg-white text-gray-900 placeholder-gray-400 transition-all duration-300 hover:border-gray-400"
                 >
-                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-ixmi-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-ixmi-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
               </div>
 
               <!-- Notifications -->
               <div class="relative">
-                <button class="relative p-2 text-ixmi-600 hover:text-ixmi-700 hover:bg-ixmi-50 rounded-xl transition-all duration-300 group hover:transform hover:scale-105">
+                <button class="relative p-2 text-ixmi-600 hover:text-ixmi-700 hover:bg-ixmi-50 rounded-xl transition-all duration-300 group">
                   <svg class="w-6 h-6 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5.5-5.5a5.5 5.5 0 10-7.5 0L1.5 17H7m8 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                   </svg>
-                  <span class="absolute -top-1 -right-1 bg-gradient-to-r from-ixmi-500 to-ixmi-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold animate-elegant-pulse">3</span>
+                  <span class="absolute -top-1 -right-1 bg-ixmi-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold animate-elegant-pulse">3</span>
                 </button>
               </div>
 
@@ -166,50 +242,102 @@
       <main class="p-6">
         <!-- Dashboard -->
         <div v-if="activeTab === 'dashboard'" class="space-y-8 opacity-0 animate-elegant-fade-up animation-delay-800">
-          <!-- Key Metrics Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-elegant">
-            <div 
-              v-for="(metric, index) in metrics" 
-              :key="metric.title"
-              class="group relative card-elegant p-6 hover-lift opacity-0 animate-elegant-fade-up interactive-elegant"
-              :style="{ animationDelay: `${1000 + index * 150}ms` }"
-            >
-              <!-- Background Gradient -->
-              <div :class="['absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500', metric.gradientBg]"></div>
-              
-              <div class="relative">
-                <div class="flex items-center justify-between mb-4">
-                  <div :class="['w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500', metric.color]">
-                    <component :is="metric.icon" class="w-6 h-6 text-white" />
-                  </div>
-                  <div class="text-right">
-                    <p class="text-xs font-semibold text-ixmi-500/70 uppercase tracking-wider">{{ metric.period }}</p>
-                  </div>
+          <!-- System Alerts Section -->
+          <div v-if="canchasWithRealOccupancy.filter(c => !c.active || c.isBlockedToday || c.occupancy > 85).length > 0" class="grid grid-cols-1 gap-4">
+            <!-- Alert: Canchas Inactivas -->
+            <div v-if="canchasWithRealOccupancy.filter(c => !c.active).length > 0" class="relative overflow-hidden rounded-2xl border-l-4 border-l-red-500 bg-gradient-to-r from-red-50/50 to-transparent p-4 shadow-md">
+              <div class="flex items-start space-x-3">
+                <div class="pt-0.5">
+                  <svg class="h-6 w-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"></path>
+                  </svg>
                 </div>
-                
-                <div class="space-y-2">
-                  <h3 class="text-sm font-semibold text-ixmi-600">{{ metric.title }}</h3>
-                  <div class="flex items-baseline space-x-2">
-                    <p class="text-3xl font-bold text-ixmi-900">{{ metric.value }}</p>
-                    <span :class="['text-sm font-semibold px-2 py-1 rounded-full', metric.changeColor]">
-                      {{ metric.change }}
-                    </span>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2">
+                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="font-bold text-red-900">Canchas Pausadas</h3>
                   </div>
-                  <p class="text-sm text-ixmi-500/70">{{ metric.subtitle }}</p>
+                  <p class="text-sm text-red-800 mt-2">
+                    {{ canchasWithRealOccupancy.filter(c => !c.active).length }} cancha{{ canchasWithRealOccupancy.filter(c => !c.active).length !== 1 ? 's' : '' }} no {{ canchasWithRealOccupancy.filter(c => !c.active).length !== 1 ? 'están' : 'está' }} activa{{ canchasWithRealOccupancy.filter(c => !c.active).length !== 1 ? 's' : '' }}
+                    <span class="font-semibold">{{ canchasWithRealOccupancy.filter(c => !c.active).map(c => c.name).join(', ') }}</span>
+                  </p>
                 </div>
+              </div>
+            </div>
 
-                <!-- Progress bar for some metrics -->
-                <div v-if="metric.progress" class="mt-4">
-                  <div class="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Progreso</span>
-                    <span>{{ metric.progress }}%</span>
+            <!-- Alert: Alta Ocupación -->
+            <div v-if="canchasWithRealOccupancy.filter(c => c.occupancy > 85).length > 0" class="relative overflow-hidden rounded-2xl border-2 border-amber-300 bg-gradient-to-r from-amber-500 to-orange-600 p-6 shadow-xl">
+              <div class="flex items-start space-x-4">
+                <div class="pt-0.5">
+                  <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.266-.526.613-.34 1.155.216.711.327 1.429.327 2.277 0 2.136-1.694 3.862-3.783 3.862H6.095c-.1 0-.197.003-.291.012C4.576 10.007 2 11.802 2 14.8 2 17.003 3.71 18.538 6.333 18.815c.216.023.434.036.666.036h12c.657 0 1.338-.049 2-1 .312-.016.612-.08.916-.156.246-.41.481-.835.697-1.284.359-.28.736-.523 1.109-.717.427-.223.579-.337.579-.913V2.9c0-.566-.34-.974-.868-1.144.01-.205.027-.411.058-.62.07-.628.454-1.2.942-1.2.165 0 .294.096.58.196 1.7.858 3.637 3.967 5.5 7.1Z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <h3 class="font-bold text-white text-lg">Alta Ocupación Detectada</h3>
                   </div>
-                  <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      :class="['h-2 rounded-full transition-all duration-1000 delay-500', metric.progressColor]"
-                      :style="{ width: `${metric.progress}%` }"
-                    ></div>
+                  <p class="text-amber-50 mt-2 font-semibold">
+                    {{ canchasWithRealOccupancy.filter(c => c.occupancy > 85).length }} cancha{{ canchasWithRealOccupancy.filter(c => c.occupancy > 85).length !== 1 ? 's' : '' }} con ocupación &gt;85%:
+                    <span class="text-white underline">{{ canchasWithRealOccupancy.filter(c => c.occupancy > 85).map(c => c.name).join(', ') }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alert: Canchas Apartadas -->
+            <div v-if="canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0" class="relative overflow-hidden rounded-2xl border-2 border-blue-300 bg-gradient-to-r from-blue-500 to-cyan-600 p-6 shadow-xl">
+              <div class="flex items-start space-x-4">
+                <div class="pt-0.5">
+                  <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1a11 11 0 110 22 11 11 0 010-22zm0 2a9 9 0 100 18 9 9 0 000-18zm3.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-8 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm4-5.5a1 1 0 11-2 0 1 1 0 012 0z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <h3 class="font-bold text-white text-lg">Canchas Apartadas</h3>
                   </div>
+                  <p class="text-blue-50 mt-2 font-semibold">
+                    {{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length }} cancha{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length !== 1 ? 's' : '' }} apartada{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length !== 1 ? 's' : '' }}:
+                    <span class="text-white underline">{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).map(c => c.name).join(', ') }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No alerts celebration -->
+          <div v-else class="rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 border-2 border-green-300 p-8 text-center shadow-2xl relative overflow-hidden">
+            <!-- Elementos decorativos -->
+            <div class="absolute inset-0 opacity-10 pointer-events-none">
+              <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+              <div class="absolute bottom-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+            </div>
+            <!-- Contenido -->
+            <div class="relative">
+              <div class="flex items-center justify-center space-x-3 mb-4">
+                <svg class="h-10 w-10 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <p class="text-white font-black text-3xl mb-2">Sistema Operativo al 100%</p>
+              <p class="text-green-50 text-lg font-semibold">Todas las canchas disponibles y funcionando óptimamente</p>
+              <div class="mt-6 flex justify-center space-x-8 pt-6 border-t-2 border-white/30">
+                <div class="text-center">
+                  <p class="text-green-100 text-sm font-bold uppercase tracking-wider">Canchas Activas</p>
+                  <p class="text-white text-3xl font-black mt-2">{{ canchasWithRealOccupancy.filter(c => c.active).length }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-green-100 text-sm font-bold uppercase tracking-wider">Ocupación Promedio</p>
+                  <p class="text-white text-3xl font-black mt-2">{{ Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0 }}%</p>
                 </div>
               </div>
             </div>
@@ -217,117 +345,267 @@
 
           <!-- Charts and Analytics Section -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Weekly Activity Chart -->
-            <div class="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
-              <div class="flex items-center justify-between mb-6">
+            <!-- Weekly Activity Chart - Reservaciones -->
+            <div class="lg:col-span-2 bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-200 overflow-hidden group hover:shadow-2xl hover:border-ixmi-300 hover:-translate-y-1 transition-all duration-300">
+              <!-- Header con Toggle mejorado -->
+              <div class="flex items-center justify-between mb-10">
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900">Actividad Semanal</h3>
-                  <p class="text-sm text-gray-500">Reservaciones por día</p>
+                  <div class="flex items-center space-x-2 mb-2">
+                    <svg class="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7H5v12h12V9m0-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-1.414-1.414l2.414-2.414A1 1 0 0010.586 19H5a2 2 0 01-2-2V7a2 2 0 012-2h5m4 0V5a2 2 0 012 2v2h2"></path>
+                    </svg>
+                    <h3 class="text-3xl font-black text-gray-900">Reservaciones</h3>
+                  </div>
+                  <p class="text-base text-gray-600 font-semibold mt-2">{{ reportPeriod === 7 ? 'Últimos 7 días' : 'Últimos 30 días' }}</p>
                 </div>
-                <div class="flex space-x-2">
-                  <button class="px-3 py-1 text-sm bg-ixmi-100 text-ixmi-700 rounded-lg font-medium">7D</button>
-                  <button class="px-3 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded-lg">30D</button>
+                
+                <!-- Toggle elegante -->
+                <div class="inline-flex items-center border-2 border-gray-300 rounded-2xl p-1.5 bg-gray-100 backdrop-blur-xl shadow-md">
+                  <button 
+                    @click="reportPeriod = 7"
+                    :class="[
+                      'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
+                      reportPeriod === 7 
+                        ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
+                        : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
+                    ]"
+                  >
+                    7 días
+                  </button>
+                  <button 
+                    @click="reportPeriod = 30"
+                    :class="[
+                      'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
+                      reportPeriod === 30 
+                        ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
+                        : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
+                    ]"
+                  >
+                    30 días
+                  </button>
                 </div>
               </div>
-              
-              <div class="space-y-4">
-                <div v-for="(day, index) in weeklyReservations" :key="day.day" class="relative">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">{{ day.day }}</span>
-                    <span class="text-sm font-bold text-gray-900">{{ day.reservations }}</span>
+
+              <!-- Chart Container -->
+              <div class="relative">
+                <!-- Gráfico mejorado con Cards -->
+                <div :class="['grid gap-3 mb-10 transition-all duration-500', reportPeriod === 7 ? 'grid-cols-7' : 'grid-cols-10 xl:grid-cols-10']">
+                  <div 
+                    v-for="(day, index) in weeklyReservations" 
+                    :key="day.day"
+                    class="group/item flex flex-col items-center gap-3 p-3 rounded-2xl bg-gray-50 backdrop-blur-md border border-gray-200 hover:border-ixmi-400 hover:shadow-lg hover:shadow-ixmi-300/30 transition-all duration-300 cursor-pointer"
+                    :style="{ animationDelay: `${index * 50}ms` }"
+                  >
+                    <!-- Bar con animación -->
+                    <div class="w-full flex flex-col items-center gap-2">
+                      <div class="relative h-40 w-full flex flex-col justify-end items-center">
+                        <!-- Barra principal -->
+                        <div 
+                          class="w-full bg-gradient-to-t from-ixmi-600 via-ixmi-500 to-ixmi-400 rounded-t-3xl transition-all duration-700 ease-out shadow-lg hover:shadow-ixmi-500/50 hover:from-ixmi-700 hover:via-ixmi-600 hover:to-ixmi-500 relative overflow-hidden group/bar border-2 border-ixmi-300/50"
+                          :style="{ 
+                            height: weeklyReservations.length > 0 
+                              ? `${Math.max(15, (day.reservations / Math.max(...weeklyReservations.map(d => d.reservations), 1)) * 100)}%`
+                              : '15%'
+                          }"
+                        >
+                          <!-- Brillo interno -->
+                          <div class="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/30 opacity-0 group-hover/bar:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        
+                        <!-- Número en la barra -->
+                        <div v-if="day.reservations > 0" class="absolute text-center text-white font-black text-2xl drop-shadow-lg group-hover/bar:scale-125 transition-transform duration-300" style="text-shadow: 0 2px 8px rgba(0,0,0,0.3)">
+                          {{ day.reservations }}
+                        </div>
+                      </div>
+                      
+                      <!-- Labels -->
+                      <div class="text-center mt-3 w-full">
+                        <p class="text-sm font-black text-ixmi-700 uppercase px-1 group-hover/item:text-ixmi-600 transition-colors duration-200">
+                          {{ reportPeriod === 7 ? day.day.slice(0, 3) : day.day }}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div 
-                      class="h-3 rounded-full bg-gradient-to-r from-ixmi-500 to-ixmi-400 transition-all duration-1000 ease-out"
-                      :style="{ 
-                        width: `${(day.reservations / Math.max(...weeklyReservations.map(d => d.reservations))) * 100}%`,
-                        animationDelay: `${index * 200}ms`
-                      }"
-                    ></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 rounded-full"></div>
+                </div>
+
+                <!-- Stats footer -->
+                <div class="grid grid-cols-3 gap-6 pt-8 border-t-2 border-gray-200">
+                  <div class="text-center p-5 rounded-2xl bg-green-50 border-2 border-green-200">
+                    <p class="text-xs text-green-700 font-black uppercase tracking-wider">Total</p>
+                    <p class="text-4xl font-black text-green-600 mt-3">{{ weeklyReservations.reduce((sum, d) => sum + d.reservations, 0) }}</p>
+                  </div>
+                  <div class="text-center p-5 rounded-2xl bg-ixmi-50 border-2 border-ixmi-200">
+                    <p class="text-xs text-ixmi-700 font-black uppercase tracking-wider">Promedio</p>
+                    <p class="text-4xl font-black text-ixmi-600 mt-3">{{ Math.round(weeklyReservations.reduce((sum, d) => sum + d.reservations, 0) / weeklyReservations.length) || 0 }}</p>
+                  </div>
+                  <div class="text-center p-5 rounded-2xl bg-blue-50 border-2 border-blue-200">
+                    <p class="text-xs text-blue-700 font-black uppercase tracking-wider">Máximo</p>
+                    <p class="text-4xl font-black text-blue-600 mt-3">{{ Math.max(...weeklyReservations.map(d => d.reservations), 0) }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Recent Activity -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+            <div class="bg-white/90 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
               <div class="flex items-center justify-between mb-6">
                 <div>
                   <h3 class="text-lg font-bold text-gray-900">Actividad Reciente</h3>
-                  <p class="text-sm text-gray-500">Últimas acciones</p>
+                  <p class="text-sm text-gray-600">Últimas acciones</p>
                 </div>
                 <button class="text-ixmi-600 hover:text-ixmi-700 text-sm font-medium">Ver todo</button>
               </div>
               
-              <div class="space-y-4">
+              <div v-if="recentActivities.length > 0" class="space-y-4">
                 <div 
                   v-for="(activity, index) in recentActivities" 
                   :key="activity.id"
                   class="group flex items-start space-x-3 p-3 rounded-xl hover:bg-ixmi-50/50 transition-all duration-300 cursor-pointer"
                   :style="{ animationDelay: `${index * 100}ms` }"
                 >
-                  <div :class="['relative w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300', activity.color]">
-                    <component :is="activity.icon" class="w-5 h-5 text-white" />
+                  <div :class="['relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300', activity.color]">
+                    <span class="text-white text-lg font-bold">{{ activity.statusIcon }}</span>
                     <div class="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border border-gray-200"></div>
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-gray-900 group-hover:text-ixmi-700 transition-colors duration-200">{{ activity.title }}</p>
-                    <p class="text-sm text-gray-600 mt-1">{{ activity.description }}</p>
+                    <p class="text-sm text-gray-600 mt-1 truncate">{{ activity.description }}</p>
                     <div class="flex items-center mt-2 space-x-2">
-                      <span class="text-xs text-gray-400">{{ activity.time }}</span>
+                      <span class="text-xs text-gray-500">{{ activity.time }}</span>
                       <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
                       <span :class="['text-xs px-2 py-1 rounded-full font-medium', activity.statusColor]">{{ activity.status }}</span>
                     </div>
                   </div>
                 </div>
               </div>
+              
+              <!-- Empty State -->
+              <div v-else class="text-center py-12 px-4">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-gray-400 font-medium text-sm">No hay actividad reciente</p>
+                <p class="text-gray-300 text-xs mt-1">Las reservaciones aparecerán aquí</p>
+              </div>
             </div>
           </div>
 
-          <!-- Quick Stats Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-blue-100 text-sm font-medium">Usuarios Activos</p>
-                  <p class="text-3xl font-bold mt-2">89%</p>
-                  <p class="text-blue-200 text-sm mt-1">de 248 usuarios totales</p>
-                </div>
-                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-              </div>
+          <!-- Master Metric: Real-time Occupancy -->
+          <div class="relative overflow-hidden rounded-3xl bg-white shadow-lg border-4 border-ixmi-200 hover:shadow-2xl hover:border-ixmi-400 hover:-translate-y-1 transition-all duration-500 cursor-pointer group">
+            <!-- Elementos decorativos sutiles -->
+            <div class="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+              <div class="absolute top-0 right-0 w-96 h-96 bg-ixmi-500 rounded-full filter blur-3xl -mr-48 -mt-48"></div>
+              <div class="absolute bottom-0 left-0 w-96 h-96 bg-ixmi-500 rounded-full filter blur-3xl -ml-48 -mb-48"></div>
             </div>
 
-            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
-              <div class="flex items-center justify-between">
+            <div class="relative p-8 md:p-16">
+              <!-- Header Info -->
+              <div class="flex items-start justify-between mb-10">
                 <div>
-                  <p class="text-green-100 text-sm font-medium">Tasa de Ocupación</p>
-                  <p class="text-3xl font-bold mt-2">76%</p>
-                  <p class="text-green-200 text-sm mt-1">promedio esta semana</p>
+                  <div class="flex items-center space-x-2 mb-3">
+                    <svg class="h-5 w-5 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <p class="text-ixmi-600 text-base font-black uppercase tracking-widest opacity-90">Métrica Principal en Tiempo Real</p>
+                  </div>
+                  <h3 class="text-gray-900 text-4xl md:text-5xl font-black">Ocupación de Canchas</h3>
+                  <p class="text-gray-600 text-lg mt-3 font-bold">Estado actual de todas las instalaciones</p>
                 </div>
-                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                  </svg>
+                <div class="flex items-center gap-3 px-5 py-3 bg-ixmi-100 backdrop-blur-lg rounded-full border-2 border-ixmi-300 shadow-lg">
+                  <span class="w-3 h-3 bg-ixmi-600 rounded-full animate-pulse shadow-lg"></span>
+                  <span class="text-ixmi-700 text-sm font-black">EN VIVO</span>
                 </div>
               </div>
-            </div>
 
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-purple-100 text-sm font-medium">Canchas Activas</p>
-                  <p class="text-3xl font-bold mt-2">9</p>
-                  <p class="text-purple-200 text-sm mt-1">Todas disponibles</p>
+              <!-- Main Stat -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Big Number -->
+                <div class="md:col-span-2 space-y-6">
+                  <div class="flex items-baseline gap-3">
+                    <span class="text-9xl md:text-[140px] font-black text-ixmi-600 drop-shadow-sm" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1)">
+                      {{ Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0 }}<span class="text-6xl md:text-8xl opacity-70">%</span>
+                    </span>
+                  </div>
+                  <p class="text-gray-700 text-2xl font-bold">Promedio de ocupación en todas las canchas</p>
+                  
+                  <!-- Progress Bar - Visual Indicator -->
+                  <div class="mt-10 pt-8 border-t-2 border-gray-200">
+                    <div class="mb-4 flex items-center justify-between">
+                      <span class="text-gray-800 text-sm font-black uppercase tracking-wider">Ocupación Instantánea</span>
+                      <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full shadow-md" :class="[
+                        (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 30 ? 'bg-green-100 text-green-900' :
+                        (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 70 ? 'bg-yellow-100 text-yellow-900' :
+                        'bg-orange-100 text-orange-900'
+                      ]">
+                        <svg v-if="(Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 30" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <svg v-else-if="(Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 70" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="text-lg font-black">{{ (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 30 ? 'DISPONIBLE' : (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) < 70 ? 'MODERADO' : 'ALTO' }}</span>
+                      </div>
+                    </div>
+                    <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-inner">
+                      <div 
+                        :class="[
+                          'h-full rounded-full transition-all duration-1000 ease-out shadow-lg',
+                          (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) > 75 ? 'bg-gradient-to-r from-orange-400 via-orange-500 to-red-500' :
+                          (Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0) > 50 ? 'bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500' :
+                          'bg-gradient-to-r from-ixmi-400 via-ixmi-500 to-ixmi-600'
+                        ]"
+                        :style="{ width: `${Math.round(canchasWithRealOccupancy.reduce((sum, c) => sum + c.occupancy, 0) / (canchasWithRealOccupancy.length || 1)) || 0}%` }"
+                      ></div>
+                    </div>
+                  </div>
                 </div>
-                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                  </svg>
+
+                <!-- Stats Cards -->
+                <div class="space-y-4">
+                  <!-- Canchas Activas -->
+                  <div class="bg-ixmi-50 backdrop-blur-lg rounded-2xl border-2 border-ixmi-200 p-6 text-center hover:bg-ixmi-100 hover:border-ixmi-400 transition-all duration-300 shadow-md">
+                    <p class="text-ixmi-700 text-sm font-black uppercase tracking-wider mb-2">Canchas Activas</p>
+                    <p class="text-5xl font-black text-ixmi-600 drop-shadow-sm">{{ canchasWithRealOccupancy.filter(c => c.active).length }}</p>
+                    <p class="text-gray-600 text-sm mt-3 font-bold">de {{ canchasWithRealOccupancy.length }} instalaciones</p>
+                  </div>
+
+                  <!-- Alta Ocupación -->
+                  <div class="bg-orange-50 backdrop-blur-lg rounded-2xl border-2 border-orange-200 p-6 text-center hover:bg-orange-100 hover:border-orange-400 transition-all duration-300 shadow-md">
+                    <p class="text-orange-700 text-sm font-black uppercase tracking-wider mb-2 flex items-center space-x-1">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                      </svg>
+                      <span>Alta Ocupación</span>
+                    </p>
+                    <p class="text-5xl font-black text-orange-600 drop-shadow-sm">{{ canchasWithRealOccupancy.filter(c => c.occupancy > 75).length }}</p>
+                    <p class="text-gray-600 text-sm mt-3 font-bold">al 75% o más</p>
+                  </div>
+
+                  <!-- Hora Actualización -->
+                  <div class="bg-blue-50 backdrop-blur-lg rounded-2xl border-2 border-blue-200 p-6 text-center hover:bg-blue-100 hover:border-blue-400 transition-all duration-300 shadow-md">
+                    <p class="text-blue-700 text-sm font-black uppercase tracking-wider mb-2">Actual</p>
+                    <p class="text-4xl font-black text-blue-600 drop-shadow-sm">Ahora</p>
+                    <p class="text-gray-600 text-sm mt-3 font-bold animate-pulse">En tiempo real</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer Info -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-base border-t-2 border-gray-200 pt-8 bg-gray-50/50 rounded-2xl p-6">
+                <div class="flex items-center gap-3 text-gray-900 font-bold">
+                  <svg class="w-6 h-6 text-ixmi-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                  <span><strong class="text-ixmi-700 text-lg">{{ canchasWithRealOccupancy.filter(c => c.active && !c.securityLocked).length }}</strong> disponibles</span>
+                </div>
+                <div class="flex items-center gap-3 text-gray-900 font-bold">
+                  <svg class="w-6 h-6 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2zm-3 4a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                  <span><strong class="text-amber-700 text-lg">{{ blockedSchedules.filter(b => b.date === new Date().toISOString().split('T')[0]).length }}</strong> horarios apartados</span>
+                </div>
+                <div class="flex items-center gap-3 text-gray-900 font-bold">
+                  <svg class="w-6 h-6 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <span><strong class="text-blue-700 text-lg">{{ reservations.filter(r => r.date === new Date().toISOString().split('T')[0] && r.status === 'approved').length }}</strong> reservas confirmadas</span>
                 </div>
               </div>
             </div>
@@ -340,7 +618,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">Gestión de Canchas</h2>
-              <p class="text-gray-600 mt-1">Administra todas las instalaciones deportivas</p>
+              <p class="text-gray-600 mt-1">{{ filteredCanchas.length }} de {{ canchasWithRealOccupancy.length }} instalaciones</p>
             </div>
             <div class="flex space-x-3">
               <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
@@ -351,7 +629,7 @@
               </button>
               <button 
                 @click="showNewCanchaModal = true"
-                class="px-6 py-2 bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium shadow-md"
+                class="px-6 py-2 bg-ixmi-500 text-white rounded-xl hover:bg-ixmi-600 hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold shadow-md"
               >
                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -361,98 +639,313 @@
             </div>
           </div>
 
+          <!-- Search and Filter Bar -->
+          <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-md border border-gray-200/60 p-5 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Search Input -->
+              <div class="md:col-span-2 relative">
+                <input 
+                  v-model="canchaSearch"
+                  type="text" 
+                  placeholder="Buscar por nombre de cancha o deporte..."
+                  class="w-full pl-11 pr-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-400 bg-white/80 backdrop-blur-sm transition-all duration-200"
+                >
+                <svg class="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+
+              <!-- Filter Dropdown -->
+              <div>
+                <select 
+                  v-model="canchaFilter"
+                  class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-400 bg-white/80 font-medium transition-all duration-200"
+                >
+                  <option value="all">Todas las canchas</option>
+                  <option value="activa">Solo activas</option>
+                  <option value="pausada">Solo pausadas</option>
+                  <option value="bloqueada">Solo bloqueadas</option>
+                  <option value="disponible">Disponibles ahora</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <!-- Canchas Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             <div 
-              v-for="(cancha, index) in canchas" 
+              v-for="(cancha, index) in filteredCanchas" 
               :key="cancha.id"
-              class="group bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden shadow-lg border border-gray-200/60 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+              :class="[
+                'group relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border',
+                cancha.isBlockedToday ? 'border-red-400 bg-red-50/30' : 'border-gray-100'
+              ]"
               :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <!-- Image/Visual Section -->
-              <div class="relative h-48 bg-gradient-to-br from-ixmi-400 via-ixmi-300 to-ixmi-500 overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                
-                <!-- Sport Icon based on type -->
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                    <svg v-if="cancha.type === 'Fútbol'" class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+              <!-- Overlay bloqueado - Sombreado rojo -->
+              <div v-if="cancha.isBlockedToday" class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-600/10 pointer-events-none rounded-3xl"></div>
+              
+              <!-- Security Lock Overlay - Sombreado rojo intenso -->
+              <div v-if="cancha.securityLocked" class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-red-600/30 backdrop-blur-sm pointer-events-none rounded-3xl z-10"></div>
+
+              <!-- Indicador visual de bloqueo - BLOQUEADO -->
+              <div v-if="cancha.isBlockedToday" class="absolute top-3 right-3 z-20 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-xs font-bold shadow-lg">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 1a11 11 0 110 22 11 11 0 010-22m0 2a9 9 0 100 18 9 9 0 000-18m3.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0m-8 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0m4-5.5a1 1 0 11-2 0 1 1 0 012 0z"/>
+                </svg>
+                🔒 BLOQUEADA
+              </div>
+              
+              <!-- Security Lock Indicator -->
+              <div v-if="cancha.securityLocked" class="absolute top-3 left-3 z-20 flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full text-xs font-bold shadow-2xl animate-pulse border border-red-400">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 1L3 5v7c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18L19 6.3v6.7c0 4.42-2.92 8.43-7 9.62-4.08-1.19-7-5.2-7-9.62V6.3l7-3.12zm-1 5.82v4h2v-4h-2zm0-4v2h2V5h-2z"/>
+                </svg>
+                🔐 BLOQUEADA POR SEGURIDAD
+              </div>
+
+              <!-- Header Section with Sport Icon & Status -->
+              <div :class="['relative pt-6 pb-8 px-6', getSportStyles(cancha.sport).lightAccent]">
+                <div class="flex items-start justify-between mb-4">
+                  <!-- Sport Icon Badge -->
+                  <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300', getSportStyles(cancha.sport).accentColor]">
+                    <!-- Soccer Ball / Fútbol ⚽ -->
+                    <svg v-if="cancha.sport === 'futbol'" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                      <path d="M12 2a10 10 0 110 20 10 10 0 010-20zm7.07 7.07a1 1 0 000-1.41l-4.24-4.24a1 1 0 00-1.41 0l-1.41 1.41-4.24-4.24a1 1 0 00-1.41 0l-4.24 4.24a1 1 0 000 1.41l1.41 1.41-1.41 1.41a1 1 0 000 1.41l4.24 4.24a1 1 0 001.41 0l1.41-1.41 4.24 4.24a1 1 0 001.41 0l4.24-4.24a1 1 0 000-1.41l-1.41-1.41 1.41-1.41z"/>
                     </svg>
-                    <svg v-else-if="cancha.type === 'Básquetbol'" class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm10 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zM12 6.5c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm0 11c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"/>
+                    <!-- Basketball 🏀 -->
+                    <svg v-else-if="cancha.sport === 'basquetbol'" class="w-8 h-8 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3">
+                      <circle cx="50" cy="50" r="45"/>
+                      <line x1="50" y1="5" x2="50" y2="95"/>
+                      <line x1="5" y1="50" x2="95" y2="50"/>
+                      <path d="M 30 30 Q 50 50 70 30" fill="none"/>
+                      <path d="M 30 70 Q 50 50 70 70" fill="none"/>
                     </svg>
-                    <svg v-else class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <!-- Tennis Racket 🎾 -->
+                    <svg v-else-if="cancha.sport === 'tenis'" class="w-8 h-8 text-white" viewBox="0 0 100 100" fill="currentColor">
+                      <circle cx="35" cy="30" r="28" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                      <rect x="32" y="58" width="6" height="35" rx="3"/>
+                      <circle cx="50" cy="20" r="3" fill="currentColor"/>
+                    </svg>
+                    <!-- Volleyball 🏐 -->
+                    <svg v-else-if="cancha.sport === 'voleibol'" class="w-8 h-8 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="50" cy="50" r="45"/>
+                      <path d="M 50 5 Q 60 30 50 50 Q 40 30 50 5"/>
+                      <path d="M 50 50 Q 60 70 50 95 Q 40 70 50 50"/>
+                      <line x1="25" y1="30" x2="75" y2="70"/>
+                      <line x1="75" y1="30" x2="25" y2="70"/>
+                    </svg>
+                    <!-- Paddle / Pádel 🎯 -->
+                    <svg v-else-if="cancha.sport === 'padel'" class="w-8 h-8 text-white" viewBox="0 0 100 100" fill="currentColor">
+                      <circle cx="40" cy="30" r="22" stroke="currentColor" fill="none" stroke-width="2.5"/>
+                      <rect x="37" y="52" width="6" height="40" rx="3" fill="currentColor"/>
+                      <circle cx="50" cy="22" r="2.5" fill="currentColor"/>
+                    </svg>
+                    <!-- Default -->
+                    <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
                   </div>
-                </div>
 
-                <!-- Status Badge -->
-                <div class="absolute top-4 right-4">
-                  <span :class="[
-                    'px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm border',
-                    cancha.active 
-                      ? 'bg-green-500/90 text-white border-green-400/50' 
-                      : 'bg-red-500/90 text-white border-red-400/50'
-                  ]">
-                    {{ cancha.active ? 'Activa' : 'Inactiva' }}
-                  </span>
-                </div>
-
-                <!-- Gratis Tag -->
-                <div class="absolute bottom-4 left-4">
-                  <div class="bg-green-500/90 backdrop-blur-sm rounded-xl px-3 py-2 border border-green-400/50">
-                    <span class="text-lg font-bold text-white">GRATIS</span>
+                  <!-- Status Badge - Mejorado -->
+                  <div>
+                    <span :class="[
+                      'inline-flex items-center px-4 py-2.5 rounded-full text-xs font-bold text-white shadow-lg',
+                      cancha.active 
+                        ? 'bg-gradient-to-r from-green-400 via-green-500 to-emerald-500 animate-pulse' 
+                        : 'bg-gradient-to-r from-red-500 via-red-600 to-red-700'
+                    ]"
+                    >
+                      <span class="mr-2 text-base">{{ cancha.active ? '▶️' : '⏸️' }}</span>
+                      {{ cancha.active ? 'ACTIVA' : 'PAUSADA' }}
+                    </span>
                   </div>
+                </div>
+
+                <!-- Title & Type -->
+                <div>
+                  <h3 :class="['text-2xl font-black leading-tight', getSportStyles(cancha.sport).textColor]">{{ cancha.name }}</h3>
+                  <p class="text-sm font-semibold text-gray-600 mt-1 uppercase tracking-wide">{{ cancha.type }} • {{ cancha.sport.toUpperCase() }}</p>
                 </div>
               </div>
 
               <!-- Content Section -->
-              <div class="p-6">
-                <div class="mb-4">
-                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-ixmi-600 transition-colors duration-200">{{ cancha.name }}</h3>
-                  <p class="text-sm text-gray-600 mt-1">{{ cancha.type }}</p>
+              <div class="px-6 py-8">
+                <!-- Big Stats Section -->
+                <div class="mb-8">
+                  <div class="grid grid-cols-2 gap-5">
+                    <!-- Capacity Card -->
+                    <div :class="['p-5 rounded-2xl backdrop-blur-sm border-2 transition-all duration-300 hover:shadow-lg hover:-translate-y-1', getSportStyles(cancha.sport).borderColor, 'bg-gradient-to-br from-white to-gray-50/50']">
+                      <p class="text-xs font-bold uppercase tracking-widest text-gray-600 mb-2">Capacidad</p>
+                      <p :class="['text-4xl font-black', getSportStyles(cancha.sport).textColor]">{{ cancha.capacity }}</p>
+                      <p class="text-xs text-gray-500 mt-1 font-semibold">personas</p>
+                    </div>
+
+                    <!-- Availabilty Card (Only) -->
+                    <div :class="['p-5 rounded-2xl backdrop-blur-sm border-2 transition-all duration-300 hover:shadow-lg hover:-translate-y-1', 
+                      (100 - cancha.occupancy) < 20 ? 'border-red-300 from-red-50 to-orange-50' : 
+                      (100 - cancha.occupancy) < 50 ? 'border-yellow-300 from-yellow-50 to-amber-50' : 
+                      'border-green-300 from-green-50 to-emerald-50',
+                      'bg-gradient-to-br'
+                    ]">
+                      <p class="text-xs font-bold uppercase tracking-widest text-gray-600 mb-2">Disponibilidad</p>
+                      <div class="flex items-baseline gap-1">
+                        <p :class="[
+                          'text-4xl font-black',
+                          (100 - cancha.occupancy) < 20 ? 'text-red-600' :
+                          (100 - cancha.occupancy) < 50 ? 'text-amber-600' :
+                          'text-green-600'
+                        ]">{{ 100 - cancha.occupancy }}</p>
+                        <p class="text-lg font-bold text-gray-500">%</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                  <div class="text-center p-3 bg-gray-50/80 rounded-xl">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Capacidad</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1">{{ cancha.capacity }}</p>
-                    <p class="text-xs text-gray-500">personas</p>
+                <!-- Progress Bar Section -->
+                <div class="mb-8">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-600">Ocupación en Tiempo Real</p>
+                    <span :class="['text-sm font-bold px-3 py-1 rounded-full', 
+                      cancha.occupancy <= 0 ? 'bg-green-100 text-green-700' :
+                      cancha.occupancy < 50 ? 'bg-green-100 text-green-700' :
+                      cancha.occupancy < 80 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    ]">{{ cancha.occupancy }}%</span>
                   </div>
-                  <div class="text-center p-3 bg-gray-50/80 rounded-xl">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ocupación</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1">{{ cancha.occupancy || '75' }}%</p>
-                    <p class="text-xs text-gray-500">promedio</p>
+                  <div class="h-4 bg-gray-300 rounded-full overflow-hidden shadow-inner">
+                    <div 
+                      :class="[
+                        'h-full rounded-full transition-all duration-1000 ease-out',
+                        cancha.occupancy > 80 ? 'bg-gradient-to-r from-red-400 to-red-500' :
+                        cancha.occupancy > 50 ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
+                        'bg-gradient-to-r from-green-400 to-emerald-500'
+                      ]"
+                      :style="{ width: `${cancha.occupancy}%` }"
+                    ></div>
+                  </div>
+                  <div class="flex justify-between text-xs text-gray-500 font-semibold mt-2">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
                   </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex space-x-2">
+                <!-- Upcoming Reservations Info -->
+                <div class="mb-8 bg-white rounded-2xl border border-ixmi-200/50 p-4 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                      <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      <p class="text-xs font-bold uppercase tracking-widest text-gray-600">Próximas Reservas Hoy</p>
+                    </div>
+                    <span class="bg-ixmi-100 text-ixmi-700 px-3 py-1 rounded-full text-xs font-bold">
+                      {{ reservations.filter(r => String(r.courtId) === String(cancha.id) && r.date === new Date().toISOString().split('T')[0]).length }}
+                    </span>
+                  </div>
+                  <div v-if="reservations.filter(r => String(r.courtId) === String(cancha.id) && r.date === new Date().toISOString().split('T')[0] && r.status === 'approved').length > 0" class="space-y-2">
+                    <div v-for="(res, i) in reservations.filter(r => String(r.courtId) === String(cancha.id) && r.date === new Date().toISOString().split('T')[0] && r.status === 'approved').slice(0, 2)" :key="i" class="flex items-center justify-between text-xs bg-gradient-to-r from-ixmi-50 to-white p-2 rounded-lg border border-ixmi-100/50">
+                      <div>
+                        <span class="font-semibold text-gray-900">{{ res.startTime }}</span>
+                        <span class="text-gray-500 mx-1">→</span>
+                        <span class="font-semibold text-gray-900">{{ res.endTime }}</span>
+                      </div>
+                      <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">Confirmada</span>
+                    </div>
+                  </div>
+                  <div v-else class="text-center py-2">
+                    <div class="flex items-center justify-center space-x-2">
+                      <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <p class="text-xs text-gray-500 font-medium">Sin reservas confirmadas</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Blocked Schedules Info -->
+                <div class="mb-8 bg-gradient-to-br from-red-50 to-orange-50/30 rounded-2xl border border-red-200/50 p-4 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-widest text-red-700">� Horarios Apartados</p>
+                    <span :class="['px-3 py-1 rounded-full text-xs font-bold', blockedSchedules.filter(b => String(b.courtId) === String(cancha.id)).length > 0 ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-700']">
+                      {{ blockedSchedules.filter(b => String(b.courtId) === String(cancha.id)).length }}
+                    </span>
+                  </div>
+                  <div v-if="blockedSchedules.filter(b => String(b.courtId) === String(cancha.id)).length > 0" class="space-y-2">
+                    <div v-for="(block, i) in blockedSchedules.filter(b => String(b.courtId) === String(cancha.id)).slice(0, 3)" :key="i" class="flex items-center justify-between text-xs bg-white/60 p-2 rounded-lg border border-red-200/50">
+                      <div>
+                        <span class="font-semibold text-gray-900">{{ block.date }}</span>
+                        <span class="text-gray-500 mx-1">•</span>
+                        <span class="font-semibold text-red-700">{{ block.startTime }}-{{ block.endTime }}</span>
+                      </div>
+                      <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">Apartado</span>
+                    </div>
+                  </div>
+                  <div v-else class="text-center py-2">
+                    <div class="flex items-center justify-center space-x-2">
+                      <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <p class="text-xs text-gray-500 font-medium">Sin bloqueos programados</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons - Mejorados -->
+                <div class="space-y-3 relative z-40">
+                  <!-- Toggle Button - Full Width - Security Lock -->
                   <button 
-                    @click="editCancha(cancha)"
-                    class="flex-1 px-4 py-2 text-sm text-ixmi-600 border border-ixmi-300 rounded-xl hover:bg-ixmi-50 hover:border-ixmi-400 transition-all duration-200 font-medium"
-                  >
-                    Editar
-                  </button>
-                  <button 
-                    @click="viewCanchaAnalytics(cancha)"
-                    class="flex-1 px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
-                  >
-                    Analytics
-                  </button>
-                  <button 
-                    @click="toggleCanchaStatus(cancha)"
+                    @click="toggleSecurityLock(cancha)"
                     :class="[
-                      'px-4 py-2 text-sm rounded-xl transition-all duration-200 font-medium',
-                      cancha.active 
-                        ? 'text-red-600 border border-red-300 hover:bg-red-50' 
-                        : 'text-green-600 border border-green-300 hover:bg-green-50'
+                      'w-full py-4 px-4 text-sm font-bold rounded-xl transition-all duration-300 uppercase tracking-widest text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 relative',
+                      cancha.securityLocked
+                        ? 'bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-700 hover:via-red-800 hover:to-red-900 border border-red-400 animate-pulse' 
+                        : 'bg-gradient-to-r from-green-400 via-green-500 to-emerald-500 hover:from-green-500 hover:via-green-600 hover:to-emerald-600 border border-green-300'
                     ]"
+                    title="Bloquear/Desbloquear cancha por seguridad"
                   >
-                    {{ cancha.active ? 'Pausar' : 'Activar' }}
+                    <span class="text-xl">{{ cancha.securityLocked ? '🔐' : '🔓' }}</span>
+                    <span class="font-extrabold flex items-center space-x-1">
+                  <svg v-if="cancha.securityLocked" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                  <span>{{ cancha.securityLocked ? 'DESBLOQUEAR' : 'BLOQUEAR SEGURIDAD' }}</span>
+                </span>
                   </button>
+
+                  <!-- Secondary Buttons Grid - Solo visible si NO está bloqueada -->
+                  <div v-if="!cancha.securityLocked" class="grid grid-cols-2 gap-2 relative z-40">
+                    <button 
+                      @click="editCancha(cancha)"
+                      :class="[
+                        'py-3 px-3 text-xs font-bold rounded-xl transition-all duration-200 uppercase tracking-wide border-2 hover:shadow-md hover:scale-105',
+                        getSportStyles(cancha.sport).textColor,
+                        getSportStyles(cancha.sport).borderColor,
+                        'bg-white hover:bg-gradient-to-br hover:from-white hover:to-gray-50'
+                      ]"
+                      title="Editar cancha"
+                    >
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                      Editar
+                    </button>
+                    <button 
+                      @click="showBlockCanchaModal = true; blockCanchaForm.courtId = String(cancha.id)"
+                      class="py-3 px-3 text-xs font-bold rounded-xl transition-all duration-200 uppercase tracking-wide border-2 border-orange-300 bg-white hover:shadow-md hover:scale-105 text-orange-600 hover:bg-gradient-to-br hover:from-white hover:to-orange-50/50"
+                      title="Bloquear cancha"
+                    >
+                      <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 1a11 11 0 110 22 11 11 0 010-22zm0 2a9 9 0 100 18 9 9 0 000-18zm3.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-8 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm4-5.5a1 1 0 11-2 0 1 1 0 012 0z"/>
+                      </svg>
+                      Bloquear
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -511,7 +1004,7 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center space-x-4">
                         <div class="relative">
-                          <div class="w-12 h-12 bg-gradient-to-br from-ixmi-400 to-ixmi-500 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
+                          <div class="w-12 h-12 bg-ixmi-500 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
                             <span class="text-white font-bold text-sm">{{ user.name.charAt(0) }}</span>
                           </div>
                           <div v-if="user.active" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
@@ -608,70 +1101,84 @@
             </div>
           </div>
 
-          <!-- Reservations List -->
-          <div class="space-y-4">
+          <!-- Court Filter -->
+          <div class="flex flex-col space-y-3">
+            <label class="text-sm font-bold text-gray-800">Filtrar por Cancha</label>
+            <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+              <select 
+                v-model="selectedReservationCourt"
+                class="flex-1 px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/20 focus:border-ixmi-400 bg-white/80 font-medium text-gray-900"
+              >
+                <option value="">Todas las canchas</option>
+                <option v-for="court in canchas" :key="court.id" :value="court.id">
+                  {{ court.name }} ({{ court.sport }})
+                </option>
+              </select>
+              <button 
+                v-if="selectedReservationCourt !== ''"
+                @click="selectedReservationCourt = ''"
+                class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap"
+              >
+                Limpiar Filtro
+              </button>
+            </div>
+          </div>
+
+          <!-- Reservations Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div 
               v-for="(reservation, index) in filteredReservations" 
               :key="reservation.id"
               class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60 hover:shadow-xl transition-all duration-300"
               :style="{ animationDelay: `${index * 50}ms` }"
             >
-              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div class="flex flex-col space-y-4">
                 <!-- Reservation Info -->
-                <div class="flex-1">
+                <div>
                   <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-ixmi-400 to-ixmi-500 rounded-xl flex items-center justify-center shadow-md">
+                    <div class="w-12 h-12 bg-ixmi-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
                     </div>
-                    <div>
-                      <h3 class="text-lg font-bold text-gray-900">{{ reservation.cancha }}</h3>
-                      <div class="flex items-center space-x-2">
-                        <span :class="['px-3 py-1 rounded-full text-xs font-bold', getReservationStatusClass(reservation.status)]">
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-lg font-bold text-gray-900 truncate">{{ reservation.cancha }}</h3>
+                      <div class="flex items-center space-x-2 mt-1 flex-wrap">
+                        <span :class="['px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap', getReservationStatusClass(reservation.status)]">
                           {{ getReservationStatusText(reservation.status) }}
-                        </span>
-                        <span v-if="reservation.priority" class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold">
-                          Prioritaria
                         </span>
                       </div>
                     </div>
                   </div>
                   
-                  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                  <div class="space-y-2 text-sm">
                     <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                       </svg>
-                      <span class="font-medium text-gray-700">{{ reservation.userName }}</span>
+                      <span class="font-medium text-gray-700 truncate">{{ reservation.userName }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
-                      <span class="text-gray-600">{{ reservation.date }}</span>
+                      <span class="text-gray-600 text-xs whitespace-nowrap">{{ reservation.date }}</span>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                       </svg>
-                      <span class="text-gray-600">{{ reservation.time }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                      <span class="font-semibold text-green-600">Gratis</span>
+                      <span class="text-gray-600 text-xs whitespace-nowrap">{{ reservation.time }}</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 lg:ml-6">
+                <div class="flex flex-col space-y-2 pt-4 border-t border-gray-100">
                   <button 
                     v-if="reservation.status === 'pending'"
                     @click="approveReservation(reservation)"
-                    class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
+                    class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -681,7 +1188,7 @@
                   <button 
                     v-if="reservation.status === 'pending'"
                     @click="rejectReservation(reservation)"
-                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
+                    class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -690,48 +1197,58 @@
                   </button>
                   <button 
                     @click="viewReservationDetail(reservation)"
-                    class="px-4 py-2 border border-ixmi-300 text-ixmi-600 hover:bg-ixmi-50 hover:border-ixmi-400 rounded-xl transition-all duration-200 text-sm font-medium"
+                    class="w-full px-3 py-2 border border-ixmi-300 text-ixmi-600 hover:bg-ixmi-50 hover:border-ixmi-400 rounded-xl transition-all duration-200 text-sm font-medium"
                   >
                     Ver Detalle
                   </button>
                 </div>
               </div>
             </div>
+
+            <!-- Empty State -->
+            <div v-if="filteredReservations.length === 0" class="col-span-full">
+              <div class="text-center py-12 px-4">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <p class="text-gray-400 font-medium">No hay reservaciones que coincidan con los filtros</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Gestión de Horarios Bloqueados -->
+        <!-- Gestión de Horarios Apartados -->
         <div v-if="activeTab === 'horarios'" class="space-y-8 animate-slide-up">
           <!-- Header -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">Gestión de Horarios</h2>
-              <p class="text-gray-600 mt-1">Bloquea horarios específicos para mantenimiento, eventos o reservas especiales</p>
+              <h2 class="text-3xl font-black text-gray-900">Gestión de Horarios</h2>
+              <p class="text-gray-600 mt-2 text-lg">Aparta horarios específicos para mantenimiento, eventos o reservas especiales</p>
             </div>
             <button 
-              @click="showBlockScheduleModal = true"
-              class="px-6 py-3 bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold shadow-md flex items-center gap-2"
+              @click="showBlockCanchaModal = true; blockCanchaForm.courtId = ''; blockCanchaForm.date = ''; blockCanchaForm.startTime = ''; blockCanchaForm.endTime = ''; blockCanchaForm.reason = ''; blockCanchaForm.apartadoType = ''"
+              class="px-8 py-4 bg-gradient-to-r from-ixmi-400 via-ixmi-500 to-ixmi-600 text-white rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 font-bold shadow-lg flex items-center gap-3 uppercase tracking-widest"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
-              Bloquear Horario
+              📅 Apartar Horario
             </button>
           </div>
 
-          <!-- Info Card -->
-          <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
-            <div class="flex items-start gap-4">
-              <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <!-- Info Card - Mejorado -->
+          <div class="bg-gradient-to-br from-ixmi-50 via-blue-50 to-ixmi-100 border-2 border-ixmi-200 rounded-3xl p-8 shadow-lg">
+            <div class="flex items-start gap-6">
+              <div class="w-16 h-16 bg-gradient-to-br from-ixmi-200 to-ixmi-300 rounded-2xl flex items-center justify-center shrink-0 shadow-md">
+                <svg class="w-8 h-8 text-ixmi-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
               <div>
-                <h3 class="font-bold text-amber-900 mb-1">Información Importante</h3>
-                <p class="text-amber-800 text-sm">
-                  Los horarios bloqueados <strong>no estarán disponibles</strong> para reservaciones públicas. 
-                  Horario de operación: <strong>5:00 AM - 10:00 PM</strong>. 
+                <h3 class="font-black text-ixmi-900 mb-2 text-lg">ℹ️ Información Importante</h3>
+                <p class="text-ixmi-900 text-base leading-relaxed">
+                  Los horarios apartados <strong>NO estarán disponibles</strong> para reservaciones públicas. 
+                  <strong>Horario de operación:</strong> 5:00 AM - 10:00 PM. 
                   Utiliza esta función para mantenimiento, eventos privados o reservas especiales.
                 </p>
               </div>
@@ -739,67 +1256,137 @@
           </div>
 
           <!-- Blocked Schedules List -->
-          <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/60 overflow-hidden">
-            <div class="p-6 border-b border-gray-200/60">
-              <h3 class="text-lg font-bold text-gray-900">Horarios Bloqueados Activos</h3>
-              <p class="text-sm text-gray-500 mt-1">{{ blockedSchedules.length }} horarios bloqueados</p>
+          <div>
+            <div class="mb-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-2xl font-black text-gray-900 flex items-center space-x-2">
+                <svg class="h-7 w-7 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>Horarios Apartados Activos</span>
+              </h3>
+                  <p :class="['text-sm mt-1 font-semibold', blockedSchedules.length > 0 ? 'text-ixmi-600' : 'text-gray-500']">
+                    {{ blockedSchedules.length }} {{ blockedSchedules.length === 1 ? 'horario apartado' : 'horarios apartados' }}
+                  </p>
+                </div>
+                <div :class="['w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black', blockedSchedules.length > 0 ? 'bg-ixmi-100 text-ixmi-600' : 'bg-gray-100 text-gray-600']">
+                  {{ blockedSchedules.length }}
+                </div>
+              </div>
             </div>
             
-            <div v-if="blockedSchedules.length === 0" class="p-12 text-center">
-              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div v-if="blockedSchedules.length === 0" class="p-16 text-center bg-gradient-to-b from-gray-50 to-white rounded-3xl border-2 border-dashed border-gray-300">
+              <div class="w-20 h-20 bg-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
               </div>
-              <p class="text-gray-500 font-medium">No hay horarios bloqueados</p>
-              <p class="text-gray-400 text-sm mt-1">Agrega un bloqueo para reservar horarios especiales</p>
+              <p class="text-gray-600 font-bold text-lg">No hay horarios apartados</p>
+              <p class="text-gray-500 text-base mt-2">Agrega un apartado para reservar horarios especiales</p>
+              <button 
+                @click="showBlockCanchaModal = true; blockCanchaForm.courtId = ''; blockCanchaForm.date = ''; blockCanchaForm.startTime = ''; blockCanchaForm.endTime = ''; blockCanchaForm.reason = ''; blockCanchaForm.apartadoType = ''"
+                class="mt-6 px-6 py-3 bg-ixmi-500 text-white rounded-xl hover:bg-ixmi-600 transition-all duration-200 font-bold"
+              >
+                Crear primer apartado
+              </button>
             </div>
 
-            <div v-else class="divide-y divide-gray-200/60">
+            <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div 
-                v-for="schedule in blockedSchedules" 
+                v-for="(schedule, index) in blockedSchedules" 
                 :key="schedule.id"
-                class="p-6 hover:bg-ixmi-50/30 transition-all duration-200"
+                class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-200 overflow-hidden"
+                :style="{ animationDelay: `${index * 100}ms` }"
               >
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                <!-- Top Status Bar -->
+                <div class="h-2 bg-gradient-to-r from-ixmi-500 to-ixmi-600"></div>
+
+                <!-- Content -->
+                <div class="p-6">
+                  <!-- Header -->
+                  <div class="flex items-start gap-4 mb-6">
+                    <div class="w-14 h-14 bg-gradient-to-br from-ixmi-100 to-ixmi-200 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <svg class="w-7 h-7 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
                       </svg>
                     </div>
-                    <div>
-                      <h4 class="font-bold text-gray-900">{{ schedule.courtName }}</h4>
-                      <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
-                        <span class="flex items-center gap-1">
-                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
-                          {{ schedule.date }}
-                        </span>
-                        <span class="flex items-center gap-1">
-                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
-                          {{ schedule.startTime }} - {{ schedule.endTime }}
-                        </span>
-                      </div>
-                      <p class="text-sm text-gray-500 mt-2">
-                        <strong>Motivo:</strong> {{ schedule.reason }}
-                      </p>
+                    <div class="flex-1">
+                      <h4 class="text-xl font-black text-gray-900">{{ schedule.courtName }}</h4>
+                      <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full mt-2 uppercase tracking-widest">� APARTADO</span>
                     </div>
                   </div>
-                  <div class="flex gap-2">
+
+                  <!-- Details Grid -->
+                  <div class="space-y-4 mb-6 p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200">
+                    <!-- Date -->
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-ixmi-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">Fecha</p>
+                        <p class="text-lg font-bold text-gray-900">{{ formatBlockedDate(schedule.date) }}</p>
+                      </div>
+                    </div>
+
+                    <!-- Time -->
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">Horario</p>
+                        <p class="text-lg font-bold text-gray-900">{{ schedule.startTime }} - {{ schedule.endTime }}</p>
+                      </div>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="flex items-start gap-3">
+                      <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0 mt-1">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">Motivo</p>
+                        <p class="text-base font-semibold text-gray-900">{{ schedule.reason || 'Mantenimiento' }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Duration Info -->
+                  <div class="mb-6 p-3 bg-ixmi-50 border border-ixmi-200 rounded-lg">
+                    <p class="text-xs font-bold text-ixmi-800 uppercase tracking-wide mb-1">⏱️ Duración Apartada</p>
+                    <p class="text-sm font-black text-ixmi-900">
+                      {{ Math.floor((new Date(`2026-01-01 ${schedule.endTime}`) - new Date(`2026-01-01 ${schedule.startTime}`)) / 3600000) }} horas
+                    </p>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="grid grid-cols-2 gap-3">
                     <button 
                       @click="editBlockedSchedule(schedule)"
-                      class="px-4 py-2 text-sm text-ixmi-600 border border-ixmi-300 rounded-xl hover:bg-ixmi-50 transition-all duration-200 font-medium"
+                      class="py-3 px-4 text-sm font-bold rounded-lg transition-all duration-200 uppercase tracking-wide border-2 border-ixmi-300 text-ixmi-600 bg-white hover:bg-ixmi-50 hover:shadow-md hover:scale-105"
+                      title="Editar bloqueo"
                     >
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
                       Editar
                     </button>
                     <button 
                       @click="deleteBlockedSchedule(schedule.id)"
-                      class="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-xl hover:bg-red-50 transition-all duration-200 font-medium"
+                      class="py-3 px-4 text-sm font-bold rounded-lg transition-all duration-200 uppercase tracking-wide bg-gradient-to-r from-rose-500 to-rose-600 text-white hover:shadow-md hover:scale-105 border border-rose-400"
+                      title="Eliminar apartado"
                     >
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
                       Eliminar
                     </button>
                   </div>
@@ -808,49 +1395,238 @@
             </div>
           </div>
 
-          <!-- Quick Stats -->
+          <!-- Quick Stats - Mejorado -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
-              <div class="flex items-center justify-between">
+            <!-- Canchas Totales -->
+            <div class="bg-gradient-to-br from-ixmi-500 via-ixmi-600 to-ixmi-700 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-ixmi-400">
+              <div class="flex items-end justify-between">
                 <div>
-                  <p class="text-sm font-semibold text-gray-500">Canchas Totales</p>
-                  <p class="text-3xl font-bold text-gray-900 mt-1">9</p>
+                  <p class="text-ixmi-200 text-sm font-bold uppercase tracking-widest mb-2">Canchas Totales</p>
+                  <p class="text-5xl font-black">{{ canchas.length }}</p>
+                  <p class="text-ixmi-100 text-xs mt-2">instalaciones disponibles</p>
                 </div>
-                <div class="w-12 h-12 bg-ixmi-100 rounded-xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                  </svg>
+                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-4xl">
+                  🏢
                 </div>
               </div>
-              <p class="text-xs text-gray-500 mt-2">4 Basquet • 2 Tennis • 2 Voleibol • 1 Pádel</p>
             </div>
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
-              <div class="flex items-center justify-between">
+
+            <!-- Horario de Operación -->
+            <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-blue-400">
+              <div class="flex items-end justify-between">
                 <div>
-                  <p class="text-sm font-semibold text-gray-500">Horario de Operación</p>
-                  <p class="text-3xl font-bold text-gray-900 mt-1">5AM-10PM</p>
+                  <p class="text-blue-200 text-sm font-bold uppercase tracking-widest mb-2">Horario de Operación</p>
+                  <p class="text-5xl font-black">{{ systemConfig.openTime }}-{{ systemConfig.closeTime }}</p>
+                  <p class="text-blue-100 text-xs mt-2">17 horas disponibles/día</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
+                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-4xl">
+                  🕒
                 </div>
               </div>
-              <p class="text-xs text-gray-500 mt-2">17 horas disponibles por día</p>
             </div>
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
-              <div class="flex items-center justify-between">
+
+            <!-- Apartados Activos -->
+            <div :class="['rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border', canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 border-amber-400' : 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 border-emerald-400']">
+              <div class="flex items-end justify-between">
                 <div>
-                  <p class="text-sm font-semibold text-gray-500">Bloqueos Activos</p>
-                  <p class="text-3xl font-bold text-gray-900 mt-1">{{ blockedSchedules.length }}</p>
+                  <p :class="['text-sm font-bold uppercase tracking-widest mb-2', canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'text-amber-200' : 'text-emerald-200']">Canchas Apartadas</p>
+                  <p class="text-5xl font-black">{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length }}</p>
+                  <p :class="['text-xs mt-2', canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'text-amber-100' : 'text-emerald-100']">
+                    {{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length === 0 ? 'sin apartados' : `no disponibles` }}
+                  </p>
                 </div>
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center text-4xl', canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'bg-white/20' : 'bg-white/20']">
+                  <span class="text-lg font-bold">{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? '📋' : '✓' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estadísticas Avanzadas -->
+        <div v-if="activeTab === 'estadisticas'" class="space-y-8 animate-slide-up">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Estadísticas y Análisis</h2>
+            <p class="text-gray-600 mt-1">Métricas detalladas del sistema</p>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Tasa de Ocupación -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ocupación Promedio</p>
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                   </svg>
                 </div>
               </div>
-              <p class="text-xs text-gray-500 mt-2">Horarios no disponibles para reserva</p>
+              <p class="text-3xl font-bold text-gray-900">72%</p>
+              <p class="text-sm text-green-600 font-semibold mt-2">↑ 8% vs semana anterior</p>
+              <div class="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-ixmi-500" style="width: 72%"></div>
+              </div>
+            </div>
+
+            <!-- Ingresos Totales -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ingresos Este Mes</p>
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-gray-900">$0</p>
+              <p class="text-sm text-blue-600 font-semibold mt-2">Todas las canchas son gratuitas</p>
+            </div>
+
+            <!-- Reservaciones Completadas -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Reservas Completadas</p>
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-gray-900">{{ reservations.filter(r => r.status === 'completed').length }}</p>
+              <p class="text-sm text-purple-600 font-semibold mt-2">↑ {{  Math.floor(Math.random() * 20) + 5 }}% vs mes anterior</p>
+            </div>
+
+            <!-- Tasa de Aprobación -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tasa Aprobación</p>
+                <div class="w-10 h-10 bg-ixmi-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-3xl font-bold text-gray-900">89%</p>
+              <p class="text-sm text-ixmi-600 font-semibold mt-2">↓ 2% vs semana anterior</p>
+            </div>
+          </div>
+
+          <!-- Gráficos de Tendencias -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Reservaciones por Día -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-900">Reservaciones por Día</h3>
+                <p class="text-sm text-gray-500 mt-1">Últimos 7 días</p>
+              </div>
+              <div class="space-y-4">
+                <div v-for="(day, index) in weeklyReservations" :key="day.day" class="relative">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700 w-20">{{ day.day }}</span>
+                    <span class="text-sm font-bold text-gray-900">{{ day.reservations }} reservas</span>
+                  </div>
+                  <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div 
+                      class="h-3 rounded-full bg-ixmi-500 transition-all duration-1000 ease-out"
+                      :style="{ 
+                        width: `${(day.reservations / 30) * 100}%`
+                      }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado de Reservaciones -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+              <div class="mb-6">
+                <h3 class="text-lg font-bold text-gray-900">Distribución de Estados</h3>
+                <p class="text-sm text-gray-500 mt-1">Total de {{ reservations.length }} reservaciones</p>
+              </div>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <span class="text-sm font-medium text-gray-700">Pendientes</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">{{ reservations.filter(r => r.status === 'pending').length }}</span>
+                    <span class="text-xs text-gray-500">{{ Math.round((reservations.filter(r => r.status === 'pending').length / reservations.length) * 100) }}%</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-sm font-medium text-gray-700">Aprobadas</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">{{ reservations.filter(r => r.status === 'approved').length }}</span>
+                    <span class="text-xs text-gray-500">{{ Math.round((reservations.filter(r => r.status === 'approved').length / reservations.length) * 100) }}%</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span class="text-sm font-medium text-gray-700">Rechazadas</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">{{ reservations.filter(r => r.status === 'rejected').length }}</span>
+                    <span class="text-xs text-gray-500">{{ Math.round((reservations.filter(r => r.status === 'rejected').length / reservations.length) * 100) }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detalles por Cancha -->
+          <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
+            <div class="mb-6">
+              <h3 class="text-lg font-bold text-gray-900">Desempeño por Cancha</h3>
+              <p class="text-sm text-gray-500 mt-1">Ocupación y reservaciones de cada cancha</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gray-200/60">
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Cancha</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Ocupación</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Reservas</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Puntuación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="cancha in canchasWithRealOccupancy" :key="cancha.id" class="border-b border-gray-200/40 hover:bg-gray-50/50 transition-all duration-200">
+                    <td class="py-4 px-4">
+                      <div>
+                        <p class="font-medium text-gray-900">{{ cancha.name }}</p>
+                        <p class="text-xs text-gray-500">{{ cancha.sport }}</p>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="flex items-center justify-center space-x-2">
+                        <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            class="h-full bg-ixmi-500"
+                            :style="{ width: `${cancha.occupancy || 65}%` }"
+                          ></div>
+                        </div>
+                        <span class="text-sm font-bold text-gray-900 w-8">{{ cancha.occupancy || 65 }}%</span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span class="font-semibold text-gray-900">{{ Math.floor(Math.random() * 20) + 5 }}</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="flex items-center justify-center space-x-1">
+                        <span v-for="i in 5" :key="i" class="text-lg">
+                          {{ i <= Math.ceil((cancha.occupancy || 65) / 20) ? '⭐' : '☆' }}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -866,7 +1642,7 @@
             <!-- General Settings -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/60">
               <div class="flex items-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-ixmi-500 rounded-xl flex items-center justify-center">
                   <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -914,7 +1690,7 @@
             <!-- Reservations Settings -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-lg border border-gray-200/60">
               <div class="flex items-center space-x-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-br from-ixmi-500 to-ixmi-600 rounded-xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-ixmi-500 rounded-xl flex items-center justify-center">
                   <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
@@ -980,7 +1756,7 @@
           <div class="flex justify-end">
             <button 
               @click="saveConfiguration"
-              class="px-8 py-3 bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold shadow-md"
+              class="px-8 py-3 bg-ixmi-500 text-white rounded-xl hover:bg-ixmi-600 hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold shadow-md"
             >
               <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
@@ -998,15 +1774,15 @@
         <div class="p-6 border-b border-gray-200/60">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-ixmi-500 to-ixmi-400 rounded-xl flex items-center justify-center">
+              <div class="w-10 h-10 bg-ixmi-500 rounded-xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-gray-900">Nueva Cancha</h3>
+              <h3 class="text-xl font-bold text-gray-900">{{ editingCanchaId ? 'Editar Cancha' : 'Nueva Cancha' }}</h3>
             </div>
             <button 
-              @click="showNewCanchaModal = false"
+              @click="showNewCanchaModal = false; editingCanchaId = null"
               class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1071,126 +1847,235 @@
           <div class="flex space-x-3 pt-6 mt-6 border-t border-gray-200/60">
             <button 
               type="button"
-              @click="showNewCanchaModal = false"
+              @click="showNewCanchaModal = false; editingCanchaId = null"
               class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
             >
               Cancelar
             </button>
             <button 
               type="submit"
-              class="flex-1 px-6 py-3 bg-gradient-to-r from-ixmi-500 to-ixmi-400 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-semibold shadow-md"
+              class="flex-1 px-6 py-3 bg-ixmi-500 text-white rounded-xl hover:bg-ixmi-600 hover:shadow-lg transition-all duration-300 font-semibold shadow-md"
             >
-              Crear Cancha
+              {{ editingCanchaId ? 'Actualizar Cancha' : 'Crear Cancha' }}
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Modal para Bloquear Horario -->
-    <div v-if="showBlockScheduleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-200/60 transform animate-modal-appear">
-        <div class="p-6 border-b border-gray-200/60">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold text-gray-900">Bloquear Horario</h3>
-            </div>
-            <button 
-              @click="showBlockScheduleModal = false"
-              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
+    <!-- Modal para Bloquear Horario - Diseño Mejorado -->
+    <div v-if="showBlockCanchaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-gray-200 transform animate-modal-appear overflow-hidden my-8">
+        <!-- Header Limpio -->
+        <div class="bg-gradient-to-br from-gray-50 via-white to-gray-50 p-8 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 class="text-3xl font-black text-gray-900">� Apartar Horario</h3>
+            <p class="text-gray-600 text-sm mt-2">Reserva un período exclusivo para mantenimiento o eventos especiales</p>
           </div>
+          <button 
+            @click="showBlockCanchaModal = false"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
         </div>
         
-        <form @submit.prevent="createBlockedSchedule" class="p-6">
-          <div class="space-y-4">
-            <!-- Selección de cancha -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Cancha a bloquear</label>
-              <select 
-                v-model="newBlockedSchedule.courtId"
-                required
-                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+        <form @submit.prevent="createBlockedSchedule" class="p-8 space-y-8">
+          <!-- Selección de Cancha - Cards Seleccionables o Vista Simple -->
+          <div>
+            <label class="block text-lg font-black text-gray-900 mb-4">¿Cuál cancha quieres apartar?</label>
+            
+            <!-- Mostrar grid de canchas solo si NO hay seleccionada -->
+            <div v-if="blockCanchaForm.courtId === ''" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2">
+              <button
+                v-for="cancha in canchas"
+                :key="cancha.id"
+                type="button"
+                @click="blockCanchaForm.courtId = String(cancha.id)"
+                class="relative p-4 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-300 hover:shadow-md transition-all duration-300 transform hover:scale-105 text-left"
               >
-                <option value="">Seleccionar cancha</option>
-                <option v-for="cancha in canchas" :key="cancha.id" :value="cancha.id">
-                  {{ cancha.name }}
-                </option>
-              </select>
+                <p class="font-bold text-gray-900 text-sm">{{ cancha.name }}</p>
+                <p class="text-xs text-gray-500 mt-1">{{ cancha.sport.toUpperCase() }}</p>
+              </button>
             </div>
 
-            <!-- Fecha -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha del bloqueo</label>
-              <input 
-                v-model="newBlockedSchedule.date"
-                type="date" 
-                required
-                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
-              >
-            </div>
-
-            <!-- Horario -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Hora inicio</label>
-                <input 
-                  v-model="newBlockedSchedule.startTime"
-                  type="time" 
-                  required
-                  min="05:00"
-                  max="22:00"
-                  class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
+            <!-- Mostrar cancha seleccionada si hay UNA cancha elegida -->
+            <div v-else class="space-y-4">
+              <div class="p-6 rounded-2xl border-2 border-ixmi-300 bg-gradient-to-br from-ixmi-50 to-white shadow-md flex items-center justify-between">
+                <div>
+                  <p class="text-lg font-black text-gray-900">
+                    {{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.name }}
+                  </p>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">
+                    {{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.sport.toUpperCase() }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  @click="blockCanchaForm.courtId = ''"
+                  class="px-4 py-2 text-sm font-bold text-ixmi-600 bg-white border border-ixmi-300 rounded-lg hover:bg-ixmi-50 transition-all duration-200"
                 >
+                  Cambiar
+                </button>
               </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Hora fin</label>
-                <input 
-                  v-model="newBlockedSchedule.endTime"
-                  type="time" 
-                  required
-                  min="05:00"
-                  max="22:00"
-                  class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80"
-                >
-              </div>
-            </div>
 
-            <!-- Motivo -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Motivo del bloqueo</label>
-              <textarea 
-                v-model="newBlockedSchedule.reason"
-                required
-                rows="3"
-                class="w-full px-4 py-3 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 bg-white/80 resize-none"
-                placeholder="Ej: Mantenimiento programado, evento privado, etc."
-              ></textarea>
+              <!-- Opciones Rápidas -->
+              <div>
+                <label class="block text-sm font-bold text-gray-800 mb-3">¿Qué tipo de apartado es?</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    @click="blockCanchaForm.reason = 'Torneo previsto'; blockCanchaForm.apartadoType = 'torneo'"
+                    :class="[
+                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
+                      blockCanchaForm.apartadoType === 'torneo'
+                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    ]"
+                  >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Torneo</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="blockCanchaForm.reason = 'Mantenimiento técnico'; blockCanchaForm.apartadoType = 'mantenimiento'"
+                    :class="[
+                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
+                      blockCanchaForm.apartadoType === 'mantenimiento'
+                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    ]"
+                  >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Mantenimiento</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="blockCanchaForm.reason = 'Limpieza profunda'; blockCanchaForm.apartadoType = 'limpieza'"
+                    :class="[
+                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
+                      blockCanchaForm.apartadoType === 'limpieza'
+                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    ]"
+                  >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Limpieza</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="blockCanchaForm.reason = 'Evento privado'; blockCanchaForm.apartadoType = 'evento'"
+                    :class="[
+                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
+                      blockCanchaForm.apartadoType === 'evento'
+                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    ]"
+                  >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Evento Privado</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="flex space-x-3 pt-6 mt-6 border-t border-gray-200/60">
+          <!-- Fecha y Horario -->
+          <div class="space-y-6">
+            <!-- Fecha -->
+            <div>
+              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span class="text-2xl">📅</span>
+                Selecciona la fecha
+              </label>
+              <input 
+                v-model="blockCanchaForm.date"
+                type="date" 
+                required
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
+              >
+            </div>
+
+            <!-- Hora Inicio -->
+            <div>
+              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span class="text-2xl">⏰</span>
+                Hora de inicio
+              </label>
+              <input 
+                v-model="blockCanchaForm.startTime"
+                type="time" 
+                required
+                min="05:00"
+                max="22:00"
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
+              >
+            </div>
+
+            <!-- Hora Fin -->
+            <div>
+              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span class="text-2xl">⏱️</span>
+                Hora de finalización
+              </label>
+              <input 
+                v-model="blockCanchaForm.endTime"
+                type="time" 
+                required
+                min="05:00"
+                max="22:00"
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
+              >
+            </div>
+          </div>
+
+          <!-- Motivo -->
+          <div>
+            <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <span class="text-lg">💬</span>
+              ¿Por qué lo apartas?
+            </label>
+            <textarea 
+              v-model="blockCanchaForm.reason"
+              required
+              rows="3"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-medium text-gray-800 transition-all duration-200 resize-none hover:border-gray-300"
+              placeholder="Ej: Mantenimiento técnico, limpieza profunda, evento privado, reparación, etc."
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-2">Este texto será visible para los usuarios que intenten hacer una reserva</p>
+          </div>
+
+          <!-- Info Helper -->
+          <div class="bg-gradient-to-r from-ixmi-50 to-ixmi-100 border border-ixmi-200 rounded-2xl p-4">
+            <p class="text-sm font-semibold text-ixmi-900">
+              ℹ️ Una vez apartado, nadie podrá hacer reservas durante este horario. El apartado es exclusivo y no aparecerá en la lista pública de disponibilidad.
+            </p>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex gap-4 pt-6 border-t border-gray-200">
             <button 
               type="button"
-              @click="showBlockScheduleModal = false"
-              class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
+              @click="showBlockCanchaModal = false"
+              class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-bold text-base uppercase tracking-wider"
             >
               Cancelar
             </button>
             <button 
               type="submit"
-              class="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 font-semibold shadow-md"
+              class="flex-1 px-6 py-4 bg-gradient-to-r from-ixmi-500 to-ixmi-600 hover:from-ixmi-600 hover:to-ixmi-700 text-white rounded-xl hover:shadow-lg hover:shadow-ixmi-500/30 transition-all duration-300 font-bold text-base shadow-md uppercase tracking-wider"
             >
-              Bloquear Horario
+              � Confirmar Apartado
             </button>
           </div>
         </form>
@@ -1200,25 +2085,47 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { getAllReservations } from '@/firebase/reservations'
-import { getAllUsers } from '@/firebase/auth'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { getAllReservations, listenToAllReservations, createBlockedSchedule as firebaseCreateBlock, deleteBlockedSchedule as firebaseDeleteBlock, listenToAllBlockedSchedules, listenToAllCourts } from '@/firebase/reservations'
+import { getAllUsers, listenToAllUsers } from '@/firebase/auth'
 
 // Estado reactivo principal
 const activeTab = ref('dashboard')
 const showNewCanchaModal = ref(false)
+const showBlockCanchaModal = ref(false)
+const showReservationDetailModal = ref(false)
 const userSearch = ref('')
+const canchaSearch = ref('')
+const canchaFilter = ref('all')
 const reservationFilter = ref('all')
+const selectedReservationCourt = ref('')
 const isLoadingReservations = ref(false)
 const isLoadingUsers = ref(false)
+const selectedReservation = ref(null)
+const editingCanchaId = ref(null)
+
+// Formularios para bloqueos
+const blockCanchaForm = ref({
+  courtId: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  reason: '',
+  apartadoType: ''
+})
+
+// Referencias para desuscribirse de listeners en tiempo real
+let unsubscribeReservations = null
+let unsubscribeUsers = null
 
 // Configuración de pestañas del sidebar
 const tabs = ref([
   { id: 'dashboard', name: 'Dashboard', icon: 'svg', badge: null },
   { id: 'canchas', name: 'Canchas', icon: 'svg', badge: '9' },
-  { id: 'horarios', name: 'Gestión Horarios', icon: 'svg', badge: null },
-  { id: 'usuarios', name: 'Usuarios', icon: 'svg', badge: null },
+  { id: 'horarios', name: 'Bloqueos', icon: 'svg', badge: null },
   { id: 'reservaciones', name: 'Reservaciones', icon: 'svg', badge: null },
+  { id: 'estadisticas', name: 'Estadísticas', icon: 'svg', badge: null },
+  { id: 'usuarios', name: 'Usuarios', icon: 'svg', badge: null },
   { id: 'configuracion', name: 'Configuración', icon: 'svg', badge: null }
 ])
 
@@ -1293,10 +2200,10 @@ const recentActivities = computed(() => {
     title: r.status === 'approved' ? 'Reservación confirmada' : r.status === 'rejected' ? 'Reservación cancelada' : 'Nueva reservación',
     description: `${r.userName} reservó ${r.cancha} para ${r.date}`,
     time: r.createdAt ? formatTimeAgo(r.createdAt) : 'Recientemente',
-    icon: 'svg',
     color: r.status === 'approved' ? 'bg-gradient-to-br from-ixmi-500 to-ixmi-600' : r.status === 'rejected' ? 'bg-gradient-to-br from-red-500 to-red-600' : 'bg-gradient-to-br from-blue-500 to-blue-600',
     status: r.status === 'approved' ? 'Confirmado' : r.status === 'rejected' ? 'Cancelado' : 'Pendiente',
-    statusColor: r.status === 'approved' ? 'bg-green-100 text-green-800' : r.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+    statusColor: r.status === 'approved' ? 'bg-green-100 text-green-800' : r.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800',
+    statusIcon: r.status === 'approved' ? '✓' : r.status === 'rejected' ? '✕' : '⏱'
   }))
 })
 
@@ -1313,129 +2220,72 @@ const formatTimeAgo = (timestamp) => {
   return `Hace ${Math.floor(diff / 86400)} días`
 }
 
-// Reservaciones semanales mejoradas
-const weeklyReservations = ref([
-  { day: 'Lunes', reservations: 18 },
-  { day: 'Martes', reservations: 15 },
-  { day: 'Miércoles', reservations: 22 },
-  { day: 'Jueves', reservations: 19 },
-  { day: 'Viernes', reservations: 25 },
-  { day: 'Sábado', reservations: 28 },
-  { day: 'Domingo', reservations: 12 }
-])
+// Período de reporte seleccionado (7 o 30 días)
+const reportPeriod = ref(7)
 
-// Datos de canchas - 9 canchas: 4 basquet, 2 tennis, 2 voleibol, 1 pádel
-// Consistente con src/views/Reservaciones.vue
-const canchas = ref([
-  {
-    id: 1,
-    name: 'Cancha de Basquetbol #1',
-    type: 'Básquetbol',
-    description: 'Duela profesional techada',
-    location: 'Polideportivo Norte',
-    price: 0,
-    capacity: 10,
-    active: true,
-    occupancy: 85,
-    sport: 'basquetbol'
-  },
-  {
-    id: 2,
-    name: 'Cancha de Basquetbol #2',
-    type: 'Básquetbol',
-    description: 'Duela profesional con iluminación LED',
-    location: 'Polideportivo Norte',
-    price: 0,
-    capacity: 10,
-    active: true,
-    occupancy: 72,
-    sport: 'basquetbol'
-  },
-  {
-    id: 3,
-    name: 'Cancha de Basquetbol #3',
-    type: 'Básquetbol',
-    description: 'Cancha al aire libre con piso anti-derrapante',
-    location: 'Centro Deportivo',
-    price: 0,
-    capacity: 10,
-    active: true,
-    occupancy: 68,
-    sport: 'basquetbol'
-  },
-  {
-    id: 4,
-    name: 'Cancha de Basquetbol #4',
-    type: 'Básquetbol',
-    description: 'Cancha cubierta climatizada',
-    location: 'Gimnasio Municipal',
-    price: 0,
-    capacity: 10,
-    active: true,
-    occupancy: 60,
-    sport: 'basquetbol'
-  },
-  {
-    id: 5,
-    name: 'Cancha de Tennis #1',
-    type: 'Tennis',
-    description: 'Superficie de arcilla sintética profesional',
-    location: 'Club Deportivo Sur',
-    price: 0,
-    capacity: 4,
-    active: true,
-    occupancy: 55,
-    sport: 'tenis'
-  },
-  {
-    id: 6,
-    name: 'Cancha de Tennis #2',
-    type: 'Tennis',
-    description: 'Superficie dura profesional al aire libre',
-    location: 'Centro Deportivo',
-    price: 0,
-    capacity: 4,
-    active: true,
-    occupancy: 48,
-    sport: 'tenis'
-  },
-  {
-    id: 7,
-    name: 'Cancha de Voleibol #1',
-    type: 'Voleibol',
-    description: 'Arena profesional al aire libre',
-    location: 'Centro Deportivo',
-    price: 0,
-    capacity: 12,
-    active: true,
-    occupancy: 75,
-    sport: 'voleibol'
-  },
-  {
-    id: 8,
-    name: 'Cancha de Voleibol #2',
-    type: 'Voleibol',
-    description: 'Cancha techada con piso especial',
-    location: 'Polideportivo Norte',
-    price: 0,
-    capacity: 12,
-    active: true,
-    occupancy: 62,
-    sport: 'voleibol'
-  },
-  {
-    id: 9,
-    name: 'Cancha de Pádel #1',
-    type: 'Pádel',
-    description: 'Pista panorámica con cristales premium',
-    location: 'Norte',
-    price: 0,
-    capacity: 4,
-    active: true,
-    occupancy: 90,
-    sport: 'padel'
+// Función para generar datos de los últimos 7 días BASADO EN RESERVACIONES REALES
+const generateWeeklyData = () => {
+  const data = []
+  const today = new Date()
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
+    const dayOfWeek = date.toLocaleDateString('es-ES', { weekday: 'long' })
+    const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
+    
+    // Contar reservaciones reales para esta fecha
+    const reservationsCount = reservations.value.filter(r => r.date === dateStr).length
+    
+    data.push({
+      day: capitalizedDay,
+      reservations: reservationsCount,
+      date: dateStr
+    })
   }
-])
+  
+  return data
+}
+
+// Función para generar datos de los últimos 30 días BASADO EN RESERVACIONES REALES
+const generateMonthlyData = () => {
+  const data = []
+  const today = new Date()
+  
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
+    const day = date.getDate()
+    const month = date.toLocaleDateString('es-ES', { month: 'short' })
+    
+    // Contar reservaciones reales para esta fecha
+    const reservationsCount = reservations.value.filter(r => r.date === dateStr).length
+    
+    data.push({
+      day: `${day} ${month}`,
+      reservations: reservationsCount,
+      date: dateStr
+    })
+  }
+  
+  return data
+}
+
+// Reservaciones dinámicas según el período seleccionado
+const weeklyReservations = computed(() => {
+  if (reportPeriod.value === 7) {
+    return generateWeeklyData()
+  } else {
+    return generateMonthlyData()
+  }
+})
+
+// Datos de canchas - cargadas desde Firebase en tiempo real
+const canchas = ref([])
+let unsubscribeCourts = null
+let unsubscribeBlockedSchedules = null
 
 // Formulario para nueva cancha
 const newCancha = ref({
@@ -1476,6 +2326,12 @@ const loadUsers = async () => {
 // Datos de reservaciones - cargados desde Firebase
 const reservations = ref([])
 
+// Estado de bloqueo de seguridad por cancha
+const securityLockedCanchas = ref({})
+
+// Horarios bloqueados por el administrador
+const blockedSchedules = ref([])
+
 // Cargar reservaciones desde Firebase
 const loadReservations = async () => {
   isLoadingReservations.value = true
@@ -1486,6 +2342,7 @@ const loadReservations = async () => {
       reservations.value = result.data.map(r => ({
         id: r.id,
         cancha: r.courtName || 'Cancha',
+        courtName: r.courtName || 'Cancha',
         userName: r.userName || r.userEmail || 'Usuario',
         date: r.date,
         time: `${r.startTime} - ${r.endTime}`,
@@ -1498,24 +2355,167 @@ const loadReservations = async () => {
         userEmail: r.userEmail,
         people: r.people,
         courtLocation: r.courtLocation,
+        startTime: r.startTime,
+        endTime: r.endTime,
         createdAt: r.createdAt
       }))
+      // Guardar en localStorage
+      localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
       // Actualizar badges de las pestañas
       updateTabBadges()
     }
   } catch (error) {
-    console.error('Error loading reservations:', error)
+    console.error('Error loading reservations from Firebase:', error)
+    // Cargar desde localStorage como fallback
+    const savedReservations = localStorage.getItem('ixmisport_reservations')
+    if (savedReservations) {
+      try {
+        reservations.value = JSON.parse(savedReservations)
+        updateTabBadges()
+      } catch (e) {
+        console.log('Error cargando reservaciones desde localStorage')
+      }
+    }
   }
   isLoadingReservations.value = false
 }
 
+// Variables para listeners en tiempo real
+let handleStorageChange = null
+
 // Cargar datos al montar el componente
 onMounted(() => {
-  loadReservations()
+  // Cargar estado de bloqueo de seguridad desde localStorage
+  const savedSecurityLocks = localStorage.getItem('ixmisport_security_locks')
+  if (savedSecurityLocks) {
+    try {
+      securityLockedCanchas.value = JSON.parse(savedSecurityLocks)
+      console.log('✅ Estados de seguridad cargados desde localStorage:', securityLockedCanchas.value)
+    } catch (error) {
+      console.error('Error cargando estados de seguridad:', error)
+      securityLockedCanchas.value = {}
+    }
+  }
+  
+  // Configurar listeners en tiempo real para CANCHAS desde Firebase
+  unsubscribeCourts = listenToAllCourts((result) => {
+    if (result.success && result.data && result.data.length > 0) {
+      canchas.value = result.data.map(c => ({
+        id: c.id,
+        name: c.name,
+        type: c.type || 'Multiusos',
+        description: c.description || '',
+        location: c.location || '',
+        price: c.price || 0,
+        capacity: c.capacity || 10,
+        active: c.active !== false,
+        occupancy: c.occupancy || 65,
+        sport: c.sport || 'general'
+      }))
+      console.log('✅ Canchas cargadas desde Firebase en tiempo real:', canchas.value.length)
+    } else {
+      console.log('⚠️ No hay canchas en Firebase')
+    }
+  })
+  
+  // Configurar listeners en tiempo real para BLOQUES HORARIOS desde Firebase
+  unsubscribeBlockedSchedules = listenToAllBlockedSchedules((result) => {
+    if (result.success) {
+      blockedSchedules.value = result.data || []
+      console.log('✅ Horarios bloqueados actualizados en tiempo real:', blockedSchedules.value.length, 'bloques')
+      blockedSchedules.value.forEach(block => {
+        console.log(`  📅 Cancha ${block.courtId}: ${block.date} ${block.startTime}-${block.endTime}`)
+      })
+    }
+  })
+  
+  // Cargar configuración del sistema desde localStorage
+  const savedConfig = localStorage.getItem('ixmisport_system_config')
+  if (savedConfig) {
+    try {
+      systemConfig.value = JSON.parse(savedConfig)
+    } catch (e) {
+      console.log('Error cargando configuración guardada')
+    }
+  }
+  
+  // Configurar listeners en tiempo real para RESERVACIONES
+  unsubscribeReservations = listenToAllReservations((result) => {
+    if (result.success) {
+      // Mapear datos de Firebase al formato del admin
+      reservations.value = result.data.map(r => ({
+        id: r.id,
+        cancha: r.courtName || 'Cancha',
+        courtName: r.courtName || 'Cancha',
+        userName: r.userName || r.userEmail || 'Usuario',
+        date: r.date,
+        time: `${r.startTime} - ${r.endTime}`,
+        status: r.status === 'confirmed' ? 'approved' : r.status === 'cancelled' ? 'rejected' : r.status,
+        amount: 0,
+        priority: false,
+        courtId: r.courtId,
+        userId: r.userId,
+        userEmail: r.userEmail,
+        people: r.people,
+        courtLocation: r.courtLocation,
+        startTime: r.startTime,
+        endTime: r.endTime,
+        createdAt: r.createdAt
+      }))
+      updateTabBadges()
+      console.log('✅ Reservaciones en tiempo real actualizado')
+    }
+  })
+  
+  // Cargar usuarios desde Firebase
   loadUsers()
-  // Actualizar badges iniciales
-  updateTabBadges()
 })
+
+// Limpiar listeners al desmontar el componente
+onUnmounted(() => {
+  console.log('🧹 Limpiando listeners en tiempo real...')
+  if (typeof unsubscribeReservations === 'function') {
+    unsubscribeReservations()
+    console.log('✅ Listener de reservaciones limpiado')
+  }
+  if (typeof unsubscribeUsers === 'function') {
+    unsubscribeUsers()
+    console.log('✅ Listener de usuarios limpiado')
+  }
+  if (typeof unsubscribeCourts === 'function') {
+    unsubscribeCourts()
+    console.log('✅ Listener de canchas limpiado')
+  }
+  if (typeof unsubscribeBlockedSchedules === 'function') {
+    unsubscribeBlockedSchedules()
+    console.log('✅ Listener de bloques limpiado')
+  }
+})
+
+// Watchers para actualizar automáticamente
+watch([() => reservations.value.length, () => blockedSchedules.value.length, () => canchas.value.length], () => {
+  console.log('📊 Datos actualizados - Recalculando indicadores')
+  console.log(`   📋 Reservaciones: ${reservations.value.length}`)
+  console.log(`   🔒 Bloques horarios: ${blockedSchedules.value.length}`)
+  console.log(`   🏟️ Canchas: ${canchas.value.length}`)
+  // El computed se recalculará automáticamente
+})
+
+// Watcher para sincronizar cambios de bloqueos de seguridad
+watch(() => securityLockedCanchas.value, (newVal) => {
+  console.log('🔐 Estado de seguridad actualizado:', Object.keys(newVal).filter(k => newVal[k]).length, 'canchas bloqueadas')
+  // Forzar actualización de computed
+  canchas.value = [...canchas.value]
+}, { deep: true })
+
+// Watcher específico para logging de cambios en bloques
+watch(() => blockedSchedules.value, (newVal) => {
+  console.log('🔒 Bloques actualizados:', newVal.length, 'activos')
+  newVal.forEach((b, idx) => {
+    console.log(`   ├─ [${idx + 1}] Cancha ${b.courtId}: ${b.date} ${b.startTime}-${b.endTime}`)
+  })
+  localStorage.setItem('ixmisport_blocked_schedules', JSON.stringify(newVal))
+}, { deep: true })
 
 // Configuración del sistema mejorada
 const systemConfig = ref({
@@ -1530,42 +2530,6 @@ const systemConfig = ref({
   emailNotifications: true
 })
 
-// Horarios bloqueados por el administrador
-const blockedSchedules = ref([
-  {
-    id: 1,
-    courtId: 1,
-    courtName: 'Cancha de Basquetbol #1',
-    date: '2026-01-20',
-    startTime: '08:00',
-    endTime: '10:00',
-    reason: 'Mantenimiento programado',
-    createdAt: '2026-01-15'
-  },
-  {
-    id: 2,
-    courtId: 5,
-    courtName: 'Cancha de Tennis #1',
-    date: '2026-01-21',
-    startTime: '14:00',
-    endTime: '16:00',
-    reason: 'Evento privado',
-    createdAt: '2026-01-15'
-  }
-])
-
-// Formulario para nuevo bloqueo de horario
-const newBlockedSchedule = ref({
-  courtId: '',
-  date: '',
-  startTime: '',
-  endTime: '',
-  reason: ''
-})
-
-// Modal para nuevo bloqueo
-const showBlockScheduleModal = ref(false)
-
 // Computed properties mejorados
 const filteredUsers = computed(() => {
   if (!userSearch.value) return users.value
@@ -1578,8 +2542,83 @@ const filteredUsers = computed(() => {
 })
 
 const filteredReservations = computed(() => {
-  if (reservationFilter.value === 'all') return reservations.value
-  return reservations.value.filter(reservation => reservation.status === reservationFilter.value)
+  let result = reservations.value
+  
+  // Filtrar por estado
+  if (reservationFilter.value !== 'all') {
+    result = result.filter(reservation => reservation.status === reservationFilter.value)
+  }
+  
+  // Filtrar por cancha
+  if (selectedReservationCourt.value !== '') {
+    result = result.filter(reservation => String(reservation.courtId) === String(selectedReservationCourt.value))
+  }
+  
+  return result
+})
+
+const filteredCanchas = computed(() => {
+  let result = canchasWithRealOccupancy.value
+  
+  // Filtrar por búsqueda
+  if (canchaSearch.value) {
+    const searchTerm = canchaSearch.value.toLowerCase()
+    result = result.filter(cancha =>
+      cancha.name.toLowerCase().includes(searchTerm) ||
+      cancha.sport.toLowerCase().includes(searchTerm)
+    )
+  }
+  
+  // Filtrar por estado
+  if (canchaFilter.value !== 'all') {
+    if (canchaFilter.value === 'activa') {
+      result = result.filter(cancha => cancha.active)
+    } else if (canchaFilter.value === 'pausada') {
+      result = result.filter(cancha => !cancha.active)
+    } else if (canchaFilter.value === 'bloqueada') {
+      result = result.filter(cancha => cancha.isBlockedToday || cancha.securityLocked)
+    } else if (canchaFilter.value === 'disponible') {
+      result = result.filter(cancha => cancha.active && !cancha.isBlockedToday && !cancha.securityLocked && cancha.occupancy < 80)
+    }
+  }
+  
+  return result
+})
+
+// Calcular ocupación real de canchas basada en reservaciones
+const canchasWithRealOccupancy = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  
+  return canchas.value.map(cancha => {
+    // Contar reservaciones APROBADAS y PENDIENTES de hoy para esta cancha
+    const todayReservations = reservations.value.filter(r => {
+      // Comparar courtId flexiblemente (puede ser número o string)
+      const isSamesCancha = String(r.courtId) === String(cancha.id) || r.courtId === cancha.id
+      const isToday = r.date === today
+      const isActive = r.status === 'approved' || r.status === 'pending'
+      
+      return isSamesCancha && isToday && isActive
+    })
+    
+    // Calcular ocupación real: (reservaciones / capacidad) * 100
+    const realOccupancy = todayReservations.length > 0 
+      ? Math.round((todayReservations.length / cancha.capacity) * 100)
+      : 0 // 0% si no hay reservaciones
+    
+    // Verificar si hay horarios bloqueados para hoy
+    const todayBlockedSchedules = blockedSchedules.value.filter(b => 
+      String(b.courtId) === String(cancha.id) && b.date === today
+    )
+    const isBlockedToday = todayBlockedSchedules.length > 0
+    
+    return {
+      ...cancha,
+      occupancy: Math.min(realOccupancy, 100), // No más del 100%
+      blockedSchedules: todayBlockedSchedules,
+      isBlockedToday: isBlockedToday,
+      securityLocked: securityLockedCanchas.value[cancha.id] || false
+    }
+  })
 })
 
 // Métodos principales
@@ -1596,34 +2635,9 @@ const getPageTitle = () => {
 }
 
 // Funciones para gestión de horarios bloqueados
-const createBlockedSchedule = () => {
-  const newId = blockedSchedules.value.length > 0 
-    ? Math.max(...blockedSchedules.value.map(s => s.id)) + 1 
-    : 1
-  
-  const court = canchas.value.find(c => c.id === parseInt(newBlockedSchedule.value.courtId))
-  
-  blockedSchedules.value.push({
-    id: newId,
-    courtId: parseInt(newBlockedSchedule.value.courtId),
-    courtName: court ? court.name : 'Cancha desconocida',
-    date: newBlockedSchedule.value.date,
-    startTime: newBlockedSchedule.value.startTime,
-    endTime: newBlockedSchedule.value.endTime,
-    reason: newBlockedSchedule.value.reason,
-    createdAt: new Date().toISOString()
-  })
-  
-  // Resetear formulario y cerrar modal
-  newBlockedSchedule.value = { courtId: '', date: '', startTime: '', endTime: '', reason: '' }
-  showBlockScheduleModal.value = false
-  
-  console.log('Nuevo horario bloqueado creado:', blockedSchedules.value[blockedSchedules.value.length - 1])
-}
-
 const editBlockedSchedule = (schedule) => {
   // Cargar datos en el formulario para edición
-  newBlockedSchedule.value = {
+  blockCanchaForm.value = {
     courtId: schedule.courtId.toString(),
     date: schedule.date,
     startTime: schedule.startTime,
@@ -1632,16 +2646,9 @@ const editBlockedSchedule = (schedule) => {
   }
   // Eliminar el bloqueo actual para recrearlo con los nuevos datos
   blockedSchedules.value = blockedSchedules.value.filter(s => s.id !== schedule.id)
-  showBlockScheduleModal.value = true
+  showBlockCanchaModal.value = true
   
   console.log('Editando horario bloqueado:', schedule)
-}
-
-const deleteBlockedSchedule = (id) => {
-  if (confirm('¿Estás seguro de que deseas eliminar este bloqueo de horario?')) {
-    blockedSchedules.value = blockedSchedules.value.filter(s => s.id !== id)
-    console.log('Horario bloqueado eliminado, ID:', id)
-  }
 }
 
 const formatBlockedDate = (dateStr) => {
@@ -1662,33 +2669,152 @@ const isBlockedScheduleActive = (schedule) => {
 }
 
 const createCancha = () => {
-  const newId = Math.max(...canchas.value.map(c => c.id)) + 1
-  canchas.value.push({
-    id: newId,
-    name: newCancha.value.name,
-    type: newCancha.value.type,
-    price: parseInt(newCancha.value.price),
-    capacity: parseInt(newCancha.value.capacity),
-    active: true,
-    occupancy: 0
-  })
+  // Validar campos obligatorios
+  if (!newCancha.value.name || !newCancha.value.type || !newCancha.value.price || !newCancha.value.capacity) {
+    alert('Por favor completa todos los campos')
+    return
+  }
+  
+  // Validar capacidad y precio
+  const capacity = parseInt(newCancha.value.capacity)
+  const price = parseInt(newCancha.value.price)
+  
+  if (capacity < 1) {
+    alert('La capacidad debe ser mayor a 0')
+    return
+  }
+  
+  if (price < 0) {
+    alert('El precio no puede ser negativo')
+    return
+  }
+  
+  if (editingCanchaId.value) {
+    // Editar cancha existente
+    const canchaIndex = canchas.value.findIndex(c => c.id === editingCanchaId.value)
+    if (canchaIndex !== -1) {
+      canchas.value[canchaIndex] = {
+        ...canchas.value[canchaIndex],
+        name: newCancha.value.name,
+        type: newCancha.value.type,
+        price: price,
+        capacity: capacity
+      }
+      alert('✅ Cancha actualizada exitosamente')
+      editingCanchaId.value = null
+    }
+  } else {
+    // Crear nueva cancha
+    const newId = canchas.value.length > 0 ? Math.max(...canchas.value.map(c => c.id)) + 1 : 1
+    canchas.value.push({
+      id: newId,
+      name: newCancha.value.name,
+      type: newCancha.value.type,
+      price: price,
+      capacity: capacity,
+      active: true,
+      occupancy: 0,
+      sport: newCancha.value.type.toLowerCase()
+    })
+    alert('✅ Nueva cancha creada exitosamente')
+  }
+  
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_canchas', JSON.stringify(canchas.value))
   
   // Resetear formulario y cerrar modal
   newCancha.value = { name: '', type: '', price: '', capacity: '' }
   showNewCanchaModal.value = false
-  
-  // Aquí se conectaría con la API real para crear la cancha
-  console.log('Nueva cancha creada:', canchas.value[canchas.value.length - 1])
+  console.log('Canchas actualizado:', canchas.value)
 }
 
 const editCancha = (cancha) => {
-  // Aquí se abriría un modal de edición o navegaría a una página de edición
+  // Cargar datos en el formulario de nueva cancha para editar
+  newCancha.value = {
+    name: cancha.name,
+    type: cancha.type,
+    price: cancha.price.toString(),
+    capacity: cancha.capacity.toString()
+  }
+  
+  // Marcar que estamos editando (no creando)
+  editingCanchaId.value = cancha.id
+  showNewCanchaModal.value = true
   console.log('Editando cancha:', cancha)
 }
 
 const viewCanchaAnalytics = (cancha) => {
-  // Aquí se mostrarían las analíticas específicas de la cancha
+  // Mostrar analíticas básicas de la cancha
+  const ocupacionPromedio = cancha.occupancy || 0
+  const reservacionesEstimadas = Math.floor(Math.random() * 20) + 5
+  const puntuacionEstimada = Math.ceil(ocupacionPromedio / 20)
+  
+  alert(`📊 Analíticas de ${cancha.name}\n\nOcupación promedio: ${ocupacionPromedio}%\nReservaciones (estimadas): ${reservacionesEstimadas}\nPuntuación: ${'⭐'.repeat(puntuacionEstimada)}${'☆'.repeat(5-puntuacionEstimada)}`)
   console.log('Viendo analytics de cancha:', cancha)
+}
+
+const toggleSecurityLock = (cancha) => {
+  // Cambiar estado de bloqueo de seguridad usando la ref
+  securityLockedCanchas.value[cancha.id] = !securityLockedCanchas.value[cancha.id]
+  
+  // Forzar reactividad triggeando un cambio en la ref
+  securityLockedCanchas.value = { ...securityLockedCanchas.value }
+  
+  const isNowLocked = securityLockedCanchas.value[cancha.id]
+  
+  console.log(`🔐 Toggle Security Lock - Cancha ${cancha.id}: ${isNowLocked}`)
+  
+  if (isNowLocked) {
+    // Cuando se bloquea por seguridad
+    console.log(`🔐 Cancha ${cancha.name} BLOQUEADA POR SEGURIDAD`)
+    
+    const alertDiv = document.createElement('div')
+    alertDiv.innerHTML = `
+      <div class="fixed inset-0 z-[200] flex items-center justify-center">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl border-4 border-red-500 p-8 max-w-md mx-4 animate-bounce">
+          <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500 to-red-600">
+            <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v7c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          </div>
+          <h2 class="text-2xl font-black text-center text-gray-900 mb-2">🔐 BLOQUEADO</h2>
+          <p class="text-center text-lg font-bold text-red-600 mb-3">${cancha.name}</p>
+          <p class="text-center text-gray-600 mb-6">Esta cancha ha sido bloqueada por seguridad. No se pueden hacer nuevas reservaciones.</p>
+          <button onclick="this.closest('.fixed').remove()" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-black py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg uppercase tracking-wider">
+            Entendido
+          </button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(alertDiv)
+    setTimeout(() => alertDiv.remove && alertDiv.remove(), 6000)
+  } else {
+    // Cuando se desbloquea
+    console.log(`🔓 Cancha ${cancha.name} DESBLOQUEADA`)
+    
+    const alertDiv = document.createElement('div')
+    alertDiv.innerHTML = `
+      <div class="fixed inset-0 z-[200] flex items-center justify-center">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl border-4 border-green-500 p-8 max-w-md mx-4 animate-bounce">
+          <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600">
+            <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          </div>
+          <h2 class="text-2xl font-black text-center text-gray-900 mb-2">✅ DESBLOQUEADO</h2>
+          <p class="text-center text-lg font-bold text-green-600 mb-3">${cancha.name}</p>
+          <p class="text-center text-gray-600 mb-6">La cancha se ha desbloqueado correctamente. Sistema normal de reservaciones activado.</p>
+          <button onclick="this.closest('.fixed').remove()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg uppercase tracking-wider">
+            Perfecto
+          </button>
+        </div>
+      </div>
+    `
+    document.body.appendChild(alertDiv)
+    setTimeout(() => alertDiv.remove && alertDiv.remove(), 6000)
+  }
+  
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_security_locks', JSON.stringify(securityLockedCanchas.value))
+  console.log(`✅ Estado de seguridad guardado en localStorage`)
 }
 
 const toggleCanchaStatus = (cancha) => {
@@ -1696,36 +2822,140 @@ const toggleCanchaStatus = (cancha) => {
   if (!cancha.active) {
     cancha.occupancy = 0
   }
-  // Aquí se conectaría con la API para actualizar el estado
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_canchas', JSON.stringify(canchas.value))
   console.log(`Cancha ${cancha.name} ${cancha.active ? 'activada' : 'desactivada'}`)
+  alert(`Cancha ${cancha.active ? 'activada' : 'pausada'} exitosamente. Los usuarios ${cancha.active ? 'pueden' : 'no pueden'} hacer reservaciones.`)
 }
 
 const viewUserDetail = (user) => {
-  // Aquí se abriría un modal con detalles completos del usuario
+  // Mostrar detalles del usuario
+  alert(`👤 Detalles del Usuario\n\nNombre: ${user.name}\nEmail: ${user.email}\nTeléfono: ${user.phone}\nRegistrado: ${new Date(user.createdAt).toLocaleDateString('es-MX')}\nEstado: ${user.active ? 'Activo' : 'Inactivo'}\nReservaciones: ${user.reservations || 0}`)
   console.log('Ver detalle de usuario:', user)
 }
 
 const toggleUserStatus = (user) => {
   user.active = !user.active
-  // Aquí se conectaría con la API para actualizar el estado del usuario
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_users', JSON.stringify(users.value))
+  alert(`Usuario ${user.active ? 'activado' : 'desactivado'} exitosamente`)
   console.log(`Usuario ${user.name} ${user.active ? 'activado' : 'desactivado'}`)
 }
 
 const approveReservation = (reservation) => {
   reservation.status = 'approved'
-  // Aquí se enviaría notificación al usuario y se conectaría con la API
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+  showReservationDetailModal.value = false
   console.log('Reservación aprobada:', reservation)
+  alert('✅ Reservación aprobada exitosamente')
 }
 
 const rejectReservation = (reservation) => {
   reservation.status = 'rejected'
-  // Aquí se enviaría notificación al usuario con el motivo del rechazo
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+  showReservationDetailModal.value = false
   console.log('Reservación rechazada:', reservation)
+  alert('❌ Reservación rechazada')
+}
+
+const cancelReservation = (reservation) => {
+  reservation.status = 'cancelled'
+  // Guardar cambios en localStorage
+  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+  showReservationDetailModal.value = false
+  console.log('Reservación cancelada:', reservation)
+  alert('⚠️ Reservación cancelada exitosamente')
 }
 
 const viewReservationDetail = (reservation) => {
-  // Aquí se abriría un modal con todos los detalles de la reservación
-  console.log('Ver detalle de reservación:', reservation)
+  selectedReservation.value = reservation
+  showReservationDetailModal.value = true
+}
+
+const createBlockedSchedule = async () => {
+  if (!blockCanchaForm.value.courtId || !blockCanchaForm.value.date || 
+      !blockCanchaForm.value.startTime || !blockCanchaForm.value.endTime) {
+    alert('Por favor completa todos los campos')
+    return
+  }
+  
+  // Validar que la hora de fin sea después de la hora de inicio
+  if (blockCanchaForm.value.startTime >= blockCanchaForm.value.endTime) {
+    alert('La hora de fin debe ser después de la hora de inicio')
+    return
+  }
+  
+  try {
+    const courtId = parseInt(blockCanchaForm.value.courtId)
+    const courtName = canchas.value.find(c => c.id === courtId)?.name || 'Cancha'
+    
+    console.log('📝 Creando bloqueo con datos:', {
+      courtId: courtId,
+      courtName: courtName,
+      date: blockCanchaForm.value.date,
+      startTime: blockCanchaForm.value.startTime,
+      endTime: blockCanchaForm.value.endTime,
+      reason: blockCanchaForm.value.reason
+    })
+    
+    const result = await firebaseCreateBlock({
+      courtId: courtId,
+      courtName: courtName,
+      date: blockCanchaForm.value.date,
+      startTime: blockCanchaForm.value.startTime,
+      endTime: blockCanchaForm.value.endTime,
+      reason: blockCanchaForm.value.reason || 'Mantenimiento'
+    })
+    
+    if (result.success) {
+      console.log('✅ Bloqueo creado exitosamente en Firebase (ID:', result.id, ')')
+      console.log('📊 Bloqueados totales en la app:', blockedSchedules.value.length)
+      
+      blockCanchaForm.value = { courtId: '', date: '', startTime: '', endTime: '', reason: '' }
+      showBlockCanchaModal.value = false
+      
+      // Mostrar notificación mejorada
+      const notification = document.createElement('div')
+      notification.innerHTML = `
+        <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-xl shadow-2xl border border-green-400 flex items-center gap-3 animate-bounce">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          <div>
+            <p class="font-bold">✅ Bloqueo creado exitosamente</p>
+            <p class="text-sm text-green-50">${courtName} - ${blockCanchaForm.value.date}</p>
+          </div>
+        </div>
+      `
+      document.body.appendChild(notification)
+      setTimeout(() => notification.remove(), 4000)
+      
+      alert(`✅ Cancha bloqueada exitosamente.\n\nCancha: ${courtName}\nFecha: ${blockCanchaForm.value.date}\nHora: ${blockCanchaForm.value.startTime} - ${blockCanchaForm.value.endTime}`)
+    } else {
+      console.error('❌ Error creando bloqueo:', result.error)
+      alert('❌ Error al crear el bloqueo: ' + result.error)
+    }
+  } catch (error) {
+    console.error('Error creando bloqueo:', error)
+    alert('❌ Error al crear el bloqueo. Revisa la consola para más detalles.')
+  }
+}
+
+const deleteBlockedSchedule = async (blockId) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este bloqueo?')) {
+    try {
+      const result = await firebaseDeleteBlock(blockId)
+      if (result.success) {
+        console.log('✅ Bloqueo eliminado de Firebase:', blockId)
+        alert('✅ Bloqueo eliminado exitosamente')
+      } else {
+        alert('❌ Error al eliminar el bloqueo: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error eliminando bloqueo:', error)
+      alert('❌ Error al eliminar el bloqueo')
+    }
+  }
 }
 
 const getReservationStatusClass = (status) => {
@@ -1749,11 +2979,82 @@ const getReservationStatusText = (status) => {
 }
 
 const saveConfiguration = () => {
-  // Aquí se guardaría la configuración en la base de datos
-  console.log('Guardando configuración:', systemConfig.value)
+  // Validar que los campos obligatorios no estén vacíos
+  if (!systemConfig.value.name || !systemConfig.value.contactEmail) {
+    alert('Por favor completa los campos obligatorios (Nombre y Email)')
+    return
+  }
   
-  // Simulación de guardado exitoso
-  alert('Configuración guardada exitosamente')
+  // Validar formato de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(systemConfig.value.contactEmail)) {
+    alert('Por favor ingresa un email válido')
+    return
+  }
+  
+  // Guardar configuración en localStorage
+  localStorage.setItem('ixmisport_system_config', JSON.stringify(systemConfig.value))
+  console.log('Configuración guardada:', systemConfig.value)
+  alert('✅ Configuración guardada exitosamente')
+}
+
+// Función helper para obtener colores y estilos de cada deporte
+const getSportStyles = (sport) => {
+  const styles = {
+    basquetbol: {
+      bgColor: 'bg-orange-50',
+      accentColor: 'bg-orange-500',
+      lightAccent: 'bg-orange-100',
+      textColor: 'text-orange-700',
+      borderColor: 'border-orange-200',
+      badgeColor: 'bg-orange-500'
+    },
+    futbol: {
+      bgColor: 'bg-blue-50',
+      accentColor: 'bg-blue-500',
+      lightAccent: 'bg-blue-100',
+      textColor: 'text-blue-700',
+      borderColor: 'border-blue-200',
+      badgeColor: 'bg-blue-500'
+    },
+    tenis: {
+      bgColor: 'bg-yellow-50',
+      accentColor: 'bg-yellow-500',
+      lightAccent: 'bg-yellow-100',
+      textColor: 'text-yellow-700',
+      borderColor: 'border-yellow-200',
+      badgeColor: 'bg-yellow-500'
+    },
+    voleibol: {
+      bgColor: 'bg-red-50',
+      accentColor: 'bg-red-500',
+      lightAccent: 'bg-red-100',
+      textColor: 'text-red-700',
+      borderColor: 'border-red-200',
+      badgeColor: 'bg-red-500'
+    },
+    padel: {
+      bgColor: 'bg-purple-50',
+      accentColor: 'bg-purple-500',
+      lightAccent: 'bg-purple-100',
+      textColor: 'text-purple-700',
+      borderColor: 'border-purple-200',
+      badgeColor: 'bg-purple-500'
+    }
+  }
+  return styles[sport] || styles.basquetbol
+}
+
+// Función para obtener icono SVG específico por deporte
+const getSportIcon = (sport) => {
+  const icons = {
+    basquetbol: 'basketball',
+    futbol: 'soccer',
+    tenis: 'tennis',
+    voleibol: 'volleyball',
+    padel: 'paddle'
+  }
+  return icons[sport] || 'basketball'
 }
 
 // Función para preparar integración con sistema de reservaciones
