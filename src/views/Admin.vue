@@ -2424,6 +2424,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { getAllReservations, listenToAllReservations, createBlockedSchedule as firebaseCreateBlock, deleteBlockedSchedule as firebaseDeleteBlock, listenToAllBlockedSchedules, listenToAllCourts, updateReservation } from '@/firebase/reservations'
 import { getAllUsers, listenToAllUsers } from '@/firebase/auth'
+import { initializeDatabaseWithSampleCourts } from '@/firebase/initializeDatabase'
 
 // Estado reactivo principal
 const sidebarOpen = ref(false)
@@ -2730,7 +2731,16 @@ const loadReservations = async () => {
 let handleStorageChange = null
 
 // Cargar datos al montar el componente
-onMounted(() => {
+onMounted(async () => {
+  // Inicializar base de datos con canchas de ejemplo si está vacía
+  console.log('🚀 Inicializando aplicación...')
+  try {
+    const initResult = await initializeDatabaseWithSampleCourts()
+    console.log('Resultado de inicialización:', initResult)
+  } catch (error) {
+    console.error('Error durante inicialización:', error)
+  }
+  
   // Cargar estado de bloqueo de seguridad desde localStorage
   const savedSecurityLocks = localStorage.getItem('ixmisport_security_locks')
   if (savedSecurityLocks) {

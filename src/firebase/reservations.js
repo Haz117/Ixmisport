@@ -25,7 +25,7 @@ export const createReservation = async (reservationData) => {
     const docRef = await addDoc(collection(db, RESERVATIONS_COLLECTION), {
       ...reservationData,
       createdAt: serverTimestamp(),
-      status: 'confirmed'
+      status: 'pending'
     })
     return { success: true, id: docRef.id }
   } catch (error) {
@@ -96,7 +96,7 @@ export const getReservationsByDateAndCourt = async (date, courtId) => {
       collection(db, RESERVATIONS_COLLECTION),
       where('date', '==', date),
       where('courtId', '==', courtId),
-      where('status', 'in', ['confirmed', 'pending'])
+      where('status', 'in', ['approved', 'confirmed', 'pending'])
     )
     const querySnapshot = await getDocs(q)
     const reservations = []
@@ -153,22 +153,45 @@ export const checkAvailability = async (date, courtId, startTime, endTime, block
       }
     }
     
+    const combinedBlockedSchedules = []
+    const seenBlockedKeys = new Set()
+
+    const addBlock = (block) => {
+      if (!block || !block.startTime || !block.endTime) return
+      const key = block.id || `${block.courtId}-${block.date}-${block.startTime}-${block.endTime}`
+      if (!seenBlockedKeys.has(key)) {
+        seenBlockedKeys.add(key)
+        combinedBlockedSchedules.push(block)
+      }
+    }
+
+    if (Array.isArray(blockedSchedules)) {
+      blockedSchedules.forEach(addBlock)
+    }
+
+    if (date && courtId) {
+      try {
+        const remoteBlocksResult = await getBlockedSchedulesByDateAndCourt(date, courtId)
+        if (remoteBlocksResult.success && Array.isArray(remoteBlocksResult.data)) {
+          remoteBlocksResult.data.forEach(addBlock)
+        }
+      } catch (error) {
+        console.warn('Error fetching blocked schedules for availability check:', error)
+      }
+    }
+
     // Verificar si hay conflicto con horarios bloqueados del administrador
-    if (blockedSchedules && Array.isArray(blockedSchedules)) {
-      for (const blocked of blockedSchedules) {
-        // Solo validar bloques para la misma cancha y fecha
-        if (blocked.courtId === courtId && blocked.date === date) {
-          const blockedStart = timeToMinutes(blocked.startTime)
-          const blockedEnd = timeToMinutes(blocked.endTime)
-          
-          // Hay conflicto si los rangos se superponen
-          if (newStart < blockedEnd && newEnd > blockedStart) {
-            return { 
-              available: false, 
-              blocked: true,
-              blockedSchedule: blocked,
-              message: `Horario bloqueado de ${blocked.startTime} a ${blocked.endTime}. Motivo: ${blocked.reason || 'Mantenimiento'}`
-            }
+    for (const blocked of combinedBlockedSchedules) {
+      if (String(blocked.courtId) === String(courtId) && blocked.date === date) {
+        const blockedStart = timeToMinutes(blocked.startTime)
+        const blockedEnd = timeToMinutes(blocked.endTime)
+        
+        if (newStart < blockedEnd && newEnd > blockedStart) {
+          return { 
+            available: false, 
+            blocked: true,
+            blockedSchedule: blocked,
+            message: `Horario bloqueado de ${blocked.startTime} a ${blocked.endTime}. Motivo: ${blocked.reason || 'Mantenimiento'}`
           }
         }
       }

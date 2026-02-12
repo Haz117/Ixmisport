@@ -231,16 +231,17 @@
         <div 
           v-for="(court, index) in courtsWithBlockStatus"
           :key="court.id"
-          @click="!court.isBlockedToday && openModal(court)"
+          @click="!court.isBlockedToday && !court.securityLocked && openModal(court)"
           :class="[
             'court-card group', 
             { 'animate-visible': courtsVisible },
-            court.isBlockedToday ? 'opacity-60 cursor-not-allowed border-2 border-red-400 bg-red-50/20' : ''
+            (court.isBlockedToday || court.securityLocked) ? 'opacity-60 cursor-not-allowed border-2 border-red-400 bg-red-50/20' : ''
           ]"
           :style="{ animationDelay: `${index * 0.08}s` }"
         >
           <!-- Overlay bloqueado - Sombreado rojo -->
           <div v-if="court.isBlockedToday" class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-red-600/10 pointer-events-none rounded-2xl"></div>
+          <div v-if="court.securityLocked" class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-red-800/20 pointer-events-none rounded-2xl"></div>
 
           <!-- Indicador visual de bloqueo en la tarjeta -->
           <div v-if="court.isBlockedToday" class="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-xs font-bold shadow-lg">
@@ -249,13 +250,25 @@
             </svg>
             BLOQUEADA
           </div>
+          <div v-if="court.securityLocked" class="absolute top-12 right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-700 to-black/70 text-white rounded-full text-xs font-bold shadow-lg">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 1L3 5v7c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6 12 6s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            BLOQUEADA POR SEGURIDAD
+          </div>
 
           <!-- Card Header con Gradiente -->
           <div :class="['court-card-header', getCourtHeaderClass(court.sport)]">
             <!-- Status Badge -->
             <div class="court-status">
-              <span class="status-dot"></span>
-              <span class="status-text">Disponible</span>
+              <span class="status-dot" :class="[(court.isBlockedToday || court.securityLocked) ? 'bg-red-500' : 'bg-green-500']"></span>
+              <span class="status-text">
+                {{
+                  court.securityLocked ? 'Bloqueada por seguridad' :
+                  court.isBlockedToday ? 'Horario bloqueado' :
+                  'Disponible'
+                }}
+              </span>
             </div>
             
             <!-- Sport Icon -->
@@ -729,7 +742,7 @@ import {
   CheckCircleIcon,
   XCircleIcon
 } from '@heroicons/vue/24/outline'
-import { createReservation, getOccupiedHours, checkAvailability } from '@/firebase/reservations'
+import { createReservation, getOccupiedHours, checkAvailability, listenToAllBlockedSchedules } from '@/firebase/reservations'
 import { onAuthChange, getCurrentUser } from '@/firebase/auth'
 
 // Estado del modal
@@ -739,6 +752,7 @@ const selectedCourt = ref(null)
 // Estado del usuario actual
 const currentUser = ref(null)
 let unsubscribeAuth = null
+let unsubscribeBlockedSchedules = null
 
 // Estado de carga
 const isLoading = ref(false)
@@ -784,6 +798,8 @@ const currentOccupiedHours = ref([])
 
 // Horarios bloqueados por el administrador (cargados desde localStorage)
 const blockedSchedules = ref([])
+// Canchas bloqueadas por seguridad (sincronizadas desde Admin)
+const securityLockedCanchas = ref({})
 
 // Variable para listener de storage
 let handleStorageChange = null
@@ -795,20 +811,49 @@ onMounted(() => {
   if (savedBlockedSchedules) {
     try {
       blockedSchedules.value = JSON.parse(savedBlockedSchedules)
-      console.log('✅ Horarios bloqueados cargados:', blockedSchedules.value.length, 'bloques')
+      console.log('✅ Horarios bloqueados cargados desde localStorage:', blockedSchedules.value.length, 'bloques')
     } catch (e) {
       console.log('Error cargando horarios bloqueados guardados')
     }
   }
+  
+  // Cargar bloqueos de seguridad desde localStorage
+  const savedSecurityLocks = localStorage.getItem('ixmisport_security_locks')
+  if (savedSecurityLocks) {
+    try {
+      securityLockedCanchas.value = JSON.parse(savedSecurityLocks)
+      console.log('✅ Bloqueos de seguridad cargados:', Object.keys(securityLockedCanchas.value).length)
+    } catch (e) {
+      console.log('Error cargando bloqueos de seguridad guardados')
+    }
+  }
+  
+  // Escuchar cambios en tiempo real desde Firebase para horarios bloqueados
+  unsubscribeBlockedSchedules = listenToAllBlockedSchedules((result) => {
+    if (result.success) {
+      blockedSchedules.value = result.data || []
+      console.log('🔄 Horarios bloqueados sincronizados desde Firebase:', blockedSchedules.value.length, 'bloques')
+      // Guardar en localStorage para sincronización entre pestañas
+      localStorage.setItem('ixmisport_blocked_schedules', JSON.stringify(blockedSchedules.value))
+    }
+  })
 
   // Listener para cambios en localStorage desde otras pestañas (sincronización en tiempo real)
   handleStorageChange = (event) => {
     if (event.key === 'ixmisport_blocked_schedules' && event.newValue) {
       try {
         blockedSchedules.value = JSON.parse(event.newValue)
-        console.log('🔄 Horarios bloqueados sincronizados:', blockedSchedules.value.length)
+        console.log('🔄 Horarios bloqueados sincronizados desde localStorage:', blockedSchedules.value.length)
       } catch (e) {
         console.error('Error sincronizando bloques:', e)
+      }
+    }
+    if (event.key === 'ixmisport_security_locks' && event.newValue) {
+      try {
+        securityLockedCanchas.value = JSON.parse(event.newValue)
+        console.log('🔒 Bloqueos de seguridad sincronizados desde localStorage:', Object.keys(securityLockedCanchas.value).length)
+      } catch (e) {
+        console.error('Error sincronizando bloqueos de seguridad:', e)
       }
     }
   }
@@ -844,6 +889,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (unsubscribeAuth) unsubscribeAuth()
+  if (unsubscribeBlockedSchedules) unsubscribeBlockedSchedules()
   
   // Limpiar listener de storage
   if (handleStorageChange) {
@@ -1165,11 +1211,13 @@ const courtsWithBlockStatus = computed(() => {
       String(b.courtId) === String(court.id) && b.date === today
     )
     const isBlockedToday = todayBlockedSchedules.length > 0
+    const isSecurityLocked = securityLockedCanchas.value[String(court.id)] || securityLockedCanchas.value[court.id]
     
     return {
       ...court,
       blockedSchedules: todayBlockedSchedules,
-      isBlockedToday: isBlockedToday
+      isBlockedToday: isBlockedToday,
+      securityLocked: Boolean(isSecurityLocked)
     }
   })
 })
@@ -1472,7 +1520,7 @@ const confirmReservation = async () => {
     const reservationId = generateReservationPDF({ ...reservationPayload, id: result.id })
     
     // Mostrar confirmación
-    alert(`Reservación confirmada exitosamente\n\nID: ${result.id}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\nSe ha descargado el comprobante PDF`)
+    alert(`Tu solicitud se ha enviado para revisión y aparecerá en "Mis solicitudes" esperando aprobación.\n\nID: ${result.id}\nTipo: ${reservationPayload.type === 'normal' ? 'Partido Normal' : 'Torneo'}\nCancha: ${selectedCourt.value.name}\nFecha: ${reservationData.value.date}\nHorario: ${reservationPayload.startTime} - ${reservationPayload.endTime}\nDuración: ${reservationPayload.duration}\nPersonas: ${reservationData.value.people}\n\nSe ha descargado el comprobante PDF`)
     
     closeModal()
     
