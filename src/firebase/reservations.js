@@ -62,6 +62,27 @@ export const getUserReservations = async (userId) => {
 }
 
 /**
+ * Actualizar una reservación principal
+ */
+export const updateReservation = async (reservationId, reservationData) => {
+  try {
+    if (!reservationId) {
+      return { success: false, error: 'ID de reservación requerido' }
+    }
+    
+    const docRef = doc(db, RESERVATIONS_COLLECTION, reservationId)
+    await updateDoc(docRef, {
+      ...reservationData,
+      updatedAt: serverTimestamp()
+    })
+    return { success: true, id: reservationId }
+  } catch (error) {
+    console.error('Error updating reservation:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
  * Obtener reservaciones por fecha y cancha (para verificar disponibilidad)
  */
 export const getReservationsByDateAndCourt = async (date, courtId) => {

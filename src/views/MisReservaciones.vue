@@ -66,8 +66,86 @@
       </div>
     </section>
 
+    <!-- Calendar and Statistics Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Weekly Calendar -->
+        <div class="md:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <i class="fa-solid fa-calendar text-[#6BCF9F]"></i>
+                Reservaciones
+              </h2>
+              <p class="text-gray-600 text-sm mt-2">Últimos 7 días</p>
+            </div>
+          </div>
+          
+          <!-- Days Grid -->
+          <div class="grid grid-cols-7 gap-3">
+            <div v-for="day in weeklyData" :key="day.date" class="text-center">
+              <div :class="['p-4 rounded-xl font-semibold transition-all duration-300', 
+                day.count > 0 
+                  ? 'bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 border-2 border-gray-200'
+              ]">
+                <div class="text-sm mb-2">{{ day.name }}</div>
+                <div class="h-12 flex items-center justify-center">
+                  <div v-if="day.count > 0" class="text-2xl font-bold">{{ day.count }}</div>
+                  <div v-else class="text-gray-400">-</div>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">{{ day.date }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="space-y-6">
+          <!-- Total Card -->
+          <div class="bg-gradient-to-br from-[#6BCF9F]/10 to-[#7ED9A8]/10 rounded-2xl p-6 border-2 border-[#6BCF9F]/20 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-semibold">TOTAL</p>
+                <p class="text-4xl font-bold text-[#6BCF9F] mt-2">{{ stats.total }}</p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-list text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Average Card -->
+          <div class="bg-gradient-to-br from-[#FFD700]/10 to-[#FFA500]/10 rounded-2xl p-6 border-2 border-[#FFA500]/20 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-semibold">PROMEDIO</p>
+                <p class="text-4xl font-bold text-[#FFA500] mt-2">{{ averageReservations }}</p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-[#FFA500] to-[#FFD700] rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-chart-line text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maximum Card -->
+          <div class="bg-gradient-to-br from-[#3B82F6]/10 to-[#1D4ED8]/10 rounded-2xl p-6 border-2 border-[#3B82F6]/20 shadow-lg">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-semibold">MÁXIMO</p>
+                <p class="text-4xl font-bold text-[#3B82F6] mt-2">{{ maxReservations }}</p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-chart-bar text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Tabs Filter -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-20">
       <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-white/50 inline-flex gap-2 flex-wrap">
         <button 
           @click="activeFilter = 'upcoming'"
@@ -94,6 +172,18 @@
           Completadas ({{ stats.completed }})
         </button>
         <button 
+          @click="activeFilter = 'pending'"
+          :class="[
+            'px-6 py-3 rounded-xl font-medium transition-all duration-300',
+            activeFilter === 'pending' 
+              ? 'bg-gradient-to-r from-[#6BCF9F] to-[#7ED9A8] text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
+          <i class="fa-solid fa-hourglass-end mr-2"></i>
+          Pendientes ({{ reservations.filter(r => r.status === 'pending').length }})
+        </button>
+        <button 
           @click="activeFilter = 'cancelled'"
           :class="[
             'px-6 py-3 rounded-xl font-medium transition-all duration-300',
@@ -103,7 +193,7 @@
           ]"
         >
           <i class="fa-solid fa-ban mr-2"></i>
-          Canceladas ({{ stats.cancelled }})
+          Rechazadas ({{ stats.cancelled }})
         </button>
         <button 
           @click="activeFilter = 'all'"
@@ -272,15 +362,55 @@ const activeFilter = ref('all')
 const currentUser = ref(null)
 let unsubscribeAuth = null
 
-// Estadísticas
+// Estadísticas de últimos 7 días
+const weeklyData = computed(() => {
+  const days = []
+  const today = new Date()
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
+    const dayName = date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase()
+    const dayNum = date.getDate()
+    const monthNum = date.getMonth() + 1
+    
+    // Contar reservaciones APROBADAS para esta fecha
+    const count = reservations.value.filter(r => r.date === dateStr && r.status === 'approved').length
+    
+    days.push({
+      name: dayName,
+      date: `${dayNum}/${monthNum}`,
+      count: count,
+      fullDate: dateStr
+    })
+  }
+  
+  return days
+})
+
+// Estadísticas generales
 const stats = computed(() => {
   const today = new Date().toISOString().split('T')[0]
   return {
-    total: reservations.value.length,
-    upcoming: reservations.value.filter(r => r.status === 'confirmed' && r.date >= today).length,
-    completed: reservations.value.filter(r => r.status === 'confirmed' && r.date < today).length,
-    cancelled: reservations.value.filter(r => r.status === 'cancelled').length
+    total: reservations.value.filter(r => r.status === 'approved' || r.status === 'pending').length,
+    upcoming: reservations.value.filter(r => r.status === 'approved' && r.date >= today).length,
+    completed: reservations.value.filter(r => r.status === 'approved' && r.date < today).length,
+    cancelled: reservations.value.filter(r => r.status === 'rejected' || r.status === 'cancelled').length
   }
+})
+
+// Promedio de reservaciones por día (últimos 7 días)
+const averageReservations = computed(() => {
+  if (weeklyData.value.length === 0) return 0
+  const total = weeklyData.value.reduce((sum, day) => sum + day.count, 0)
+  return Math.round(total / weeklyData.value.length * 10) / 10
+})
+
+// Máximo de reservaciones en un día
+const maxReservations = computed(() => {
+  if (weeklyData.value.length === 0) return 0
+  return Math.max(...weeklyData.value.map(day => day.count), 0)
 })
 
 // Filtrar reservaciones
@@ -289,11 +419,13 @@ const filteredReservations = computed(() => {
   
   switch (activeFilter.value) {
     case 'upcoming':
-      return reservations.value.filter(r => r.status === 'confirmed' && r.date >= today)
+      return reservations.value.filter(r => r.status === 'approved' && r.date >= today)
     case 'completed':
-      return reservations.value.filter(r => r.status === 'confirmed' && r.date < today)
+      return reservations.value.filter(r => r.status === 'approved' && r.date < today)
     case 'cancelled':
-      return reservations.value.filter(r => r.status === 'cancelled')
+      return reservations.value.filter(r => r.status === 'rejected' || r.status === 'cancelled')
+    case 'pending':
+      return reservations.value.filter(r => r.status === 'pending')
     default:
       return reservations.value
   }
@@ -306,8 +438,10 @@ const emptyMessage = computed(() => {
       return 'No tienes reservaciones próximas. ¡Haz una nueva reservación!'
     case 'completed':
       return 'Aún no tienes reservaciones completadas.'
+    case 'pending':
+      return 'No tienes reservaciones pendientes de aprobación. ¡Todas han sido gestionadas!'
     case 'cancelled':
-      return 'No tienes reservaciones canceladas.'
+      return 'No tienes reservaciones rechazadas.'
     default:
       return 'No tienes ninguna reservación. ¡Haz tu primera reservación!'
   }
@@ -376,21 +510,27 @@ const getSportIcon = (sport) => {
 
 // Estilos según estado
 const getStatusBorderColor = (status) => {
-  return status === 'cancelled' ? 'border-red-400' : 'border-[#6BCF9F]'
+  if (status === 'rejected' || status === 'cancelled') return 'border-red-400'
+  if (status === 'approved') return 'border-green-400'
+  return 'border-yellow-400'
 }
 
 const getStatusBadgeClass = (status) => {
-  return status === 'cancelled' 
-    ? 'bg-red-100 text-red-700' 
-    : 'bg-green-100 text-green-700'
+  if (status === 'rejected' || status === 'cancelled') return 'bg-red-100 text-red-700'
+  if (status === 'approved') return 'bg-green-100 text-green-700'
+  return 'bg-yellow-100 text-yellow-700'
 }
 
 const getStatusIcon = (status) => {
-  return status === 'cancelled' ? 'fa-solid fa-ban' : 'fa-solid fa-circle-check'
+  if (status === 'rejected' || status === 'cancelled') return 'fa-solid fa-ban'
+  if (status === 'approved') return 'fa-solid fa-circle-check'
+  return 'fa-solid fa-hourglass-end'
 }
 
 const getStatusText = (status) => {
-  return status === 'cancelled' ? 'Cancelada' : 'Confirmada'
+  if (status === 'rejected' || status === 'cancelled') return 'Rechazada'
+  if (status === 'approved') return 'Aprobada'
+  return 'Pendiente'
 }
 
 // Lifecycle

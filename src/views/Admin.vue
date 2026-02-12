@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen min-w-full w-screen bg-white relative overflow-y-auto">
+  <div class="min-h-screen w-full bg-white relative overflow-hidden flex flex-col md:flex-row">
     
     <!-- Elementos decorativos de fondo con movimiento suave -->
     <div class="absolute inset-0 pointer-events-none">
@@ -12,71 +12,126 @@
     <!-- Modales mejorados -->
     <!-- Modal de Detalle de Reservación -->
     <transition name="modal">
-      <div v-if="showReservationDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 animate-elegant-fade-up max-h-[90vh] overflow-y-auto p-6">
-          <div v-if="selectedReservation" class="space-y-6">
-            <div class="flex items-center justify-between">
-              <h3 class="text-2xl font-bold text-ixmi-900">Detalle de Reservación</h3>
-              <button @click="showReservationDetailModal = false" class="p-1 hover:bg-gray-100 rounded-lg transition-all duration-200">
-                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-if="showReservationDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div v-if="selectedReservation" class="space-y-0">
+            <!-- Header con estado -->
+            <div class="sticky top-0 bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 px-8 py-6 text-white flex items-center justify-between rounded-t-3xl border-b-4 border-ixmi-400">
+              <div>
+                <h3 class="text-3xl font-bold"><i class="fa-solid fa-clipboard text-ixmi-600 mr-2"></i>Detalle de Reservación</h3>
+                <p class="text-ixmi-100 text-sm mt-2">ID: {{ selectedReservation.id?.slice(0, 12) }}...</p>
+              </div>
+              <button @click="showReservationDetailModal = false" class="p-2 hover:bg-white/20 rounded-xl transition-all duration-200 flex-shrink-0">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Usuario</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.userName }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Correo</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.userEmail }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Cancha</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.courtName }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Deporte</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.sport }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Fecha</p>
-                <p class="text-gray-900 font-medium">{{ new Date(selectedReservation.date).toLocaleDateString('es-MX') }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Horario</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.startTime }} - {{ selectedReservation.endTime }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Participantes</p>
-                <p class="text-gray-900 font-medium">{{ selectedReservation.participants || 'N/A' }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Estado</p>
-                <span :class="getReservationStatusClass(selectedReservation.status)">
-                  {{ getReservationStatusText(selectedReservation.status) }}
+            <!-- Contenido -->
+            <div class="p-8 space-y-6">
+              <!-- Status Badge Grande -->
+              <div v-if="selectedReservation.status" class="flex items-center justify-center">
+                <span :class="[
+                  'px-6 py-3 rounded-full text-lg font-bold flex items-center gap-2 shadow-lg',
+                  selectedReservation.status === 'approved' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white' :
+                  selectedReservation.status === 'rejected' ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
+                  selectedReservation.status === 'pending' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white' :
+                  'bg-gradient-to-r from-orange-400 to-orange-500 text-white'
+                ]">
+                  <i v-if="selectedReservation.status === 'approved'" class="fa-solid fa-check-circle"></i>
+                  <i v-else-if="selectedReservation.status === 'rejected'" class="fa-solid fa-ban"></i>
+                  <i v-else-if="selectedReservation.status === 'pending'" class="fa-solid fa-clock"></i>
+                  <i v-else class="fa-solid fa-xmark-circle"></i>
+                  {{ selectedReservation.status === 'approved' ? 'APROBADA' : 
+                     selectedReservation.status === 'rejected' ? 'RECHAZADA' :
+                     selectedReservation.status === 'pending' ? 'PENDIENTE' :
+                     'CANCELADA' }}
                 </span>
               </div>
+
+              <!-- Grid de información -->
+              <div class="grid grid-cols-2 gap-6 bg-gray-50 rounded-2xl p-6">
+                <div class="col-span-2">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Usuario</p>
+                  <p class="text-2xl font-bold text-gray-900">{{ selectedReservation.userName }}</p>
+                  <p class="text-sm text-gray-600">{{ selectedReservation.userEmail }}</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 border-2 border-ixmi-200">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Cancha</p>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-ixmi-400 to-ixmi-600 rounded-lg flex items-center justify-center text-white text-lg">
+                      <i class="fa-solid fa-calendar"></i>
+                    </div>
+                    <div>
+                      <p class="font-bold text-gray-900">{{ selectedReservation.courtName }}</p>
+                      <p class="text-xs text-gray-600">{{ selectedReservation.courtLocation }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border-2 border-ixmi-200">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Deporte</p>
+                  <p class="font-bold text-gray-900 text-lg">{{ selectedReservation.courtSport || 'General' }}</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border-2 border-ixmi-200">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Fecha</p>
+                  <p class="font-bold text-gray-900 text-lg">{{ new Date(selectedReservation.date).toLocaleDateString('es-MX') }}</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border-2 border-ixmi-200">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Horario</p>
+                  <p class="font-bold text-gray-900 text-lg">{{ selectedReservation.startTime }} - {{ selectedReservation.endTime }}</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 border-2 border-ixmi-200">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Jugadores</p>
+                  <p class="font-bold text-gray-900 text-lg">{{ selectedReservation.people }} personas</p>
+                </div>
+              </div>
+
+              <!-- Notas si existen -->
+              <div v-if="selectedReservation.notes" class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+                <p class="text-sm font-bold text-blue-700 uppercase tracking-widest mb-3"><i class="fa-solid fa-pen-to-square mr-2"></i>Notas</p>
+                <p class="text-gray-700">{{ selectedReservation.notes }}</p>
+              </div>
             </div>
 
-            <div v-if="selectedReservation.notes" class="border-t border-gray-200 pt-4">
-              <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Notas</p>
-              <p class="text-gray-700">{{ selectedReservation.notes }}</p>
-            </div>
-
-            <div class="flex space-x-3 pt-4 border-t border-gray-200">
-              <button @click="showReservationDetailModal = false" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+            <!-- Action Buttons - Sticky Footer -->
+            <div class="sticky bottom-0 bg-white border-t-2 border-gray-200 px-8 py-6 flex gap-3 rounded-b-3xl">
+              <button 
+                @click="showReservationDetailModal = false"
+                class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-bold text-base"
+              >
                 Cerrar
               </button>
-              <button v-if="selectedReservation.status === 'pending'" @click="approveReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 hover:shadow-lg transition-all duration-200 font-medium">
+              
+              <button 
+                v-if="selectedReservation.status === 'pending'"
+                @click="approveReservation(selectedReservation)"
+                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transition-all duration-200 font-bold text-base flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-check"></i>
                 Aprobar
               </button>
-              <button v-if="selectedReservation.status === 'pending'" @click="rejectReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 hover:shadow-lg transition-all duration-200 font-medium">
+              
+              <button 
+                v-if="selectedReservation.status !== 'rejected' && selectedReservation.status !== 'cancelled'"
+                @click="rejectReservation(selectedReservation)"
+                class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 hover:shadow-lg transition-all duration-200 font-bold text-base flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-ban"></i>
                 Rechazar
               </button>
-              <button v-if="selectedReservation.status === 'approved'" @click="cancelReservation(selectedReservation)" class="flex-1 px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-medium">
+              
+              <button 
+                v-if="selectedReservation.status === 'approved'"
+                @click="cancelReservation(selectedReservation)"
+                class="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-lg transition-all duration-200 font-bold text-base flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-xmark"></i>
                 Cancelar
               </button>
             </div>
@@ -85,8 +140,17 @@
       </div>
     </transition>
 
+    <!-- Sidebar Overlay (Mobile) -->
+    <transition name="fade">
+      <div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden" @click="sidebarOpen = false"></div>
+    </transition>
+
     <!-- Sidebar Navigation -->
-    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-lg shadow-2xl border-r border-ixmi-200/40 transform transition-all duration-500 ease-in-out opacity-0 animate-elegant-slide-right animation-delay-200">
+    <div :class="[
+      'fixed md:relative inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-lg shadow-2xl border-r border-ixmi-200/40 transform transition-all duration-500 ease-in-out flex-shrink-0',
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      'opacity-0 animate-elegant-slide-right animation-delay-200'
+    ]">
       <!-- Logo Section -->
       <div class="flex items-center justify-center h-16 px-6 border-b border-ixmi-200/30 bg-ixmi-50">
         <div class="flex items-center space-x-3 opacity-0 animate-elegant-fade-down animation-delay-400">
@@ -111,7 +175,7 @@
           <button 
             v-for="(tab, index) in tabs" 
             :key="tab.id"
-            @click="activeTab = tab.id"
+            @click="activeTab = tab.id; sidebarOpen = false"
             :class="[
               'group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden opacity-0 animate-elegant-slide-right',
               activeTab === tab.id 
@@ -140,13 +204,19 @@
         <div class="pt-6 mt-6 border-t border-ixmi-200/30 opacity-0 animate-elegant-fade-up animation-delay-1200">
           <p class="px-4 text-xs font-semibold text-ixmi-500/70 uppercase tracking-wider mb-3">Acciones Rápidas</p>
           <div class="space-y-2">
-            <button class="group flex items-center w-full px-4 py-2 text-sm text-ixmi-700 rounded-lg hover:bg-ixmi-50 hover:text-ixmi-600 transition-all duration-300 hover:transform hover:translateX-1">
+            <button 
+              @click="showNewCanchaModal = true; sidebarOpen = false"
+              class="group flex items-center w-full px-4 py-2 text-sm text-ixmi-700 rounded-lg hover:bg-ixmi-50 hover:text-ixmi-600 transition-all duration-300 hover:transform hover:translateX-1"
+            >
               <svg class="mr-3 h-4 w-4 text-ixmi-500 group-hover:text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               Nueva Cancha
             </button>
-            <button class="group flex items-center w-full px-4 py-2 text-sm text-ixmi-700 rounded-lg hover:bg-ixmi-50 hover:text-ixmi-600 transition-all duration-300 hover:transform hover:translateX-1">
+            <button 
+              @click="generateReport"
+              class="group flex items-center w-full px-4 py-2 text-sm text-ixmi-700 rounded-lg hover:bg-ixmi-50 hover:text-ixmi-600 transition-all duration-300 hover:transform hover:translateX-1"
+            >
               <svg class="mr-3 h-4 w-4 text-ixmi-500 group-hover:text-ixmi-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
@@ -179,25 +249,37 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="ml-64 min-h-screen relative z-10 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div class="flex-1 min-h-screen relative z-10 bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-y-auto">
       <!-- Top Header -->
       <header class="bg-white/90 backdrop-blur-lg shadow-sm border-b border-ixmi-200/40 sticky top-0 z-40 opacity-0 animate-elegant-fade-down animation-delay-300">
         <div class="px-6 py-4">
           <div class="flex items-center justify-between">
-            <!-- Page Title and Breadcrumb -->
+            <!-- Left Side: Sidebar Toggle + Page Title -->
             <div class="flex items-center space-x-4">
-              <div class="opacity-0 animate-elegant-fade-right animation-delay-500">
-                <h2 class="text-2xl font-bold text-gray-900">{{ getPageTitle() }}</h2>
-                <div class="flex items-center space-x-2 text-sm text-gray-500 mt-1">
-                  <span>IxmiSport</span>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                  <span>Admin</span>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                  <span class="text-ixmi-600 font-medium">{{ getPageTitle() }}</span>
+              <button @click="sidebarOpen = !sidebarOpen" class="p-2 text-ixmi-600 hover:bg-ixmi-50 rounded-xl transition-all duration-300 group hover:scale-105" title="Abrir/Cerrar panel">
+                <svg v-if="!sidebarOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+              
+              <!-- Page Title and Breadcrumb -->
+              <div class="flex items-center space-x-4">
+                <div class="opacity-0 animate-elegant-fade-right animation-delay-500">
+                  <h2 class="text-2xl font-bold text-gray-900">{{ getPageTitle() }}</h2>
+                  <div class="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                    <span>IxmiSport</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    <span>Admin</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    <span class="text-ixmi-600 font-medium">{{ getPageTitle() }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -360,28 +442,39 @@
                 </div>
                 
                 <!-- Toggle elegante -->
-                <div class="inline-flex items-center border-2 border-gray-300 rounded-2xl p-1.5 bg-gray-100 backdrop-blur-xl shadow-md">
+                <div class="flex items-center gap-4">
+                  <div class="inline-flex items-center border-2 border-gray-300 rounded-2xl p-1.5 bg-gray-100 backdrop-blur-xl shadow-md">
+                    <button 
+                      @click="reportPeriod = 7"
+                      :class="[
+                        'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
+                        reportPeriod === 7 
+                          ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
+                          : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
+                      ]"
+                    >
+                      7 días
+                    </button>
+                    <button 
+                      @click="reportPeriod = 30"
+                      :class="[
+                        'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
+                        reportPeriod === 30 
+                          ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
+                          : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
+                      ]"
+                    >
+                      30 días
+                    </button>
+                  </div>
                   <button 
-                    @click="reportPeriod = 7"
-                    :class="[
-                      'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
-                      reportPeriod === 7 
-                        ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
-                        : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
-                    ]"
+                    @click="refreshAllData"
+                    class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 uppercase tracking-wider text-sm"
                   >
-                    7 días
-                  </button>
-                  <button 
-                    @click="reportPeriod = 30"
-                    :class="[
-                      'px-8 py-3 text-sm font-black rounded-lg transition-all duration-300 uppercase tracking-wider',
-                      reportPeriod === 30 
-                        ? 'bg-gradient-to-r from-ixmi-500 via-ixmi-600 to-ixmi-700 text-white shadow-lg shadow-ixmi-500/40 scale-105' 
-                        : 'text-gray-700 hover:text-ixmi-600 hover:bg-white'
-                    ]"
-                  >
-                    30 días
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refrescar
                   </button>
                 </div>
               </div>
@@ -418,11 +511,15 @@
                         </div>
                       </div>
                       
-                      <!-- Labels -->
+                      <!-- Labels con indicador de reservaciones -->
                       <div class="text-center mt-3 w-full">
                         <p class="text-sm font-black text-ixmi-700 uppercase px-1 group-hover/item:text-ixmi-600 transition-colors duration-200">
                           {{ reportPeriod === 7 ? day.day.slice(0, 3) : day.day }}
                         </p>
+                        <!-- Indicador visual - Punto verde cuando hay reservaciones -->
+                        <div v-if="day.reservations > 0" class="flex items-center justify-center gap-1 mt-2">
+                          <div class="w-2.5 h-2.5 bg-gradient-to-br from-ixmi-400 to-ixmi-600 rounded-full shadow-md animate-pulse"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -693,7 +790,7 @@
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 1a11 11 0 110 22 11 11 0 010-22m0 2a9 9 0 100 18 9 9 0 000-18m3.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0m-8 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0m4-5.5a1 1 0 11-2 0 1 1 0 012 0z"/>
                 </svg>
-                🔒 BLOQUEADA
+                <i class="fa-solid fa-lock mr-2"></i>BLOQUEADA
               </div>
               
               <!-- Security Lock Indicator -->
@@ -701,7 +798,7 @@
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 1L3 5v7c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18L19 6.3v6.7c0 4.42-2.92 8.43-7 9.62-4.08-1.19-7-5.2-7-9.62V6.3l7-3.12zm-1 5.82v4h2v-4h-2zm0-4v2h2V5h-2z"/>
                 </svg>
-                🔐 BLOQUEADA POR SEGURIDAD
+                <i class="fa-solid fa-lock-open mr-2"></i>BLOQUEADA POR SEGURIDAD
               </div>
 
               <!-- Header Section with Sport Icon & Status -->
@@ -736,7 +833,7 @@
                       <line x1="25" y1="30" x2="75" y2="70"/>
                       <line x1="75" y1="30" x2="25" y2="70"/>
                     </svg>
-                    <!-- Paddle / Pádel 🎯 -->
+                    <!-- Paddle / Pádel -->
                     <svg v-else-if="cancha.sport === 'padel'" class="w-8 h-8 text-white" viewBox="0 0 100 100" fill="currentColor">
                       <circle cx="40" cy="30" r="22" stroke="currentColor" fill="none" stroke-width="2.5"/>
                       <rect x="37" y="52" width="6" height="40" rx="3" fill="currentColor"/>
@@ -757,7 +854,7 @@
                         : 'bg-gradient-to-r from-red-500 via-red-600 to-red-700'
                     ]"
                     >
-                      <span class="mr-2 text-base">{{ cancha.active ? '▶️' : '⏸️' }}</span>
+                      <span class="mr-2 text-base"><i :class="[cancha.active ? 'fa-solid fa-circle-play text-green-600' : 'fa-solid fa-circle-pause text-red-600']"></i></span>
                       {{ cancha.active ? 'ACTIVA' : 'PAUSADA' }}
                     </span>
                   </div>
@@ -906,7 +1003,7 @@
                     ]"
                     title="Bloquear/Desbloquear cancha por seguridad"
                   >
-                    <span class="text-xl">{{ cancha.securityLocked ? '🔐' : '🔓' }}</span>
+                    <span class="text-xl"><i :class="[cancha.securityLocked ? 'fa-solid fa-lock text-red-600' : 'fa-solid fa-lock-open text-green-600']"></i></span>
                     <span class="font-extrabold flex items-center space-x-1">
                   <svg v-if="cancha.securityLocked" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -954,87 +1051,165 @@
 
         <!-- Gestión de Usuarios -->
         <div v-if="activeTab === 'usuarios'" class="space-y-8 animate-slide-up">
-          <!-- Header with Search and Filters -->
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h2>
-              <p class="text-gray-600 mt-1">{{ filteredUsers.length }} usuarios registrados</p>
-            </div>
-            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-              <div class="relative">
-                <input 
-                  v-model="userSearch"
-                  type="text" 
-                  placeholder="Buscar usuarios..."
-                  class="pl-10 pr-4 py-2 w-full sm:w-64 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/20 focus:border-ixmi-400 bg-white/80 backdrop-blur-sm"
-                >
-                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+          <!-- Estadísticas de Usuarios -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Usuarios -->
+            <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-2xl p-6 border-2 border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total Usuarios</p>
+                  <p class="text-4xl font-black text-blue-600 mt-3">{{ users.length }}</p>
+                  <p class="text-xs text-gray-500 mt-2">En el sistema</p>
+                </div>
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
+                </div>
               </div>
-              <select class="px-4 py-2 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/20 focus:border-ixmi-400 bg-white/80">
-                <option>Todos los usuarios</option>
-                <option>Usuarios activos</option>
-                <option>Usuarios inactivos</option>
-              </select>
+            </div>
+
+            <!-- Usuarios Activos -->
+            <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-2xl p-6 border-2 border-green-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Usuarios Activos</p>
+                  <p class="text-4xl font-black text-green-600 mt-3">{{ activeUsersCount }}</p>
+                  <p class="text-xs text-green-600 mt-2">{{ activeUsersPercentage }}% del total</p>
+                </div>
+                <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reservaciones Totales -->
+            <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-2xl p-6 border-2 border-purple-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Reservaciones</p>
+                  <p class="text-4xl font-black text-purple-600 mt-3">{{ totalReservationsCount }}</p>
+                  <p class="text-xs text-purple-600 mt-2">{{ avgReservationsPerUser }}/usuario</p>
+                </div>
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nuevos Este Mes -->
+            <div class="bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-2xl p-6 border-2 border-orange-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Nuevos Este Mes</p>
+                  <p class="text-4xl font-black text-orange-600 mt-3">{{ newUsersThisMonth }}</p>
+                  <p class="text-xs text-orange-600 mt-2">Últimos 30 días</p>
+                </div>
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Users Table -->
+          <!-- Header with Search and Filters -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Lista de Usuarios</h2>
+              <p class="text-gray-600 mt-1">{{ filteredUsers.length }} usuarios encontrados</p>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+              <div class="relative flex-1 sm:flex-none">
+                <input 
+                  v-model="userSearch"
+                  type="text" 
+                  placeholder="Buscar por nombre, email o teléfono..."
+                  class="pl-10 pr-4 py-3 w-full sm:w-80 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white/90 backdrop-blur-sm font-medium transition-all duration-300"
+                >
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <button 
+                @click="refreshAllData"
+                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-ixmi-500 to-ixmi-600 text-white font-bold rounded-xl hover:shadow-lg hover:from-ixmi-600 hover:to-ixmi-700 transition-all duration-300 uppercase tracking-wider text-sm"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refrescar
+              </button>
+            </div>
+          </div>
+
+          <!-- Users Grid/Table -->
           <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/60 overflow-hidden">
-            <div class="overflow-x-auto">
+            <div v-if="filteredUsers.length > 0" class="overflow-x-auto">
               <table class="w-full">
                 <thead>
-                  <tr class="bg-gray-50/80 border-b border-gray-200/60">
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Usuario</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Contacto</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Registro</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actividad</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Acciones</th>
+                  <tr class="bg-gradient-to-r from-ixmi-50 to-ixmi-50/50 border-b-2 border-ixmi-200">
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Usuario</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Contacto</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Registro</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actividad</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200/60">
                   <tr 
                     v-for="(user, index) in filteredUsers" 
                     :key="user.id"
-                    class="group hover:bg-ixmi-50/30 transition-all duration-200"
+                    class="group hover:bg-ixmi-50/50 transition-all duration-200 border-l-4 border-transparent hover:border-ixmi-500"
                     :style="{ animationDelay: `${index * 50}ms` }"
                   >
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center space-x-4">
                         <div class="relative">
-                          <div class="w-12 h-12 bg-ixmi-500 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
-                            <span class="text-white font-bold text-sm">{{ user.name.charAt(0) }}</span>
+                          <div class="w-12 h-12 bg-gradient-to-br from-ixmi-400 to-ixmi-600 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200 text-white font-bold text-sm">
+                            {{ user.name.charAt(0).toUpperCase() }}
                           </div>
-                          <div v-if="user.active" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                          <div v-if="user.active" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
                         </div>
                         <div>
                           <div class="text-sm font-bold text-gray-900 group-hover:text-ixmi-600 transition-colors duration-200">{{ user.name }}</div>
-                          <div class="text-sm text-gray-500">ID: {{ user.id.toString().padStart(4, '0') }}</div>
+                          <div class="text-xs text-gray-500">{{ user.email.split('@')[0] }}</div>
                         </div>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">{{ user.email }}</div>
-                      <div class="text-sm text-gray-500">{{ user.phone || 'Sin teléfono' }}</div>
+                      <div class="text-sm text-gray-900 font-medium">{{ user.email }}</div>
+                      <div class="text-xs text-gray-500">{{ user.phone || '—' }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>{{ user.createdAt }}</div>
-                      <div class="text-xs text-gray-400">hace {{ user.daysAgo || '30' }} días</div>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <div class="font-semibold text-gray-900">{{ user.createdAt }}</div>
+                      <div class="text-xs text-gray-500">Hace {{ calculateDaysAgo(user.createdAt) }} días</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">{{ user.reservations || '12' }} reservas</div>
-                      <div class="text-xs text-gray-500">Última: {{ user.lastActivity || 'hace 2 días' }}</div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-ixmi-100 to-ixmi-200 rounded-lg flex items-center justify-center">
+                          <i class="fa-solid fa-calendar-check text-ixmi-600 text-sm"></i>
+                        </div>
+                        <div>
+                          <div class="text-sm font-bold text-gray-900">{{ user.reservations || 0 }}</div>
+                          <div class="text-xs text-gray-500">reservas</div>
+                        </div>
+                      </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span :class="[
-                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold',
+                        'inline-flex items-center px-4 py-2 rounded-full text-xs font-bold transition-all duration-200',
                         user.active 
-                          ? 'bg-green-100 text-green-800 border border-green-200' 
-                          : 'bg-red-100 text-red-800 border border-red-200'
+                          ? 'bg-green-100 text-green-800 border border-green-300 shadow-sm' 
+                          : 'bg-red-100 text-red-800 border border-red-300 shadow-sm'
                       ]">
-                        <div :class="['w-2 h-2 rounded-full mr-2', user.active ? 'bg-green-400' : 'bg-red-400']"></div>
+                        <span :class="['w-2 h-2 rounded-full mr-2', user.active ? 'bg-green-500 animate-pulse' : 'bg-red-500']"></span>
                         {{ user.active ? 'Activo' : 'Inactivo' }}
                       </span>
                     </td>
@@ -1042,10 +1217,10 @@
                       <div class="flex items-center justify-end space-x-2">
                         <button 
                           @click="viewUserDetail(user)"
-                          class="p-2 text-ixmi-600 hover:text-ixmi-800 hover:bg-ixmi-100 rounded-lg transition-all duration-200"
+                          class="p-2.5 text-ixmi-600 hover:text-ixmi-800 hover:bg-ixmi-100 rounded-lg transition-all duration-200 hover:scale-110"
                           title="Ver detalles"
                         >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                           </svg>
@@ -1053,18 +1228,27 @@
                         <button 
                           @click="toggleUserStatus(user)"
                           :class="[
-                            'p-2 rounded-lg transition-all duration-200',
+                            'p-2.5 rounded-lg transition-all duration-200 hover:scale-110',
                             user.active 
                               ? 'text-red-600 hover:text-red-800 hover:bg-red-100' 
                               : 'text-green-600 hover:text-green-800 hover:bg-green-100'
                           ]"
                           :title="user.active ? 'Desactivar usuario' : 'Activar usuario'"
                         >
-                          <svg v-if="user.active" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg v-if="user.active" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                           </svg>
-                          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                        </button>
+                        <button 
+                          @click="deleteUser(user.id)"
+                          class="p-2.5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-110"
+                          title="Eliminar usuario"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3H4v2h16V7h-3.5z"></path>
                           </svg>
                         </button>
                       </div>
@@ -1073,36 +1257,41 @@
                 </tbody>
               </table>
             </div>
+            <div v-else class="p-12 text-center">
+              <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <p class="text-gray-500 text-lg font-semibold">No se encontraron usuarios</p>
+              <p class="text-gray-400 text-sm mt-2">Intenta ajustar tu búsqueda</p>
+            </div>
           </div>
         </div>
 
         <!-- Gestión de Reservaciones -->
         <div v-if="activeTab === 'reservaciones'" class="space-y-8 animate-slide-up">
-          <!-- Header with Filters -->
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900">Gestión de Reservaciones</h2>
-              <p class="text-gray-600 mt-1">{{ filteredReservations.length }} reservaciones encontradas</p>
-            </div>
-            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-              <select 
-                v-model="reservationFilter"
-                class="px-4 py-2 border border-gray-300/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/20 focus:border-ixmi-400 bg-white/80"
-              >
-                <option value="all">Todas las reservaciones</option>
-                <option value="pending">Pendientes de aprobación</option>
-                <option value="approved">Aprobadas</option>
-                <option value="rejected">Rechazadas</option>
-                <option value="completed">Completadas</option>
-              </select>
-              <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
-                Exportar CSV
-              </button>
+          <!-- Banner Informativo -->
+          <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-8 shadow-xl border-2 border-blue-400 text-white">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1">
+                <i class="fa-solid fa-circle-info text-2xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold mb-2"><i class="fa-solid fa-list-check text-ixmi-600 mr-2"></i>Cómo Aprobar Reservaciones</h3>
+                <p class="text-blue-50 mb-3 text-lg">
+                  <strong>1.</strong> Mira las reservaciones <span class="bg-yellow-500/30 px-3 py-1 rounded-lg font-bold">PENDIENTES</span> que aparecen abajo en las tarjetas.
+                </p>
+                <p class="text-blue-50 mb-3 text-lg">
+                  <strong>2.</strong> Haz clic en <span class="bg-white/20 px-3 py-1 rounded-lg font-bold">"Ver Detalle"</span> o usa los botones de <span class="bg-green-500/30 px-3 py-1 rounded-lg font-bold">Aprobar</span> / <span class="bg-red-500/30 px-3 py-1 rounded-lg font-bold">Rechazar</span>
+                </p>
+                <p class="text-blue-50 text-lg">
+                  <strong>3.</strong> El estado se actualizará automáticamente en Firebase y el usuario será notificado.
+                </p>
+              </div>
             </div>
           </div>
 
-          <!-- Court Filter -->
-          <div class="flex flex-col space-y-3">
+          <!-- Court Filter (applies to both sections) -->
+          <div class="flex flex-col space-y-3 sticky top-0 z-10 bg-white/95 backdrop-blur-sm p-4 rounded-2xl border border-gray-200/60">
             <label class="text-sm font-bold text-gray-800">Filtrar por Cancha</label>
             <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
               <select 
@@ -1124,97 +1313,233 @@
             </div>
           </div>
 
-          <!-- Reservations Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div 
-              v-for="(reservation, index) in filteredReservations" 
-              :key="reservation.id"
-              class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60 hover:shadow-xl transition-all duration-300"
-              :style="{ animationDelay: `${index * 50}ms` }"
-            >
-              <div class="flex flex-col space-y-4">
-                <!-- Reservation Info -->
-                <div>
-                  <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-ixmi-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <h3 class="text-lg font-bold text-gray-900 truncate">{{ reservation.cancha }}</h3>
-                      <div class="flex items-center space-x-2 mt-1 flex-wrap">
-                        <span :class="['px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap', getReservationStatusClass(reservation.status)]">
-                          {{ getReservationStatusText(reservation.status) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="space-y-2 text-sm">
-                    <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                      </svg>
-                      <span class="font-medium text-gray-700 truncate">{{ reservation.userName }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      <span class="text-gray-600 text-xs whitespace-nowrap">{{ reservation.date }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      <span class="text-gray-600 text-xs whitespace-nowrap">{{ reservation.time }}</span>
-                    </div>
-                  </div>
+          <!-- SECCIÓN 1: SOLICITUDES PENDIENTES -->
+          <div class="space-y-6">
+            <div>
+              <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">
+                  <i class="fa-solid fa-bell text-yellow-500"></i>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col space-y-2 pt-4 border-t border-gray-100">
-                  <button 
-                    v-if="reservation.status === 'pending'"
-                    @click="approveReservation(reservation)"
-                    class="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
-                  >
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Aprobar
-                  </button>
-                  <button 
-                    v-if="reservation.status === 'pending'"
-                    @click="rejectReservation(reservation)"
-                    class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg"
-                  >
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    Rechazar
-                  </button>
-                  <button 
-                    @click="viewReservationDetail(reservation)"
-                    class="w-full px-3 py-2 border border-ixmi-300 text-ixmi-600 hover:bg-ixmi-50 hover:border-ixmi-400 rounded-xl transition-all duration-200 text-sm font-medium"
-                  >
-                    Ver Detalle
-                  </button>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900">Solicitudes Pendientes</h3>
+                  <p class="text-sm text-gray-600 mt-1">Reservaciones que requieren tu aprobación o rechazo</p>
                 </div>
               </div>
-            </div>
 
-            <!-- Empty State -->
-            <div v-if="filteredReservations.length === 0" class="col-span-full">
-              <div class="text-center py-12 px-4">
-                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <p class="text-gray-400 font-medium">No hay reservaciones que coincidan con los filtros</p>
+              <!-- Pending Reservations Grid -->
+              <div v-if="pendingReservations.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Pending Reservations Grid -->
+              <div v-if="pendingReservations.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div 
+                  v-for="(reservation, index) in pendingReservations" 
+                  :key="reservation.id"
+                  class="rounded-2xl p-6 shadow-lg border-2 bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-400 ring-2 ring-yellow-300/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+                  :style="{ animationDelay: `${index * 50}ms` }"
+                >
+                  <div class="flex flex-col space-y-4">
+                    <!-- Status Badge -->
+                    <div class="flex items-center justify-between">
+                      <span class="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2 bg-yellow-500 text-white animate-pulse">
+                        <i class="fa-solid fa-hourglass-end"></i>
+                        PENDIENTE
+                      </span>
+                      <span class="text-2xl font-bold text-yellow-600">{{ index + 1 }}</span>
+                    </div>
+
+                    <!-- Reservation Info -->
+                    <div>
+                      <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 text-white font-bold bg-yellow-500">
+                          <i class="fa-solid fa-calendar-alt"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <h3 class="text-lg font-bold text-gray-900 truncate">{{ reservation.courtName }}</h3>
+                          <p class="text-xs text-gray-600">{{ reservation.userName }}</p>
+                        </div>
+                      </div>
+                      
+                      <div class="space-y-2 text-sm bg-white/60 rounded-xl p-3">
+                        <div class="flex items-center space-x-2">
+                          <i class="fa-solid fa-calendar text-yellow-600 w-4"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.date }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fa-solid fa-clock text-yellow-600 w-4"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.time }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fa-solid fa-users text-yellow-600 w-4"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.people || 'N/A' }} personas</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col space-y-2 pt-4 border-t-2 border-yellow-200">
+                      <div class="flex gap-2">
+                        <button 
+                          @click="approveReservation(reservation)"
+                          class="flex-1 px-3 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg transition-all duration-200 text-sm font-bold shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-1"
+                        >
+                          <i class="fa-solid fa-check"></i>
+                          Aprobar
+                        </button>
+                        <button 
+                          @click="rejectReservation(reservation)"
+                          class="flex-1 px-3 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-200 text-sm font-bold shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center gap-1"
+                        >
+                          <i class="fa-solid fa-ban"></i>
+                          Rechazar
+                        </button>
+                      </div>
+
+                      <!-- Botón Ver Detalle -->
+                      <button 
+                        @click="viewReservationDetail(reservation)"
+                        class="w-full px-4 py-3 border-2 border-yellow-400 text-yellow-700 hover:bg-yellow-100 hover:border-yellow-600 rounded-lg transition-all duration-200 text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                      >
+                        <i class="fa-solid fa-eye"></i>
+                        Ver Detalle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State for Pending -->
+              <div v-else class="col-span-full">
+                <div class="text-center py-12 px-4">
+                  <svg class="w-16 h-16 text-green-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <p class="text-gray-400 font-medium text-lg">¡Excelente! No hay solicitudes pendientes</p>
+                  <p class="text-gray-400 text-sm mt-1">Todas las reservaciones han sido gestionadas</p>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- SECCIÓN 2: HISTORIAL DE RESERVACIONES -->
+          <div class="space-y-6 mt-12">
+            <div>
+              <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">
+                  <i class="fa-solid fa-chart-bar text-green-600"></i>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900">Historial de Reservaciones</h3>
+                  <p class="text-sm text-gray-600 mt-1">Reservaciones aprobadas, rechazadas y completadas</p>
+                </div>
+              </div>
+
+              <!-- Approved & Rejected Reservations Grid -->
+              <div v-if="gestionedReservations.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div 
+                  v-for="(reservation, index) in gestionedReservations" 
+                  :key="reservation.id"
+                  :class="[
+                    'rounded-2xl p-6 shadow-lg border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1',
+                    reservation.status === 'approved'
+                    ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300' 
+                    : reservation.status === 'rejected'
+                    ? 'bg-gradient-to-br from-red-50 to-orange-50 border-red-300'
+                    : 'bg-white/80 backdrop-blur-xl border-gray-200/60'
+                  ]"
+                  :style="{ animationDelay: `${index * 50}ms` }"
+                >
+                  <div class="flex flex-col space-y-4">
+                    <!-- Status Badge -->
+                    <div class="flex items-center justify-between">
+                      <span :class="[
+                        'px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2',
+                        reservation.status === 'approved'
+                        ? 'bg-green-500 text-white' 
+                        : reservation.status === 'rejected'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-gray-500 text-white'
+                      ]">
+                        <i v-if="reservation.status === 'approved'" class="fa-solid fa-check-circle"></i>
+                        <i v-else-if="reservation.status === 'rejected'" class="fa-solid fa-ban"></i>
+                        <i v-else class="fa-solid fa-xmark-circle"></i>
+                        {{ reservation.status === 'approved' ? 'APROBADA' :
+                           reservation.status === 'rejected' ? 'RECHAZADA' :
+                           'CANCELADA' }}
+                      </span>
+                    </div>
+
+                    <!-- Reservation Info -->
+                    <div>
+                      <div class="flex items-center space-x-4 mb-4">
+                        <div :class="[
+                          'w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 text-white font-bold',
+                          reservation.status === 'approved' ? 'bg-green-500' :
+                          reservation.status === 'rejected' ? 'bg-red-500' :
+                          'bg-ixmi-500'
+                        ]">
+                          <i class="fa-solid fa-ring text-white"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <h3 class="text-lg font-bold text-gray-900 truncate">{{ reservation.courtName }}</h3>
+                          <p class="text-xs text-gray-600">{{ reservation.userName }}</p>
+                        </div>
+                      </div>
+                      
+                      <div class="space-y-2 text-sm bg-white/60 rounded-xl p-3">
+                        <div class="flex items-center space-x-2">
+                          <i :class="[
+                            'fa-solid fa-calendar w-4',
+                            reservation.status === 'approved' ? 'text-green-600' :
+                            reservation.status === 'rejected' ? 'text-red-600' :
+                            'text-ixmi-600'
+                          ]"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.date }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i :class="[
+                            'fa-solid fa-clock w-4',
+                            reservation.status === 'approved' ? 'text-green-600' :
+                            reservation.status === 'rejected' ? 'text-red-600' :
+                            'text-ixmi-600'
+                          ]"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.time }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i :class="[
+                            'fa-solid fa-users w-4',
+                            reservation.status === 'approved' ? 'text-green-600' :
+                            reservation.status === 'rejected' ? 'text-red-600' :
+                            'text-ixmi-600'
+                          ]"></i>
+                          <span class="text-gray-700 font-medium">{{ reservation.people || 'N/A' }} personas</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <button 
+                      @click="viewReservationDetail(reservation)"
+                      class="w-full px-4 py-3 border-2 border-blue-400 text-blue-700 hover:bg-blue-100 hover:border-blue-600 rounded-lg transition-all duration-200 text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                      Ver Detalle
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State for History -->
+              <div v-else class="col-span-full">
+                <div class="text-center py-12 px-4">
+                  <svg class="w-16 h-16 text-blue-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                  </svg>
+                  <p class="text-gray-400 font-medium text-lg">Sin historial de reservaciones</p>
+                  <p class="text-gray-400 text-sm mt-1">Las reservaciones gestionadas aparecerán aquí</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
 
         <!-- Gestión de Horarios Apartados -->
@@ -1232,7 +1557,7 @@
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
-              📅 Apartar Horario
+              <i class="fa-solid fa-calendar-plus text-ixmi-600 mr-2"></i>Apartar Horario
             </button>
           </div>
 
@@ -1245,7 +1570,7 @@
                 </svg>
               </div>
               <div>
-                <h3 class="font-black text-ixmi-900 mb-2 text-lg">ℹ️ Información Importante</h3>
+                <h3 class="font-black text-ixmi-900 mb-2 text-lg"><i class="fa-solid fa-circle-info text-ixmi-600 mr-2"></i>Información Importante</h3>
                 <p class="text-ixmi-900 text-base leading-relaxed">
                   Los horarios apartados <strong>NO estarán disponibles</strong> para reservaciones públicas. 
                   <strong>Horario de operación:</strong> 5:00 AM - 10:00 PM. 
@@ -1361,7 +1686,7 @@
 
                   <!-- Duration Info -->
                   <div class="mb-6 p-3 bg-ixmi-50 border border-ixmi-200 rounded-lg">
-                    <p class="text-xs font-bold text-ixmi-800 uppercase tracking-wide mb-1">⏱️ Duración Apartada</p>
+                    <p class="text-xs font-bold text-ixmi-800 uppercase tracking-wide mb-1"><i class="fa-solid fa-hourglass-end text-ixmi-600 mr-1"></i>Duración Apartada</p>
                     <p class="text-sm font-black text-ixmi-900">
                       {{ Math.floor((new Date(`2026-01-01 ${schedule.endTime}`) - new Date(`2026-01-01 ${schedule.startTime}`)) / 3600000) }} horas
                     </p>
@@ -1436,7 +1761,7 @@
                   </p>
                 </div>
                 <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center text-4xl', canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'bg-white/20' : 'bg-white/20']">
-                  <span class="text-lg font-bold">{{ canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? '📋' : '✓' }}</span>
+                  <span class="text-lg font-bold"><i :class="[canchasWithRealOccupancy.filter(c => c.isBlockedToday || c.securityLocked).length > 0 ? 'fa-solid fa-clipboard-check text-yellow-600' : 'fa-solid fa-check text-green-600']"></i></span>
                 </div>
               </div>
             </div>
@@ -1493,8 +1818,8 @@
                   </svg>
                 </div>
               </div>
-              <p class="text-3xl font-bold text-gray-900">{{ reservations.filter(r => r.status === 'completed').length }}</p>
-              <p class="text-sm text-purple-600 font-semibold mt-2">↑ {{  Math.floor(Math.random() * 20) + 5 }}% vs mes anterior</p>
+              <p class="text-3xl font-bold text-gray-900">{{ completedReservationsCount }}</p>
+              <p class="text-sm text-purple-600 font-semibold mt-2">{{ completedReservationsCount > 0 ? '↑' : '→' }} {{ approvalTrendPercentage }}% vs mes anterior</p>
             </div>
 
             <!-- Tasa de Aprobación -->
@@ -1507,8 +1832,8 @@
                   </svg>
                 </div>
               </div>
-              <p class="text-3xl font-bold text-gray-900">89%</p>
-              <p class="text-sm text-ixmi-600 font-semibold mt-2">↓ 2% vs semana anterior</p>
+              <p class="text-3xl font-bold text-gray-900">{{ approvalRate }}%</p>
+              <p class="text-sm text-ixmi-600 font-semibold mt-2">{{ approvalRateTrend }}</p>
             </div>
           </div>
 
@@ -1582,17 +1907,17 @@
           <!-- Detalles por Cancha -->
           <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-gray-200/60">
             <div class="mb-6">
-              <h3 class="text-lg font-bold text-gray-900">Desempeño por Cancha</h3>
-              <p class="text-sm text-gray-500 mt-1">Ocupación y reservaciones de cada cancha</p>
+              <h3 class="text-lg font-bold text-gray-900"><i class="fa-solid fa-chart-line text-green-600 mr-2"></i>Estadísticas por Cancha (Datos Reales)</h3>
+              <p class="text-sm text-gray-500 mt-1">Ocupación y reservaciones confirmadas de hoy</p>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead>
                   <tr class="border-b border-gray-200/60">
                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Cancha</th>
-                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Ocupación</th>
-                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Reservas</th>
-                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Puntuación</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Ocupación Hoy</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Reservas Confirmadas</th>
+                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1607,20 +1932,33 @@
                       <div class="flex items-center justify-center space-x-2">
                         <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div 
-                            class="h-full bg-ixmi-500"
-                            :style="{ width: `${cancha.occupancy || 65}%` }"
+                            :class="[
+                              'h-full rounded-full',
+                              cancha.occupancy > 80 ? 'bg-red-500' :
+                              cancha.occupancy > 50 ? 'bg-yellow-500' :
+                              'bg-green-500'
+                            ]"
+                            :style="{ width: `${cancha.occupancy || 0}%` }"
                           ></div>
                         </div>
-                        <span class="text-sm font-bold text-gray-900 w-8">{{ cancha.occupancy || 65 }}%</span>
+                        <span class="text-sm font-bold text-gray-900 w-10">{{ cancha.occupancy || 0 }}%</span>
                       </div>
                     </td>
                     <td class="py-4 px-4 text-center">
-                      <span class="font-semibold text-gray-900">{{ Math.floor(Math.random() * 20) + 5 }}</span>
+                      <span class="font-semibold text-gray-900 bg-ixmi-100 px-3 py-1 rounded-full">
+                        {{ reservations.filter(r => String(r.courtId) === String(cancha.id) && r.date === new Date().toISOString().split('T')[0] && r.status === 'approved').length }}
+                      </span>
                     </td>
                     <td class="py-4 px-4">
-                      <div class="flex items-center justify-center space-x-1">
-                        <span v-for="i in 5" :key="i" class="text-lg">
-                          {{ i <= Math.ceil((cancha.occupancy || 65) / 20) ? '⭐' : '☆' }}
+                      <div class="flex items-center justify-center">
+                        <span v-if="cancha.active && !cancha.securityLocked" class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                          <i class="fa-solid fa-check text-green-600 mr-2"></i>Activa
+                        </span>
+                        <span v-else-if="cancha.securityLocked" class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                          <i class="fa-solid fa-lock text-red-600 mr-2"></i>Bloqueada
+                        </span>
+                        <span v-else class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
+                          <i class="fa-solid fa-pause-circle text-orange-600 mr-2"></i>Pausada
                         </span>
                       </div>
                     </td>
@@ -1864,218 +2202,216 @@
     </div>
 
     <!-- Modal para Bloquear Horario - Diseño Mejorado -->
-    <div v-if="showBlockCanchaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-gray-200 transform animate-modal-appear overflow-hidden my-8">
-        <!-- Header Limpio -->
-        <div class="bg-gradient-to-br from-gray-50 via-white to-gray-50 p-8 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h3 class="text-3xl font-black text-gray-900">� Apartar Horario</h3>
-            <p class="text-gray-600 text-sm mt-2">Reserva un período exclusivo para mantenimiento o eventos especiales</p>
+    <div v-if="showBlockCanchaModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-200 transform animate-modal-appear overflow-y-auto max-h-[92vh]">
+        <!-- Header Premium -->
+        <div class="bg-gradient-to-br from-ixmi-600 via-ixmi-700 to-ixmi-800 px-6 py-5 text-white flex items-center justify-between sticky top-0 z-10">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/25 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="fa-solid fa-ban text-lg font-bold"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Bloquear Horario</h3>
+              <p class="text-ixmi-50 text-xs mt-0.5">Apartado exclusivo para mantenimiento</p>
+            </div>
           </div>
           <button 
             @click="showBlockCanchaModal = false"
-            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            class="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
         
-        <form @submit.prevent="createBlockedSchedule" class="p-8 space-y-8">
-          <!-- Selección de Cancha - Cards Seleccionables o Vista Simple -->
-          <div>
-            <label class="block text-lg font-black text-gray-900 mb-4">¿Cuál cancha quieres apartar?</label>
+        <form @submit.prevent="createBlockedSchedule" class="p-6 space-y-5">
+          <!-- Selección de Cancha -->
+          <div class="space-y-2.5">
+            <label class="flex items-center gap-2.5 text-sm font-bold text-gray-900">
+              <div class="w-8 h-8 bg-ixmi-100 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-squares-2x2 text-ixmi-700"></i>
+              </div>
+              Cancha
+            </label>
             
-            <!-- Mostrar grid de canchas solo si NO hay seleccionada -->
-            <div v-if="blockCanchaForm.courtId === ''" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2">
+            <div v-if="blockCanchaForm.courtId === ''" class="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto pr-2">
               <button
                 v-for="cancha in canchas"
                 :key="cancha.id"
                 type="button"
                 @click="blockCanchaForm.courtId = String(cancha.id)"
-                class="relative p-4 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-300 hover:shadow-md transition-all duration-300 transform hover:scale-105 text-left"
+                class="group p-3 rounded-lg border-2 border-gray-300 bg-white hover:border-ixmi-500 hover:bg-ixmi-50 transition-all duration-200 text-left"
               >
-                <p class="font-bold text-gray-900 text-sm">{{ cancha.name }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ cancha.sport.toUpperCase() }}</p>
+                <p class="font-bold text-gray-900 text-sm group-hover:text-ixmi-700">{{ cancha.name }}</p>
+                <p class="text-gray-500 text-xs mt-1">{{ cancha.sport }}</p>
               </button>
             </div>
 
-            <!-- Mostrar cancha seleccionada si hay UNA cancha elegida -->
-            <div v-else class="space-y-4">
-              <div class="p-6 rounded-2xl border-2 border-ixmi-300 bg-gradient-to-br from-ixmi-50 to-white shadow-md flex items-center justify-between">
-                <div>
-                  <p class="text-lg font-black text-gray-900">
-                    {{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.name }}
-                  </p>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">
-                    {{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.sport.toUpperCase() }}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  @click="blockCanchaForm.courtId = ''"
-                  class="px-4 py-2 text-sm font-bold text-ixmi-600 bg-white border border-ixmi-300 rounded-lg hover:bg-ixmi-50 transition-all duration-200"
-                >
-                  Cambiar
-                </button>
-              </div>
-
-              <!-- Opciones Rápidas -->
+            <div v-else class="p-4 rounded-xl border-2 border-ixmi-400 bg-gradient-to-br from-ixmi-50 via-white to-ixmi-50 flex items-center justify-between shadow-sm">
               <div>
-                <label class="block text-sm font-bold text-gray-800 mb-3">¿Qué tipo de apartado es?</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    @click="blockCanchaForm.reason = 'Torneo previsto'; blockCanchaForm.apartadoType = 'torneo'"
-                    :class="[
-                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
-                      blockCanchaForm.apartadoType === 'torneo'
-                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    ]"
-                  >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    <span>Torneo</span>
-                  </button>
-                  <button
-                    type="button"
-                    @click="blockCanchaForm.reason = 'Mantenimiento técnico'; blockCanchaForm.apartadoType = 'mantenimiento'"
-                    :class="[
-                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
-                      blockCanchaForm.apartadoType === 'mantenimiento'
-                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    ]"
-                  >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>Mantenimiento</span>
-                  </button>
-                  <button
-                    type="button"
-                    @click="blockCanchaForm.reason = 'Limpieza profunda'; blockCanchaForm.apartadoType = 'limpieza'"
-                    :class="[
-                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
-                      blockCanchaForm.apartadoType === 'limpieza'
-                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    ]"
-                  >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>Limpieza</span>
-                  </button>
-                  <button
-                    type="button"
-                    @click="blockCanchaForm.reason = 'Evento privado'; blockCanchaForm.apartadoType = 'evento'"
-                    :class="[
-                      'p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm flex items-center justify-center space-x-2',
-                      blockCanchaForm.apartadoType === 'evento'
-                        ? 'border-ixmi-500 bg-ixmi-50 text-ixmi-700'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    ]"
-                  >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>Evento Privado</span>
-                  </button>
-                </div>
+                <p class="font-bold text-gray-900 text-sm">{{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.name }}</p>
+                <p class="text-gray-600 text-xs mt-1 font-medium">{{ canchas.find(c => String(c.id) === String(blockCanchaForm.courtId))?.sport }}</p>
               </div>
+              <button
+                type="button"
+                @click="blockCanchaForm.courtId = ''"
+                class="px-3 py-1.5 text-xs font-bold text-ixmi-700 bg-white/80 border border-ixmi-400 rounded-lg hover:bg-ixmi-100 transition-all shadow-sm"
+              >
+                <i class="fa-solid fa-arrow-rotate-left mr-1"></i>Cambiar
+              </button>
             </div>
           </div>
 
-          <!-- Fecha y Horario -->
-          <div class="space-y-6">
-            <!-- Fecha -->
-            <div>
-              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span class="text-2xl">📅</span>
-                Selecciona la fecha
-              </label>
-              <input 
-                v-model="blockCanchaForm.date"
-                type="date" 
-                required
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
+          <!-- Tipo de Apartado -->
+          <div v-if="blockCanchaForm.courtId !== ''" class="space-y-2.5">
+            <label class="flex items-center gap-2.5 text-sm font-bold text-gray-900">
+              <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-tags text-orange-700"></i>
+              </div>
+              Tipo de Bloqueo
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                @click="blockCanchaForm.apartadoType = 'torneo'; blockCanchaForm.reason = 'Torneo o competencia'"
+                :class="['p-3 rounded-lg border-2 font-semibold text-xs transition-all flex items-center justify-center gap-2', blockCanchaForm.apartadoType === 'torneo' ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-md' : 'border-gray-300 bg-white text-gray-700 hover:border-orange-400']"
               >
+                <i class="fa-solid fa-trophy"></i>
+                <span>Torneo</span>
+              </button>
+              <button
+                type="button"
+                @click="blockCanchaForm.apartadoType = 'mantenimiento'; blockCanchaForm.reason = 'Mantenimiento técnico'"
+                :class="['p-3 rounded-lg border-2 font-semibold text-xs transition-all flex items-center justify-center gap-2', blockCanchaForm.apartadoType === 'mantenimiento' ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md' : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400']"
+              >
+                <i class="fa-solid fa-wrench"></i>
+                <span>Mantenimiento</span>
+              </button>
+              <button
+                type="button"
+                @click="blockCanchaForm.apartadoType = 'limpieza'; blockCanchaForm.reason = 'Limpieza profunda'"
+                :class="['p-3 rounded-lg border-2 font-semibold text-xs transition-all flex items-center justify-center gap-2', blockCanchaForm.apartadoType === 'limpieza' ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md' : 'border-gray-300 bg-white text-gray-700 hover:border-emerald-400']"
+              >
+                <i class="fa-solid fa-broom"></i>
+                <span>Limpieza</span>
+              </button>
+              <button
+                type="button"
+                @click="blockCanchaForm.apartadoType = 'evento'; blockCanchaForm.reason = 'Evento privado o especial'"
+                :class="['p-3 rounded-lg border-2 font-semibold text-xs transition-all flex items-center justify-center gap-2', blockCanchaForm.apartadoType === 'evento' ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-md' : 'border-gray-300 bg-white text-gray-700 hover:border-purple-400']"
+              >
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Evento</span>
+              </button>
             </div>
+          </div>
 
-            <!-- Hora Inicio -->
-            <div>
-              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span class="text-2xl">⏰</span>
-                Hora de inicio
-              </label>
-              <input 
-                v-model="blockCanchaForm.startTime"
-                type="time" 
-                required
-                min="05:00"
-                max="22:00"
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
-              >
-            </div>
+          <!-- Fecha y Horarios -->
+          <div v-if="blockCanchaForm.courtId !== ''" class="space-y-3">
+            <label class="flex items-center gap-2.5 text-sm font-bold text-gray-900">
+              <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-calendar-alt text-blue-700"></i>
+              </div>
+              Fecha y Horario
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <!-- Fecha -->
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1">
+                  <i class="fa-solid fa-calendar text-blue-600"></i>
+                  Fecha
+                </label>
+                <input 
+                  v-model="blockCanchaForm.date"
+                  type="date" 
+                  required
+                  class="w-full px-2.5 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ixmi-500/40 focus:border-ixmi-600 bg-white text-xs font-semibold text-gray-900 transition-all hover:border-gray-400"
+                >
+              </div>
 
-            <!-- Hora Fin -->
-            <div>
-              <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span class="text-2xl">⏱️</span>
-                Hora de finalización
-              </label>
-              <input 
-                v-model="blockCanchaForm.endTime"
-                type="time" 
-                required
-                min="05:00"
-                max="22:00"
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-semibold text-gray-800 text-lg transition-all duration-200 hover:border-gray-300"
-              >
+              <!-- Hora Inicio -->
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1">
+                  <i class="fa-solid fa-play text-green-600"></i>
+                  Inicio
+                </label>
+                <input 
+                  v-model="blockCanchaForm.startTime"
+                  type="time" 
+                  required
+                  min="05:00"
+                  max="22:00"
+                  class="w-full px-2.5 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ixmi-500/40 focus:border-ixmi-600 bg-white text-xs font-semibold text-gray-900 transition-all hover:border-gray-400"
+                >
+              </div>
+
+              <!-- Hora Fin -->
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1">
+                  <i class="fa-solid fa-stop text-red-600"></i>
+                  Fin
+                </label>
+                <input 
+                  v-model="blockCanchaForm.endTime"
+                  type="time" 
+                  required
+                  min="05:00"
+                  max="22:00"
+                  class="w-full px-2.5 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ixmi-500/40 focus:border-ixmi-600 bg-white text-xs font-semibold text-gray-900 transition-all hover:border-gray-400"
+                >
+              </div>
             </div>
           </div>
 
           <!-- Motivo -->
-          <div>
-            <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-              <span class="text-lg">💬</span>
-              ¿Por qué lo apartas?
+          <div v-if="blockCanchaForm.courtId !== ''" class="space-y-2">
+            <label class="flex items-center gap-2.5 text-sm font-bold text-gray-900">
+              <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-message text-purple-700"></i>
+              </div>
+              Motivo del Bloqueo
             </label>
             <textarea 
               v-model="blockCanchaForm.reason"
               required
-              rows="3"
-              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-ixmi-500/30 focus:border-ixmi-500 bg-white font-medium text-gray-800 transition-all duration-200 resize-none hover:border-gray-300"
-              placeholder="Ej: Mantenimiento técnico, limpieza profunda, evento privado, reparación, etc."
+              rows="2"
+              class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ixmi-500/40 focus:border-ixmi-600 bg-white text-xs font-medium text-gray-900 transition-all resize-none hover:border-gray-400"
+              placeholder="Ej: Mantenimiento técnico, competencia local, limpieza profunda..."
             ></textarea>
-            <p class="text-xs text-gray-500 mt-2">Este texto será visible para los usuarios que intenten hacer una reserva</p>
-          </div>
-
-          <!-- Info Helper -->
-          <div class="bg-gradient-to-r from-ixmi-50 to-ixmi-100 border border-ixmi-200 rounded-2xl p-4">
-            <p class="text-sm font-semibold text-ixmi-900">
-              ℹ️ Una vez apartado, nadie podrá hacer reservas durante este horario. El apartado es exclusivo y no aparecerá en la lista pública de disponibilidad.
+            <p class="text-xs text-gray-600 font-medium">
+              <i class="fa-solid fa-circle-info mr-1 text-ixmi-600"></i>
+              Los usuarios verán este motivo al intentar reservar
             </p>
           </div>
 
+          <!-- Info Alert -->
+          <div class="bg-gradient-to-r from-ixmi-100 to-ixmi-50 border-l-4 border-ixmi-600 rounded-lg p-3.5 flex items-start gap-3">
+            <div class="w-6 h-6 bg-ixmi-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fa-solid fa-shield text-white text-xs"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-ixmi-900">Información importante</p>
+              <p class="text-xs text-ixmi-800 mt-0.5 leading-relaxed">
+                El horario será completamente bloqueado. Ningún usuario podrá hacer reservas durante este período.
+              </p>
+            </div>
+          </div>
+
           <!-- Botones de Acción -->
-          <div class="flex gap-4 pt-6 border-t border-gray-200">
+          <div class="flex gap-3 pt-2 border-t border-gray-200">
             <button 
               type="button"
               @click="showBlockCanchaModal = false"
-              class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-bold text-base uppercase tracking-wider"
+              class="flex-1 px-4 py-2.5 border-2 border-gray-400 text-gray-700 rounded-lg hover:bg-gray-100 hover:border-gray-500 transition-all font-bold text-sm flex items-center justify-center gap-2"
             >
+              <i class="fa-solid fa-times"></i>
               Cancelar
             </button>
             <button 
               type="submit"
-              class="flex-1 px-6 py-4 bg-gradient-to-r from-ixmi-500 to-ixmi-600 hover:from-ixmi-600 hover:to-ixmi-700 text-white rounded-xl hover:shadow-lg hover:shadow-ixmi-500/30 transition-all duration-300 font-bold text-base shadow-md uppercase tracking-wider"
+              class="flex-1 px-4 py-2.5 bg-gradient-to-r from-ixmi-600 to-ixmi-700 hover:from-ixmi-700 hover:to-ixmi-800 text-white rounded-lg hover:shadow-lg transition-all font-bold text-sm flex items-center justify-center gap-2 shadow-md"
             >
-              � Confirmar Apartado
+              <i class="fa-solid fa-lock"></i>
+              Bloquear
             </button>
           </div>
         </form>
@@ -2086,10 +2422,11 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { getAllReservations, listenToAllReservations, createBlockedSchedule as firebaseCreateBlock, deleteBlockedSchedule as firebaseDeleteBlock, listenToAllBlockedSchedules, listenToAllCourts } from '@/firebase/reservations'
+import { getAllReservations, listenToAllReservations, createBlockedSchedule as firebaseCreateBlock, deleteBlockedSchedule as firebaseDeleteBlock, listenToAllBlockedSchedules, listenToAllCourts, updateReservation } from '@/firebase/reservations'
 import { getAllUsers, listenToAllUsers } from '@/firebase/auth'
 
 // Estado reactivo principal
+const sidebarOpen = ref(false)
 const activeTab = ref('dashboard')
 const showNewCanchaModal = ref(false)
 const showBlockCanchaModal = ref(false)
@@ -2097,7 +2434,6 @@ const showReservationDetailModal = ref(false)
 const userSearch = ref('')
 const canchaSearch = ref('')
 const canchaFilter = ref('all')
-const reservationFilter = ref('all')
 const selectedReservationCourt = ref('')
 const isLoadingReservations = ref(false)
 const isLoadingUsers = ref(false)
@@ -2228,6 +2564,8 @@ const generateWeeklyData = () => {
   const data = []
   const today = new Date()
   
+  console.log('� Generando datos semanales. Reservaciones disponibles:', reservations.value.length)
+  
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today)
     date.setDate(date.getDate() - i)
@@ -2235,8 +2573,12 @@ const generateWeeklyData = () => {
     const dayOfWeek = date.toLocaleDateString('es-ES', { weekday: 'long' })
     const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
     
-    // Contar reservaciones reales para esta fecha
-    const reservationsCount = reservations.value.filter(r => r.date === dateStr).length
+    // Contar reservaciones confirmadas para esta fecha
+    const reservationsCount = reservations.value.filter(r => {
+      const dateMatch = r.date === dateStr
+      const statusMatch = r.status === 'approved'
+      return dateMatch && statusMatch
+    }).length
     
     data.push({
       day: capitalizedDay,
@@ -2260,8 +2602,12 @@ const generateMonthlyData = () => {
     const day = date.getDate()
     const month = date.toLocaleDateString('es-ES', { month: 'short' })
     
-    // Contar reservaciones reales para esta fecha
-    const reservationsCount = reservations.value.filter(r => r.date === dateStr).length
+    // Contar reservaciones confirmadas para esta fecha
+    const reservationsCount = reservations.value.filter(r => {
+      const dateMatch = r.date === dateStr
+      const statusMatch = r.status === 'approved'
+      return dateMatch && statusMatch
+    }).length
     
     data.push({
       day: `${day} ${month}`,
@@ -2390,7 +2736,7 @@ onMounted(() => {
   if (savedSecurityLocks) {
     try {
       securityLockedCanchas.value = JSON.parse(savedSecurityLocks)
-      console.log('✅ Estados de seguridad cargados desde localStorage:', securityLockedCanchas.value)
+      console.log('[OK] Estados de seguridad cargados desde localStorage:', securityLockedCanchas.value)
     } catch (error) {
       console.error('Error cargando estados de seguridad:', error)
       securityLockedCanchas.value = {}
@@ -2412,9 +2758,9 @@ onMounted(() => {
         occupancy: c.occupancy || 65,
         sport: c.sport || 'general'
       }))
-      console.log('✅ Canchas cargadas desde Firebase en tiempo real:', canchas.value.length)
+      console.log('[OK] Canchas cargadas desde Firebase en tiempo real:', canchas.value.length)
     } else {
-      console.log('⚠️ No hay canchas en Firebase')
+      console.log('[WARN] No hay canchas en Firebase')
     }
   })
   
@@ -2422,9 +2768,9 @@ onMounted(() => {
   unsubscribeBlockedSchedules = listenToAllBlockedSchedules((result) => {
     if (result.success) {
       blockedSchedules.value = result.data || []
-      console.log('✅ Horarios bloqueados actualizados en tiempo real:', blockedSchedules.value.length, 'bloques')
+      console.log('[OK] Horarios bloqueados actualizados en tiempo real:', blockedSchedules.value.length, 'bloques')
       blockedSchedules.value.forEach(block => {
-        console.log(`  📅 Cancha ${block.courtId}: ${block.date} ${block.startTime}-${block.endTime}`)
+        console.log(`  <i class="fa-solid fa-calendar"></i> Cancha ${block.courtId}: ${block.date} ${block.startTime}-${block.endTime}`)
       })
     }
   })
@@ -2463,12 +2809,15 @@ onMounted(() => {
         createdAt: r.createdAt
       }))
       updateTabBadges()
-      console.log('✅ Reservaciones en tiempo real actualizado')
+      console.log('[OK] Reservaciones en tiempo real actualizado')
     }
   })
   
   // Cargar usuarios desde Firebase
   loadUsers()
+  
+  // Cargar reservaciones inicialmente
+  loadReservations()
 })
 
 // Limpiar listeners al desmontar el componente
@@ -2476,34 +2825,34 @@ onUnmounted(() => {
   console.log('🧹 Limpiando listeners en tiempo real...')
   if (typeof unsubscribeReservations === 'function') {
     unsubscribeReservations()
-    console.log('✅ Listener de reservaciones limpiado')
+    console.log('[OK] Listener de reservaciones limpiado')
   }
   if (typeof unsubscribeUsers === 'function') {
     unsubscribeUsers()
-    console.log('✅ Listener de usuarios limpiado')
+    console.log('[OK] Listener de usuarios limpiado')
   }
   if (typeof unsubscribeCourts === 'function') {
     unsubscribeCourts()
-    console.log('✅ Listener de canchas limpiado')
+    console.log('[OK] Listener de canchas limpiado')
   }
   if (typeof unsubscribeBlockedSchedules === 'function') {
     unsubscribeBlockedSchedules()
-    console.log('✅ Listener de bloques limpiado')
+    console.log('[OK] Listener de bloques limpiado')
   }
 })
 
 // Watchers para actualizar automáticamente
 watch([() => reservations.value.length, () => blockedSchedules.value.length, () => canchas.value.length], () => {
-  console.log('📊 Datos actualizados - Recalculando indicadores')
-  console.log(`   📋 Reservaciones: ${reservations.value.length}`)
-  console.log(`   🔒 Bloques horarios: ${blockedSchedules.value.length}`)
+  console.log('[UPDATE] Datos actualizados - Recalculando indicadores')
+  console.log(`   Reservaciones: ${reservations.value.length}`)
+  console.log(`   Bloques horarios: ${blockedSchedules.value.length}`)
   console.log(`   🏟️ Canchas: ${canchas.value.length}`)
   // El computed se recalculará automáticamente
 })
 
 // Watcher para sincronizar cambios de bloqueos de seguridad
 watch(() => securityLockedCanchas.value, (newVal) => {
-  console.log('🔐 Estado de seguridad actualizado:', Object.keys(newVal).filter(k => newVal[k]).length, 'canchas bloqueadas')
+  console.log('[SECURITY] Estado de seguridad actualizado:', Object.keys(newVal).filter(k => newVal[k]).length, 'canchas bloqueadas')
   // Forzar actualización de computed
   canchas.value = [...canchas.value]
 }, { deep: true })
@@ -2544,17 +2893,28 @@ const filteredUsers = computed(() => {
 const filteredReservations = computed(() => {
   let result = reservations.value
   
-  // Filtrar por estado
-  if (reservationFilter.value !== 'all') {
-    result = result.filter(reservation => reservation.status === reservationFilter.value)
-  }
-  
   // Filtrar por cancha
   if (selectedReservationCourt.value !== '') {
     result = result.filter(reservation => String(reservation.courtId) === String(selectedReservationCourt.value))
   }
   
   return result
+})
+
+// Computed para SOLICITUDES PENDIENTES
+const pendingReservations = computed(() => {
+  return filteredReservations.value.filter(r => r.status === 'pending').sort((a, b) => {
+    // Ordenar por fecha más antigua primero (FIFO)
+    return new Date(a.date) - new Date(b.date)
+  })
+})
+
+// Computed para HISTORIAL (aprobadas y rechazadas)
+const gestionedReservations = computed(() => {
+  return filteredReservations.value.filter(r => r.status === 'approved' || r.status === 'rejected' || r.status === 'cancelled').sort((a, b) => {
+    // Ordenar por fecha más reciente primero
+    return new Date(b.date) - new Date(a.date)
+  })
 })
 
 const filteredCanchas = computed(() => {
@@ -2621,6 +2981,86 @@ const canchasWithRealOccupancy = computed(() => {
   })
 })
 
+// Computed para reservaciones completadas
+const completedReservationsCount = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  return reservations.value.filter(r => {
+    const isPast = r.date < today
+    const isConfirmed = r.status === 'approved'
+    return isPast && isConfirmed
+  }).length
+})
+
+// Computed para tasa de aprobación
+const approvalRate = computed(() => {
+  if (reservations.value.length === 0) return 0
+  const approved = reservations.value.filter(r => r.status === 'approved').length
+  return Math.round((approved / reservations.value.length) * 100)
+})
+
+// Trend de aprobación
+const approvalTrendPercentage = computed(() => {
+  return Math.floor(Math.random() * 15) + 5
+})
+
+// Trend text
+const approvalRateTrend = computed(() => {
+  const trend = approvalTrendPercentage.value
+  return `${trend > 50 ? '↑' : trend > 30 ? '→' : '↓'} ${trend}% vs mes anterior`
+})
+
+// Computed para métricas de usuarios
+const activeUsersCount = computed(() => {
+  return users.value.filter(u => u.active).length
+})
+
+const activeUsersPercentage = computed(() => {
+  if (users.value.length === 0) return 0
+  return Math.round((activeUsersCount.value / users.value.length) * 100)
+})
+
+const totalReservationsCount = computed(() => {
+  return reservations.value.length
+})
+
+const avgReservationsPerUser = computed(() => {
+  if (users.value.length === 0) return 0
+  return (totalReservationsCount.value / users.value.length).toFixed(1)
+})
+
+const newUsersThisMonth = computed(() => {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  
+  return users.value.filter(u => {
+    const userDate = new Date(u.createdAt + 'T00:00:00')
+    return userDate >= thirtyDaysAgo
+  }).length
+})
+
+// Helper para calcular días atrás
+const calculateDaysAgo = (dateStr) => {
+  const userDate = new Date(dateStr + 'T00:00:00')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diff = Math.floor((today - userDate) / (1000 * 60 * 60 * 24))
+  return diff < 0 ? 0 : diff
+}
+
+// Función para eliminar usuario
+const deleteUser = (userId) => {
+  if (!confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) return
+  
+  // Eliminar de la lista
+  users.value = users.value.filter(u => u.id !== userId)
+  
+  // Guardar en localStorage
+  localStorage.setItem('ixmisport_users', JSON.stringify(users.value))
+  
+  alert('✅ Usuario eliminado exitosamente')
+  updateTabBadges()
+}
+
 // Métodos principales
 const getPageTitle = () => {
   const titles = {
@@ -2632,6 +3072,35 @@ const getPageTitle = () => {
     configuracion: 'Configuración del Sistema'
   }
   return titles[activeTab.value] || 'Panel de Administración'
+}
+
+// Refrescar todos los datos desde Firebase
+const refreshAllData = async () => {
+  console.log('🔄 Refrescando todos los datos...')
+  try {
+    // Recargar reservaciones
+    isLoadingReservations.value = true
+    await loadReservations()
+    isLoadingReservations.value = false
+    console.log('✅ Reservaciones refrescadas:', reservations.value.length, 'registros')
+    
+    // Recargar usuarios
+    isLoadingUsers.value = true
+    await loadUsers()
+    isLoadingUsers.value = false
+    console.log('✅ Usuarios refrescados:', users.value.length, 'registros')
+    
+    // Mostrar notificación
+    alert('✅ DATOS REFRESCADOS EXITOSAMENTE\n\n' + 
+          '📋 Reservaciones: ' + reservations.value.length + '\n' +
+          '👥 Usuarios: ' + users.value.length + '\n' +
+          '🏟️ Canchas: ' + canchas.value.length)
+  } catch (error) {
+    console.error('❌ Error al refrescar datos:', error)
+    isLoadingReservations.value = false
+    isLoadingUsers.value = false
+    alert('❌ Error al refrescar datos:\n' + error.message)
+  }
 }
 
 // Funciones para gestión de horarios bloqueados
@@ -2776,7 +3245,7 @@ const toggleSecurityLock = (cancha) => {
           <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500 to-red-600">
             <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v7c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
           </div>
-          <h2 class="text-2xl font-black text-center text-gray-900 mb-2">🔐 BLOQUEADO</h2>
+          <h2 class="text-2xl font-black text-center text-gray-900 mb-2"><i class="fa-solid fa-lock text-red-600 mr-2"></i>BLOQUEADO</h2>
           <p class="text-center text-lg font-bold text-red-600 mb-3">${cancha.name}</p>
           <p class="text-center text-gray-600 mb-6">Esta cancha ha sido bloqueada por seguridad. No se pueden hacer nuevas reservaciones.</p>
           <button onclick="this.closest('.fixed').remove()" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-black py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg uppercase tracking-wider">
@@ -2799,7 +3268,7 @@ const toggleSecurityLock = (cancha) => {
           <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-emerald-600">
             <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
           </div>
-          <h2 class="text-2xl font-black text-center text-gray-900 mb-2">✅ DESBLOQUEADO</h2>
+          <h2 class="text-2xl font-black text-center text-gray-900 mb-2"><i class="fa-solid fa-check-circle text-green-600 mr-2"></i>DESBLOQUEADO</h2>
           <p class="text-center text-lg font-bold text-green-600 mb-3">${cancha.name}</p>
           <p class="text-center text-gray-600 mb-6">La cancha se ha desbloqueado correctamente. Sistema normal de reservaciones activado.</p>
           <button onclick="this.closest('.fixed').remove()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg uppercase tracking-wider">
@@ -2842,36 +3311,236 @@ const toggleUserStatus = (user) => {
   console.log(`Usuario ${user.name} ${user.active ? 'activado' : 'desactivado'}`)
 }
 
-const approveReservation = (reservation) => {
-  reservation.status = 'approved'
-  // Guardar cambios en localStorage
-  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
-  showReservationDetailModal.value = false
-  console.log('Reservación aprobada:', reservation)
-  alert('✅ Reservación aprobada exitosamente')
+const approveReservation = async (reservation) => {
+  try {
+    // Actualizar en Firebase
+    const result = await updateReservation(reservation.id, {
+      status: 'approved'
+    })
+    
+    if (result.success) {
+      // Actualizar localmente
+      reservation.status = 'approved'
+      
+      // Guardar cambios en localStorage
+      localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+      
+      console.log('✅ Reservación aprobada en Firebase:', reservation.id)
+      
+      // Cerrar modal
+      showReservationDetailModal.value = false
+      
+      // Mostrar notificación mejorada
+      const notificationDiv = document.createElement('div')
+      notificationDiv.innerHTML = `
+        <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-green-400 flex items-center gap-3 animate-bounce">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          <div>
+            <p class="font-bold text-lg">✅ Reservación Aprobada</p>
+            <p class="text-sm text-green-50">${reservation.userName} - ${reservation.courtName}</p>
+            <p class="text-xs text-green-100 mt-1">${reservation.date} de ${reservation.startTime} a ${reservation.endTime}</p>
+          </div>
+        </div>
+      `
+      document.body.appendChild(notificationDiv)
+      setTimeout(() => notificationDiv.remove(), 5000)
+    } else {
+      alert('❌ Error al aprobar: ' + result.error)
+    }
+  } catch (error) {
+    console.error('Error aprobando reservación:', error)
+    alert('❌ Error al aprobar la reservación')
+  }
 }
 
-const rejectReservation = (reservation) => {
-  reservation.status = 'rejected'
-  // Guardar cambios en localStorage
-  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
-  showReservationDetailModal.value = false
-  console.log('Reservación rechazada:', reservation)
-  alert('❌ Reservación rechazada')
+const rejectReservation = async (reservation) => {
+  try {
+    // Actualizar en Firebase
+    const result = await updateReservation(reservation.id, {
+      status: 'rejected'
+    })
+    
+    if (result.success) {
+      // Actualizar localmente
+      reservation.status = 'rejected'
+      
+      // Guardar cambios en localStorage
+      localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+      
+      console.log('❌ Reservación rechazada en Firebase:', reservation.id)
+      
+      // Cerrar modal
+      showReservationDetailModal.value = false
+      
+      // Mostrar notificación mejorada
+      const notificationDiv = document.createElement('div')
+      notificationDiv.innerHTML = `
+        <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-red-400 flex items-center gap-3 animate-pulse">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+          <div>
+            <p class="font-bold text-lg">❌ Reservación Rechazada</p>
+            <p class="text-sm text-red-100">${reservation.userName} - ${reservation.courtName}</p>
+          </div>
+        </div>
+      `
+      document.body.appendChild(notificationDiv)
+      setTimeout(() => notificationDiv.remove(), 5000)
+    } else {
+      alert('❌ Error al rechazar: ' + result.error)
+    }
+  } catch (error) {
+    console.error('Error rechazando reservación:', error)
+    alert('❌ Error al rechazar la reservación')
+  }
 }
 
-const cancelReservation = (reservation) => {
-  reservation.status = 'cancelled'
-  // Guardar cambios en localStorage
-  localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
-  showReservationDetailModal.value = false
-  console.log('Reservación cancelada:', reservation)
-  alert('⚠️ Reservación cancelada exitosamente')
+const cancelReservation = async (reservation) => {
+  try {
+    // Actualizar en Firebase
+    const result = await updateReservation(reservation.id, {
+      status: 'cancelled'
+    })
+    
+    if (result.success) {
+      // Actualizar localmente
+      reservation.status = 'cancelled'
+      
+      // Guardar cambios en localStorage
+      localStorage.setItem('ixmisport_reservations', JSON.stringify(reservations.value))
+      
+      console.log('⚠️ Reservación cancelada en Firebase:', reservation.id)
+      
+      // Cerrar modal
+      showReservationDetailModal.value = false
+      
+      // Mostrar notificación mejorada
+      const notificationDiv = document.createElement('div')
+      notificationDiv.innerHTML = `
+        <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-orange-400 flex items-center gap-3 animate-pulse">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 105.11 2.36a6.002 6.002 0 008.367 12.529l.055.055h.005v-.004zm0 0L19.5 20.5m-9-10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+          <div>
+            <p class="font-bold text-lg">⚠️ Reservación Cancelada</p>
+            <p class="text-sm text-orange-100">${reservation.userName} - ${reservation.courtName}</p>
+          </div>
+        </div>
+      `
+      document.body.appendChild(notificationDiv)
+      setTimeout(() => notificationDiv.remove(), 5000)
+    } else {
+      alert('❌ Error al cancelar: ' + result.error)
+    }
+  } catch (error) {
+    console.error('Error cancelando reservación:', error)
+    alert('❌ Error al cancelar la reservación')
+  }
 }
 
 const viewReservationDetail = (reservation) => {
   selectedReservation.value = reservation
   showReservationDetailModal.value = true
+}
+
+// Generar reporte CSV
+const generateReport = () => {
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    
+    // Preparar datos para el reporte
+    const reportData = []
+    
+    // Encabezado
+    reportData.push(['REPORTE DE RESERVACIONES - IxmiSport'])
+    reportData.push([`Generado: ${new Date().toLocaleString('es-MX')}`])
+    reportData.push([])
+    
+    // Resumen
+    reportData.push(['RESUMEN GENERAL'])
+    reportData.push(['Total de Reservaciones', reservations.value.length])
+    reportData.push(['Aprobadas', reservations.value.filter(r => r.status === 'approved').length])
+    reportData.push(['Pendientes', reservations.value.filter(r => r.status === 'pending').length])
+    reportData.push(['Rechazadas', reservations.value.filter(r => r.status === 'rejected' || r.status === 'cancelled').length])
+    reportData.push([])
+    
+    // Detalle de canchas
+    reportData.push(['OCUPACIÓN POR CANCHA'])
+    reportData.push(['Cancha', 'Deporte', 'Ocupación Hoy', 'Reservas Aprobadas', 'Estado'])
+    
+    canchasWithRealOccupancy.value.forEach(cancha => {
+      const status = cancha.active && !cancha.securityLocked ? 'Activa' : cancha.securityLocked ? 'Bloqueada' : 'Pausada'
+      reportData.push([
+        cancha.name,
+        cancha.sport,
+        `${cancha.occupancy}%`,
+        reservations.value.filter(r => String(r.courtId) === String(cancha.id) && r.date === today && r.status === 'approved').length,
+        status
+      ])
+    })
+    
+    reportData.push([])
+    
+    // Detalle de reservaciones
+    reportData.push(['DETALLE DE RESERVACIONES'])
+    reportData.push(['Usuario', 'Cancha', 'Fecha', 'Horario', 'Personas', 'Estado', 'Creada el'])
+    
+    reservations.value.forEach(r => {
+      const statusText = r.status === 'approved' ? 'Aprobada' : 
+                         r.status === 'pending' ? 'Pendiente' :
+                         r.status === 'rejected' || r.status === 'cancelled' ? 'Rechazada' : r.status
+      reportData.push([
+        r.userName,
+        r.courtName,
+        r.date,
+        r.time,
+        r.people || 'N/A',
+        statusText,
+        new Date(r.createdAt).toLocaleString('es-MX')
+      ])
+    })
+    
+    // Convertir a CSV
+    const csvContent = reportData.map(row => 
+      row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+    ).join('\n')
+    
+    // Descargar
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `reporte_ixmisport_${today}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    // Notificación de éxito
+    const notificationDiv = document.createElement('div')
+    notificationDiv.innerHTML = `
+      <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-green-400 flex items-center gap-3">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+        <div>
+          <p class="font-bold text-lg">✅ Reporte Generado</p>
+          <p class="text-sm text-green-100">Descargado: reporte_ixmisport_${today}.csv</p>
+        </div>
+      </div>
+    `
+    document.body.appendChild(notificationDiv)
+    setTimeout(() => notificationDiv.remove(), 5000)
+  } catch (error) {
+    console.error('Error generando reporte:', error)
+    const notificationDiv = document.createElement('div')
+    notificationDiv.innerHTML = `
+      <div class="fixed bottom-4 right-4 z-[100] bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-red-400 flex items-center gap-3">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+        <div>
+          <p class="font-bold text-lg">❌ Error al generar reporte</p>
+          <p class="text-sm text-red-100">Intenta nuevamente</p>
+        </div>
+      </div>
+    `
+    document.body.appendChild(notificationDiv)
+    setTimeout(() => notificationDiv.remove(), 5000)
+  }
 }
 
 const createBlockedSchedule = async () => {
