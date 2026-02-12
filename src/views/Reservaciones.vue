@@ -112,19 +112,22 @@
     <section ref="filtersSection" :class="['filters-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 mb-16', { 'animate-visible': filtersVisible }]">
       <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
         <!-- Header del filtro -->
-        <div class="bg-gradient-to-r from-[#6BCF9F]/10 via-[#7ED9A8]/10 to-[#95E3B3]/10 px-8 py-5 border-b border-gray-100">
+        <div class="bg-gradient-to-r from-[#6BCF9F]/15 via-[#7ED9A8]/15 to-[#95E3B3]/15 px-8 py-6 border-b border-gray-200">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg">
-                <FunnelIcon class="w-6 h-6 text-white" />
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 bg-gradient-to-br from-[#6BCF9F] to-[#7ED9A8] rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300">
+                <i class="fa-solid fa-filter text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-xl font-bold text-gray-800">Filtros de Búsqueda</h3>
-                <p class="text-sm text-gray-500">Personaliza tu búsqueda para encontrar la cancha perfecta</p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-0.5">Filtros de Búsqueda</h3>
+                <p class="text-sm text-gray-600 flex items-center gap-1.5">
+                  <i class="fa-solid fa-sparkles text-[#6BCF9F] text-xs"></i>
+                  Personaliza tu búsqueda para encontrar la cancha perfecta
+                </p>
               </div>
             </div>
-            <button class="px-4 py-2 text-sm font-semibold text-[#6BCF9F] hover:bg-[#6BCF9F]/10 rounded-lg transition-all duration-300 flex items-center gap-2">
-              <ArrowPathIcon class="w-4 h-4" />
+            <button class="group px-5 py-3 text-sm font-bold text-[#6BCF9F] hover:bg-[#6BCF9F]/10 rounded-xl transition-all duration-300 flex items-center gap-2 border border-transparent hover:border-[#6BCF9F]/30">
+              <i class="fa-solid fa-rotate-right group-hover:rotate-180 transition-transform duration-500"></i>
               Limpiar filtros
             </button>
           </div>
@@ -133,77 +136,77 @@
         <!-- Contenido de filtros -->
         <div class="p-8">
           <div class="grid md:grid-cols-4 gap-6">
-            <!-- Sport Type Filter -->
+            <!-- Sport Type Filter - Mejorado -->
             <div class="relative group">
-              <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-[#6BCF9F]/20 to-[#7ED9A8]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <TrophyIcon class="w-5 h-5 text-[#6BCF9F]" />
+              <label class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2.5 pl-0.5">
+                <div class="w-9 h-9 bg-gradient-to-br from-[#6BCF9F]/20 to-[#7ED9A8]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-futbol text-[#6BCF9F] text-sm"></i>
                 </div>
-                Tipo de Deporte
+                <span>Tipo de Deporte</span>
               </label>
               <div class="relative">
-                <select v-model="filters.sport" class="w-full px-5 py-4 bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#6BCF9F] hover:shadow-lg appearance-none font-medium text-gray-700">
+                <select v-model="filters.sport" class="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#6BCF9F] hover:shadow-md appearance-none font-medium text-gray-700">
                   <option value="">Todos los deportes</option>
-                  <option value="futbol">Fútbol</option>
-                  <option value="basquetbol">Basquetbol</option>
-                  <option value="tenis">Tenis</option>
-                  <option value="voleibol">Voleibol</option>
-                  <option value="padel">Pádel</option>
+                  <option value="futbol" class="text-gray-700">⚽ Fútbol</option>
+                  <option value="basquetbol" class="text-gray-700">🏀 Basquetbol</option>
+                  <option value="tenis" class="text-gray-700">🎾 Tenis</option>
+                  <option value="voleibol" class="text-gray-700">🏐 Voleibol</option>
+                  <option value="padel" class="text-gray-700">🏸 Pádel</option>
                 </select>
-                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"></i>
               </div>
             </div>
 
-            <!-- Date Filter -->
+            <!-- Date Filter - Mejorado -->
             <div class="relative group">
-              <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-[#7ED9A8]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <CalendarIcon class="w-5 h-5 text-[#7ED9A8]" />
+              <label class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2.5 pl-0.5">
+                <div class="w-9 h-9 bg-gradient-to-br from-[#7ED9A8]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-calendar text-[#7ED9A8] text-sm"></i>
                 </div>
-                Fecha de Reserva
+                <span>Fecha de Reserva</span>
               </label>
               <input 
                 v-model="filters.date"
                 type="date" 
-                class="w-full px-5 py-4 bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#7ED9A8] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#7ED9A8] hover:shadow-lg font-medium text-gray-700"
+                class="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7ED9A8] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#7ED9A8] hover:shadow-md font-medium text-gray-700"
               />
             </div>
 
-            <!-- Time Filter -->
+            <!-- Time Filter - Mejorado -->
             <div class="relative group">
-              <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-[#95E3B3]/20 to-[#6BCF9F]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <ClockIcon class="w-5 h-5 text-[#95E3B3]" />
+              <label class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2.5 pl-0.5">
+                <div class="w-9 h-9 bg-gradient-to-br from-[#95E3B3]/20 to-[#6BCF9F]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-clock text-[#95E3B3] text-sm"></i>
                 </div>
-                Horario Preferido
+                <span>Horario Preferido</span>
               </label>
               <div class="relative">
-                <select v-model="filters.time" class="w-full px-5 py-4 bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#95E3B3] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#95E3B3] hover:shadow-lg appearance-none font-medium text-gray-700">
+                <select v-model="filters.time" class="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#95E3B3] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#95E3B3] hover:shadow-md appearance-none font-medium text-gray-700">
                   <option value="">Cualquier hora</option>
                   <option value="morning">Mañana (6AM - 12PM)</option>
                   <option value="afternoon">Tarde (12PM - 6PM)</option>
                   <option value="night">Noche (6PM - 11PM)</option>
                 </select>
-                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"></i>
               </div>
             </div>
 
-            <!-- Location Filter -->
+            <!-- Location Filter - Mejorado -->
             <div class="relative group">
-              <label class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-[#6BCF9F]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <MapPinIcon class="w-5 h-5 text-[#6BCF9F]" />
+              <label class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2.5 pl-0.5">
+                <div class="w-9 h-9 bg-gradient-to-br from-[#6BCF9F]/20 to-[#95E3B3]/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-location-dot text-[#6BCF9F] text-sm"></i>
                 </div>
-                Zona / Ubicación
+                <span>Zona / Ubicación</span>
               </label>
               <div class="relative">
-                <select v-model="filters.location" class="w-full px-5 py-4 bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#6BCF9F] hover:shadow-lg appearance-none font-medium text-gray-700">
+                <select v-model="filters.location" class="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6BCF9F] focus:border-transparent transition-all duration-300 cursor-pointer hover:border-[#6BCF9F] hover:shadow-md appearance-none font-medium text-gray-700">
                   <option value="">Todas las zonas</option>
                   <option value="centro">Centro</option>
                   <option value="norte">Norte</option>
                   <option value="sur">Sur</option>
                 </select>
-                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"></i>
               </div>
             </div>
           </div>
@@ -297,13 +300,6 @@
                   <span class="stat-label">Iluminación</span>
                 </div>
               </div>
-            </div>
-
-            <!-- Amenities Tags -->
-            <div class="court-amenities">
-              <span v-for="amenity in court.amenities.slice(0, 3)" :key="amenity" class="amenity-tag">
-                {{ amenity }}
-              </span>
             </div>
 
             <!-- Card Footer -->
@@ -937,7 +933,7 @@ const courts = ref([
     id: 5,
     name: 'Cancha de Tennis #1',
     description: 'Superficie de arcilla sintética profesional',
-    icon: 'fa-solid fa-baseball',
+    icon: 'fa-solid fa-tennis',
     capacity: 'Individual/Dobles',
     maxPeople: 4,
     minPeople: 2,
@@ -949,7 +945,7 @@ const courts = ref([
     id: 6,
     name: 'Cancha de Tennis #2',
     description: 'Superficie dura profesional al aire libre',
-    icon: 'fa-solid fa-baseball',
+    icon: 'fa-solid fa-tennis',
     capacity: 'Individual/Dobles',
     maxPeople: 4,
     minPeople: 2,
@@ -1204,11 +1200,88 @@ const getCourtHeaderClass = (sport) => {
 const getSportBadgeIcon = (sport) => {
   const icons = {
     basquetbol: 'fa-solid fa-basketball',
-    tenis: 'fa-solid fa-baseball',
+    tenis: 'fa-solid fa-tennis',
     voleibol: 'fa-solid fa-volleyball',
     padel: 'fa-solid fa-table-tennis-paddle-ball'
   }
   return icons[sport] || 'fa-solid fa-futbol'
+}
+
+// Función para obtener icono según amenity
+const getAmenityIcon = (amenity) => {
+  const icons = {
+    'Duela Profesional': 'fa-solid fa-chess-board',
+    'Techada': 'fa-solid fa-umbrella',
+    'WiFi Gratis': 'fa-solid fa-wifi',
+    'Hidratación': 'fa-solid fa-droplet',
+    'Marcador Electrónico': 'fa-solid fa-rectangle-list',
+    'Gradas': 'fa-solid fa-person-hiking',
+    'Iluminación LED': 'fa-solid fa-lightbulb',
+    'Iluminación': 'fa-solid fa-lightbulb',
+    'Vestidores': 'fa-solid fa-vest',
+    'Duchas': 'fa-solid fa-shower',
+    'Climatizada': 'fa-solid fa-snowflake',
+    'Piso Anti-derrapante': 'fa-solid fa-shoe-prints',
+    'Bebederos': 'fa-solid fa-cup-water',
+    'Estacionamiento': 'fa-solid fa-car',
+    'Área de Calentamiento': 'fa-solid fa-person-running',
+    'Arcilla Sintética': 'fa-solid fa-layer-group',
+    'Renta de Equipo': 'fa-solid fa-briefcase',
+    'Clases Disponibles': 'fa-solid fa-chalkboard',
+    'Arena Fina': 'fa-solid fa-bucket',
+    'Al Aire Libre': 'fa-solid fa-sun',
+    'Malla Reglamentaria': 'fa-solid fa-net-network',
+    'Torneos': 'fa-solid fa-trophy',
+    'Zona de Espectadores': 'fa-solid fa-eye',
+    'Cristales Premium': 'fa-solid fa-window',
+    'Piso Especial': 'fa-solid fa-square',
+    'Pro Level': 'fa-solid fa-star',
+    'Césped Artificial': 'fa-solid fa-leaf',
+    'Superficie Dura': 'fa-solid fa-tiles',
+    'Bancas': 'fa-solid fa-chair',
+    'Sonido Ambiente': 'fa-solid fa-music',
+    'Marcador Digital': 'fa-solid fa-rectangle-list',
+    'Marcador': 'fa-solid fa-rectangle-list'
+  }
+  return icons[amenity] || 'fa-solid fa-check-circle'
+}
+
+// Función para obtener color según amenity (estilos CSS inline)
+const getAmenityColor = (amenity) => {
+  const colors = {
+    'Duela Profesional': { background: '#fed7aa', color: '#b45309', border: '#fdba74' },
+    'Techada': { background: '#bfdbfe', color: '#1e40af', border: '#93c5fd' },
+    'WiFi Gratis': { background: '#e9d5ff', color: '#6b21a8', border: '#d8b4fe' },
+    'Hidratación': { background: '#cffafe', color: '#0369a1', border: '#06b6d4' },
+    'Marcador Electrónico': { background: '#fee2e2', color: '#991b1b', border: '#fca5a5' },
+    'Gradas': { background: '#f3f4f6', color: '#374151', border: '#d1d5db' },
+    'Iluminación LED': { background: '#fef3c7', color: '#92400e', border: '#fcd34d' },
+    'Iluminación': { background: '#fef3c7', color: '#92400e', border: '#fcd34d' },
+    'Vestidores': { background: '#e0e7ff', color: '#3730a3', border: '#a5b4fc' },
+    'Duchas': { background: '#cffafe', color: '#0c4a6e', border: '#06b6d4' },
+    'Climatizada': { background: '#bfdbfe', color: '#1e40af', border: '#93c5fd' },
+    'Piso Anti-derrapante': { background: '#ccfbf1', color: '#065f46', border: '#2dd4bf' },
+    'Bebederos': { background: '#cffafe', color: '#0369a1', border: '#06b6d4' },
+    'Estacionamiento': { background: '#f2f2f2', color: '#374151', border: '#d1d5db' },
+    'Área de Calentamiento': { background: '#fed7aa', color: '#b45309', border: '#fdba74' },
+    'Arcilla Sintética': { background: '#fbcfe8', color: '#831843', border: '#f472b6' },
+    'Renta de Equipo': { background: '#ede9fe', color: '#5b21b6', border: '#ddd6fe' },
+    'Clases Disponibles': { background: '#fbf1f5', color: '#831843', border: '#f472b6' },
+    'Arena Fina': { background: '#fef3c7', color: '#92400e', border: '#fcd34d' },
+    'Al Aire Libre': { background: '#fef3c7', color: '#92400e', border: '#fcd34d' },
+    'Malla Reglamentaria': { background: '#dcfce7', color: '#15803d', border: '#86efac' },
+    'Torneos': { background: '#fee2e2', color: '#991b1b', border: '#fca5a5' },
+    'Zona de Espectadores': { background: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },
+    'Cristales Premium': { background: '#bfdbfe', color: '#1e40af', border: '#93c5fd' },
+    'Piso Especial': { background: '#ccfbf1', color: '#0f766e', border: '#2dd4bf' },
+    'Pro Level': { background: '#fef3c7', color: '#92400e', border: '#fcd34d' },
+    'Césped Artificial': { background: '#dcfce7', color: '#15803d', border: '#86efac' },
+    'Superficie Dura': { background: '#f3f4f6', color: '#374151', border: '#d1d5db' },
+    'Bancas': { background: '#f2f2f2', color: '#374151', border: '#d1d5db' },
+    'Sonido Ambiente': { background: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },
+    'Marcador Digital': { background: '#fee2e2', color: '#991b1b', border: '#fca5a5' }
+  }
+  return colors[amenity] || { background: '#dcfce7', color: '#15803d', border: '#86efac' }
 }
 
 // Función para generar PDF de la reservación
@@ -1596,6 +1669,7 @@ const confirmReservation = async () => {
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
+  box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.05);
 }
 
 .court-card-header::before {
@@ -1606,17 +1680,35 @@ const confirmReservation = async () => {
   z-index: 0;
 }
 
-/* Header Sport Variants */
+.court-card-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Header Sport Variants - Colores más vibrantes */
 .header-basketball {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #f97316 0%, #d6820e 100%);
+  position: relative;
+}
+
+.header-basketball::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .header-tennis {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 .header-volleyball {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
 }
 
 .header-padel {
@@ -1746,7 +1838,7 @@ const confirmReservation = async () => {
   font-size: 0.8rem;
 }
 
-/* Court Stats */
+/* Court Stats - Diseño mejorado */
 .court-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1761,6 +1853,14 @@ const confirmReservation = async () => {
   display: flex;
   align-items: center;
   gap: 0.625rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.court-stat:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(2px);
 }
 
 .stat-icon {
@@ -1772,6 +1872,7 @@ const confirmReservation = async () => {
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  flex-shrink: 0;
 }
 
 .stat-icon i {
@@ -1815,6 +1916,50 @@ const confirmReservation = async () => {
   border: 1px solid rgba(167, 243, 208, 0.5);
 }
 
+.amenity-tag-enhanced {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1.5px solid;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+}
+
+.amenity-tag-enhanced i {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.amenity-tag-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.amenity-more-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.amenity-more-indicator:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
 /* Card Footer */
 .court-card-footer {
   display: flex;
@@ -1855,18 +2000,39 @@ const confirmReservation = async () => {
   border-radius: 10px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.reserve-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.reserve-btn:hover::before {
+  transform: translateX(100%);
 }
 
 .reserve-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+}
+
+.reserve-btn:active {
+  transform: translateY(-1px);
 }
 
 .reserve-btn i {
   font-size: 0.75rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .reserve-btn:hover i {
@@ -1903,15 +2069,39 @@ const confirmReservation = async () => {
   animation: gradient 3s ease infinite;
 }
 
-@keyframes modal-in {
+@keyframes spin-smooth {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slide-in-left {
   from {
     opacity: 0;
-    transform: scale(0.92) translateY(30px);
+    transform: translateX(-20px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateX(0);
   }
+}
+
+/* Animación para boton limpiar */
+.group:hover i.fa-rotate-right {
+  animation: spin-smooth 0.6s ease-in-out;
+}
+
+/* Animaciones de entrada para tarjetas */
+.court-card {
+  animation: slide-in-left 0.5s ease-out;
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.court-icon-wrapper {
+  animation: float-gentle 3s ease-in-out infinite;
 }
 
 .animate-modal-in {
@@ -1962,23 +2152,52 @@ const confirmReservation = async () => {
   background: linear-gradient(to bottom, #5ab88d, #6BCF9F);
 }
 
-/* Estilos personalizados para inputs de número */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* Filter form inputs mejorado */
+input[type="date"] {
+  position: relative;
 }
 
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: opacity(0.5);
+  transition: all 0.3s ease;
 }
 
-/* Estilos para select (ocultar flecha por defecto) */
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  filter: opacity(1) drop-shadow(0 0 4px rgba(107, 207, 159, 0.3));
+}
+
+/* Select dropdown styling mejorado */
 select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  background-image: none;
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Input y Select focus mejorado */
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: #6BCF9F;
+  box-shadow: 0 0 0 3px rgba(107, 207, 159, 0.1);
+}
+
+/* Input and select transition suave */
+input,
+select {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Filters section border mejorado */
+.filters-section .bg-white {
+  border: 1px solid #e0e7ff;
+}
+
+.filters-section .bg-white:hover {
+  border-color: #6BCF9F;
+  box-shadow: 0 8px 24px rgba(107, 207, 159, 0.08);
 }
 
 /* Hover effects mejorados */
@@ -2050,6 +2269,22 @@ button:focus-visible {
   outline: none;
 }
 
+/* Animaciones para amenities */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .bg-blob {
@@ -2075,6 +2310,11 @@ button:focus-visible {
   
   .court-icon {
     font-size: 1.5rem;
+  }
+  
+  .amenity-tag-enhanced {
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
 }
 
